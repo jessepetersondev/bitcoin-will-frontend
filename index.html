@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Will - Secure Your Digital Legacy</title>
+    <meta name="description" content="Create comprehensive Bitcoin wills with professional legal templates. Generate documents to help your beneficiaries access your digital assets.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="bitcoin-icon">₿</span>
+                    <span class="logo-text">Bitcoin Will</span>
+                </div>
+                <nav class="nav" id="nav">
+                    <a href="#home" class="nav-link">Home</a>
+                    <a href="#features" class="nav-link">Features</a>
+                    <a href="#pricing" class="nav-link">Pricing</a>
+                    <div class="auth-buttons" id="authButtons">
+                        <button class="btn btn-outline" onclick="showAuthModal('login')">Sign In</button>
+                        <button class="btn btn-primary" onclick="showAuthModal('register')">Get Started</button>
+                    </div>
+                    <div class="user-menu hidden" id="userMenu">
+                        <span class="user-email" id="userEmail"></span>
+                        <button class="btn btn-outline" onclick="logout()">Sign Out</button>
+                    </div>
+                </nav>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1 class="hero-title">
+                            Secure Your
+                            <span class="text-primary">Digital Legacy</span>
+                        </h1>
+                        <p class="hero-description">
+                            Create comprehensive Bitcoin will documents with professional legal templates. 
+                            Generate the documentation your beneficiaries need to understand and access your digital assets.
+                        </p>
+                        <div class="hero-buttons">
+                            <button class="btn btn-primary btn-large" onclick="showAuthModal('register')">
+                                Get Started Today
+                                <span class="arrow">→</span>
+                            </button>
+                            <button class="btn btn-outline btn-large" onclick="showAuthModal('login')">
+                                Sign In
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Why Choose Bitcoin Will?</h2>
+                    <p class="section-description">
+                        Our platform provides everything you need to create legally sound Bitcoin will documents 
+                        that help your beneficiaries understand and access your digital assets.
+                    </p>
+                </div>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🛡️</div>
+                        <h3 class="feature-title">Secure & Private</h3>
+                        <p class="feature-description">
+                            Your information is encrypted and stored securely. We generate documentation tools without ever accessing your Bitcoin.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">📄</div>
+                        <h3 class="feature-title">Legal Templates</h3>
+                        <p class="feature-description">
+                            Professionally crafted legal templates specifically designed for Bitcoin and cryptocurrency asset documentation.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">👥</div>
+                        <h3 class="feature-title">Beneficiary Management</h3>
+                        <p class="feature-description">
+                            Easily manage primary and contingent beneficiaries with detailed instructions for asset understanding.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🔐</div>
+                        <h3 class="feature-title">Asset Documentation</h3>
+                        <p class="feature-description">
+                            Comprehensive guidance on documenting your Bitcoin assets and creating instructions for beneficiaries.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits Section -->
+        <section class="benefits">
+            <div class="container">
+                <div class="benefits-content">
+                    <div class="benefits-text">
+                        <h2 class="benefits-title">Don't Let Your Bitcoin Documentation Go Unplanned</h2>
+                        <p class="benefits-description">
+                            Millions of dollars in Bitcoin are lost forever each year due to lack of proper estate planning documentation. 
+                            Protect your family's financial future with comprehensive Bitcoin will documents.
+                        </p>
+                        <ul class="benefits-list">
+                            <li>✓ Document your Bitcoin and cryptocurrency investments</li>
+                            <li>✓ Ensure your family can understand your digital assets</li>
+                            <li>✓ Avoid confusion about asset locations and access methods</li>
+                            <li>✓ Get professional legal templates tailored for crypto</li>
+                            <li>✓ Receive step-by-step guidance for beneficiaries</li>
+                            <li>✓ Peace of mind for your digital legacy planning</li>
+                        </ul>
+                    </div>
+                    <div class="benefits-card">
+                        <div class="card-header">
+                            <h3 class="card-title">What You Get</h3>
+                            <p class="card-subtitle">Complete Bitcoin will package</p>
+                        </div>
+                        <div class="card-content">
+                            <ul class="package-list">
+                                <li>✓ Professional legal will template</li>
+                                <li>✓ Bitcoin-specific clauses and instructions</li>
+                                <li>✓ Beneficiary management system</li>
+                                <li>✓ Asset documentation guidance</li>
+                                <li>✓ Step-by-step access instructions</li>
+                                <li>✓ Ready for notarization</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="pricing">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Choose Your Plan</h2>
+                    <p class="section-description">
+                        Secure your Bitcoin legacy with our comprehensive will creation service. 
+                        All plans include everything you need to document your digital assets.
+                    </p>
+                </div>
+                
+                <div class="pricing-grid">
+                    <div class="pricing-card">
+                        <div class="pricing-header">
+                            <div class="plan-icon">⚡</div>
+                            <h3 class="plan-name">Monthly Plan</h3>
+                            <div class="plan-price">
+                                <span class="price">$29.99</span>
+                                <span class="period">/month</span>
+                            </div>
+                        </div>
+                        <div class="pricing-content">
+                            <ul class="features-list">
+                                <li>✓ Unlimited Bitcoin wills</li>
+                                <li>✓ Secure document generation</li>
+                                <li>✓ Beneficiary management</li>
+                                <li>✓ Legal template library</li>
+                                <li>✓ Email support</li>
+                            </ul>
+                            <button class="btn btn-outline btn-full" onclick="selectPlan('monthly')">
+                                Get Started
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="pricing-card featured">
+                        <div class="popular-badge">Most Popular</div>
+                        <div class="pricing-header">
+                            <div class="plan-icon">👑</div>
+                            <h3 class="plan-name">Yearly Plan</h3>
+                            <div class="plan-price">
+                                <span class="price">$299.99</span>
+                                <span class="period">/year</span>
+                            </div>
+                            <p class="savings">Save 17% annually</p>
+                        </div>
+                        <div class="pricing-content">
+                            <ul class="features-list">
+                                <li>✓ Unlimited Bitcoin wills</li>
+                                <li>✓ Secure document generation</li>
+                                <li>✓ Beneficiary management</li>
+                                <li>✓ Legal template library</li>
+                                <li>✓ Priority support</li>
+                            </ul>
+                            <button class="btn btn-primary btn-full" onclick="selectPlan('yearly')">
+                                Get Started
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta">
+            <div class="container">
+                <div class="cta-content">
+                    <h2 class="cta-title">Start Documenting Your Bitcoin Legacy Today</h2>
+                    <p class="cta-description">
+                        Join thousands of Bitcoin holders who have created comprehensive documentation 
+                        for their digital assets. Create your will documents in minutes.
+                    </p>
+                    <button class="btn btn-secondary btn-large" onclick="showAuthModal('register')">
+                        Create Your Bitcoin Will Now
+                        <span class="arrow">→</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <span class="bitcoin-icon">₿</span>
+                        <span class="logo-text">Bitcoin Will</span>
+                    </div>
+                    <p class="footer-description">
+                        Secure your digital legacy with professional Bitcoin will creation tools.
+                    </p>
+                </div>
+                <div class="footer-links">
+                    <a href="#home">Home</a>
+                    <a href="#features">Features</a>
+                    <a href="#pricing">Pricing</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="copyright">
+                    © 2024 Bitcoin Will. All rights reserved. 
+                    This service provides templates and guidance only. 
+                    Please consult with a qualified attorney for legal advice.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="authTitle">Welcome Back</h2>
+                <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="authForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="error-message" id="authError"></div>
+                    <button type="submit" class="btn btn-primary btn-full" id="authSubmit">
+                        Sign In
+                    </button>
+                </form>
+                <div class="auth-toggle">
+                    <p id="authToggleText">Don't have an account?</p>
+                    <button class="btn btn-link" id="authToggleBtn" onclick="toggleAuthMode()">
+                        Sign up
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="paymentTitle">Choose Payment Method</h2>
+                <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="payment-options">
+                    <div class="payment-option" onclick="selectPaymentMethod('stripe')">
+                        <div class="payment-icon">💳</div>
+                        <div class="payment-info">
+                            <h3>Credit Card (Stripe)</h3>
+                            <p>Pay with credit card, debit card, or bank transfer</p>
+                        </div>
+                        <div class="payment-arrow">→</div>
+                    </div>
+                    <div class="payment-option" onclick="selectPaymentMethod('btcpay')">
+                        <div class="payment-icon">₿</div>
+                        <div class="payment-info">
+                            <h3>Bitcoin (BTCPay Server)</h3>
+                            <p>Pay with Bitcoin, Lightning Network, or other cryptocurrencies</p>
+                        </div>
+                        <div class="payment-arrow">→</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard (Hidden by default) -->
+    <div id="dashboard" class="dashboard hidden">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Dashboard</h1>
+                <p>Manage your Bitcoin will documents</p>
+                <button class="btn btn-primary" onclick="showWillCreator()">
+                    Create New Will
+                </button>
+            </div>
+            
+            <div class="subscription-status" id="subscriptionStatus">
+                <div class="status-card">
+                    <h3>Subscription Status</h3>
+                    <div class="status-info">
+                        <span class="status-badge" id="statusBadge">Active</span>
+                        <p id="statusText">Next billing: Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wills-section">
+                <h2>Your Bitcoin Wills</h2>
+                <div id="willsList" class="wills-list">
+                    <!-- Wills will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Will Creator (Hidden by default) -->
+    <div id="willCreator" class="will-creator hidden">
+        <div class="container">
+            <div class="creator-header">
+                <h1>Create Your Bitcoin Will</h1>
+                <p>Complete all sections to generate your comprehensive Bitcoin will document</p>
+                <button class="btn btn-outline" onclick="hideWillCreator()">
+                    ← Back to Dashboard
+                </button>
+            </div>
+            
+            <form id="willForm" class="will-form">
+                <div class="form-section">
+                    <label for="willTitle">Will Title</label>
+                    <input type="text" id="willTitle" name="title" value="My Bitcoin Will" required>
+                </div>
+
+                <div class="form-tabs">
+                    <button type="button" class="tab-btn active" onclick="showTab('personal')">Personal Info</button>
+                    <button type="button" class="tab-btn" onclick="showTab('assets')">Bitcoin Assets</button>
+                    <button type="button" class="tab-btn" onclick="showTab('beneficiaries')">Beneficiaries</button>
+                    <button type="button" class="tab-btn" onclick="showTab('instructions')">Instructions</button>
+                </div>
+
+                <div id="personalTab" class="tab-content active">
+                    <h3>Personal Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dateOfBirth">Date of Birth</label>
+                            <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <textarea id="address" name="address" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="ssn">Social Security Number</label>
+                        <input type="text" id="ssn" name="ssn" placeholder="XXX-XX-XXXX">
+                    </div>
+                    <h4>Executor Information</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="executorName">Executor Name</label>
+                            <input type="text" id="executorName" name="executorName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="executorContact">Executor Contact</label>
+                            <input type="text" id="executorContact" name="executorContact" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="assetsTab" class="tab-content">
+                    <h3>Bitcoin Assets</h3>
+                    <div id="walletsContainer">
+                        <div class="wallet-entry">
+                            <h4>Wallet 1</h4>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Cryptocurrency Type</label>
+                                    <input type="text" name="walletType" value="Bitcoin" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Approximate Value</label>
+                                    <input type="text" name="walletValue" placeholder="$10,000 or 0.5 BTC">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" name="walletDescription" placeholder="Hardware wallet, exchange account, etc.">
+                            </div>
+                            <div class="form-group">
+                                <label>Wallet Address (Public)</label>
+                                <input type="text" name="walletAddress" placeholder="Public wallet address">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline" onclick="addWallet()">Add Another Wallet</button>
+                    
+                    <h4>Asset Storage Information</h4>
+                    <div class="form-group">
+                        <label for="storageMethod">Storage Method</label>
+                        <input type="text" id="storageMethod" name="storageMethod" placeholder="Hardware wallet, paper wallet, etc.">
+                    </div>
+                    <div class="form-group">
+                        <label for="storageLocation">Location</label>
+                        <input type="text" id="storageLocation" name="storageLocation" placeholder="Safe deposit box, home safe, etc.">
+                    </div>
+                    <div class="form-group">
+                        <label for="storageDetails">Additional Details</label>
+                        <textarea id="storageDetails" name="storageDetails" rows="3" placeholder="Any additional information about accessing the assets"></textarea>
+                    </div>
+                </div>
+
+                <div id="beneficiariesTab" class="tab-content">
+                    <h3>Primary Beneficiaries</h3>
+                    <div id="primaryBeneficiaries">
+                        <div class="beneficiary-entry">
+                            <h4>Primary Beneficiary 1</h4>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Name</label>
+                                    <input type="text" name="beneficiaryName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Relationship</label>
+                                    <input type="text" name="beneficiaryRelationship" placeholder="Spouse, child, etc.">
+                                </div>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Percentage (%)</label>
+                                    <input type="number" name="beneficiaryPercentage" min="0" max="100" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Contact Information</label>
+                                    <input type="text" name="beneficiaryContact" placeholder="Phone or email">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline" onclick="addBeneficiary('primary')">Add Primary Beneficiary</button>
+                    
+                    <h3>Contingent Beneficiaries</h3>
+                    <div id="contingentBeneficiaries">
+                        <!-- Contingent beneficiaries will be added here -->
+                    </div>
+                    <button type="button" class="btn btn-outline" onclick="addBeneficiary('contingent')">Add Contingent Beneficiary</button>
+                </div>
+
+                <div id="instructionsTab" class="tab-content">
+                    <h3>Special Instructions</h3>
+                    <div class="form-group">
+                        <label for="accessInstructions">Access Instructions</label>
+                        <textarea id="accessInstructions" name="accessInstructions" rows="4" placeholder="Detailed instructions on how to understand and access your Bitcoin assets"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="securityNotes">Security Notes</label>
+                        <textarea id="securityNotes" name="securityNotes" rows="4" placeholder="Important security considerations and warnings"></textarea>
+                    </div>
+                    <h4>Trusted Technical Contacts</h4>
+                    <div id="trustedContacts">
+                        <!-- Trusted contacts will be added here -->
+                    </div>
+                    <button type="button" class="btn btn-outline" onclick="addTrustedContact()">Add Trusted Contact</button>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-large">
+                        Create Will Document
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
