@@ -5,7 +5,7 @@ let currentPlan = null;
 let currentPaymentMethod = null;
 
 // API Configuration
-const API_BASE_URL = 'https://your-backend-url.railway.app/api'; // Update this when deploying
+const API_BASE_URL = 'https://bitcoin-will-backend-production.up.railway.app/api'; // Update this when deploying
 
 // DOM Elements
 const authModal = document.getElementById('authModal');
@@ -748,7 +748,7 @@ function updateAPIBaseURL() {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         API_BASE_URL = 'http://localhost:5000/api';
     } else {
-        API_BASE_URL = 'https://your-backend-url.railway.app/api';
+        API_BASE_URL = 'https://bitcoin-will-backend-production.up.railway.app/api';
     }
 }
 
