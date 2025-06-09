@@ -742,14 +742,8 @@ function goHome() {
 
 // URL handling for GitHub Pages
 function updateAPIBaseURL() {
-    // Update this when you deploy the backend
-    // For local development, use: http://localhost:5000/api
-    // For production, use your Railway backend URL
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        API_BASE_URL = 'http://localhost:5000/api';
-    } else {
-        API_BASE_URL = 'https://bitcoin-will-backend-production.up.railway.app/api';
-    }
+    const API_BASE_URL = 'https://bitcoin-will-backend-production.up.railway.app/api';
+    return API_BASE_URL;
 }
 
 // Call this on page load
