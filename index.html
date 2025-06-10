@@ -20,7 +20,7 @@
                     <span class="logo-text">Bitcoin Will</span>
                 </div>
                 <nav class="nav" id="nav">
-                    <a href="#home" class="nav-link">Home</a>
+                    <a href="#home" class="nav-link" onclick="goHome()">Home</a>
                     <a href="#features" class="nav-link">Features</a>
                     <a href="#pricing" class="nav-link">Pricing</a>
                     <div class="auth-buttons" id="authButtons">
@@ -28,6 +28,7 @@
                         <button class="btn btn-primary" onclick="showAuthModal('register')">Get Started</button>
                     </div>
                     <div class="user-menu hidden" id="userMenu">
+                        <button class="btn btn-outline" onclick="showDashboard()">Dashboard</button>
                         <span class="user-email" id="userEmail"></span>
                         <button class="btn btn-outline" onclick="logout()">Sign Out</button>
                     </div>
@@ -237,6 +238,284 @@
         </section>
     </main>
 
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="dashboard hidden">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Dashboard</h1>
+                <div class="subscription-status">
+                    <span class="status-badge" id="statusBadge">Loading...</span>
+                    <span class="status-text" id="statusText">Checking subscription status...</span>
+                </div>
+            </div>
+            
+            <div class="dashboard-content">
+                <div class="dashboard-actions">
+                    <button class="btn btn-primary btn-large" onclick="checkSubscriptionAndCreateWill()">
+                        <span class="icon">📄</span>
+                        Create New Bitcoin Will
+                    </button>
+                    <button class="btn btn-outline" onclick="showSubscriptionModal()">
+                        <span class="icon">💳</span>
+                        Manage Subscription
+                    </button>
+                </div>
+                
+                <div class="wills-section">
+                    <h2>Your Bitcoin Wills</h2>
+                    <div id="willsList" class="wills-list">
+                        <!-- Will cards will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Will Creator Section -->
+    <section id="willCreator" class="will-creator hidden">
+        <div class="container">
+            <div class="will-creator-header">
+                <h1>Create Bitcoin Will</h1>
+                <button class="btn btn-outline" onclick="hideWillCreator()">
+                    ← Back to Dashboard
+                </button>
+            </div>
+            
+            <div class="will-creator-content">
+                <div class="progress-bar">
+                    <div class="progress-step active" data-step="1">
+                        <span class="step-number">1</span>
+                        <span class="step-label">Personal Info</span>
+                    </div>
+                    <div class="progress-step" data-step="2">
+                        <span class="step-number">2</span>
+                        <span class="step-label">Bitcoin Assets</span>
+                    </div>
+                    <div class="progress-step" data-step="3">
+                        <span class="step-number">3</span>
+                        <span class="step-label">Beneficiaries</span>
+                    </div>
+                    <div class="progress-step" data-step="4">
+                        <span class="step-number">4</span>
+                        <span class="step-label">Instructions</span>
+                    </div>
+                    <div class="progress-step" data-step="5">
+                        <span class="step-number">5</span>
+                        <span class="step-label">Review</span>
+                    </div>
+                </div>
+                
+                <form id="willForm" class="will-form">
+                    <!-- Step 1: Personal Information -->
+                    <div id="personalTab" class="tab-content active">
+                        <h2>Personal Information</h2>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="title">Will Title</label>
+                                <input type="text" id="title" name="title" placeholder="My Bitcoin Will" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="fullName">Full Legal Name</label>
+                                <input type="text" id="fullName" name="fullName" required>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="dateOfBirth">Date of Birth</label>
+                                <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ssn">Social Security Number (Optional)</label>
+                                <input type="text" id="ssn" name="ssn" placeholder="XXX-XX-XXXX">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Full Address</label>
+                            <textarea id="address" name="address" rows="3" required></textarea>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="executorName">Executor Name</label>
+                                <input type="text" id="executorName" name="executorName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="executorContact">Executor Contact</label>
+                                <input type="text" id="executorContact" name="executorContact" placeholder="Phone or email" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" onclick="nextStep(2)">Next: Bitcoin Assets →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Bitcoin Assets -->
+                    <div id="assetsTab" class="tab-content">
+                        <h2>Bitcoin Assets</h2>
+                        <p class="tab-description">Document your Bitcoin and cryptocurrency holdings. This information helps your beneficiaries understand what assets exist.</p>
+                        
+                        <div id="walletsContainer">
+                            <div class="wallet-entry">
+                                <h4>Wallet 1</h4>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Cryptocurrency Type</label>
+                                        <input type="text" name="walletType" value="Bitcoin" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Approximate Value</label>
+                                        <input type="text" name="walletValue" placeholder="$10,000 or 0.5 BTC">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <input type="text" name="walletDescription" placeholder="Hardware wallet, exchange account, etc.">
+                                </div>
+                                <div class="form-group">
+                                    <label>Wallet Address (Public)</label>
+                                    <input type="text" name="walletAddress" placeholder="Public wallet address">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-outline" onclick="addWallet()">+ Add Another Wallet</button>
+                        
+                        <div class="storage-section">
+                            <h3>Storage Information</h3>
+                            <div class="form-group">
+                                <label for="storageMethod">Storage Method</label>
+                                <select id="storageMethod" name="storageMethod" required>
+                                    <option value="">Select storage method</option>
+                                    <option value="hardware_wallet">Hardware Wallet</option>
+                                    <option value="paper_wallet">Paper Wallet</option>
+                                    <option value="software_wallet">Software Wallet</option>
+                                    <option value="exchange">Exchange Account</option>
+                                    <option value="multiple">Multiple Methods</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="storageLocation">Storage Location</label>
+                                <input type="text" id="storageLocation" name="storageLocation" placeholder="Safe deposit box, home safe, etc.">
+                            </div>
+                            <div class="form-group">
+                                <label for="storageDetails">Additional Storage Details</label>
+                                <textarea id="storageDetails" name="storageDetails" rows="3" placeholder="Any additional information about accessing your storage..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="prevStep(1)">← Previous</button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep(3)">Next: Beneficiaries →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Beneficiaries -->
+                    <div id="beneficiariesTab" class="tab-content">
+                        <h2>Beneficiaries</h2>
+                        <p class="tab-description">Specify who will inherit your Bitcoin assets and in what proportions.</p>
+                        
+                        <div class="beneficiaries-section">
+                            <h3>Primary Beneficiaries</h3>
+                            <div id="primaryBeneficiaries">
+                                <div class="beneficiary-entry">
+                                    <h4>Primary Beneficiary 1</h4>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label>Name</label>
+                                            <input type="text" name="beneficiaryName" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Relationship</label>
+                                            <input type="text" name="beneficiaryRelationship" placeholder="Spouse, child, etc.">
+                                        </div>
+                                    </div>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label>Percentage (%)</label>
+                                            <input type="number" name="beneficiaryPercentage" min="0" max="100" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Contact Information</label>
+                                            <input type="text" name="beneficiaryContact" placeholder="Phone or email">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline" onclick="addBeneficiary('primary')">+ Add Primary Beneficiary</button>
+                        </div>
+                        
+                        <div class="beneficiaries-section">
+                            <h3>Contingent Beneficiaries</h3>
+                            <p class="section-description">These beneficiaries will inherit if primary beneficiaries are unable to.</p>
+                            <div id="contingentBeneficiaries">
+                                <!-- Contingent beneficiaries will be added here -->
+                            </div>
+                            <button type="button" class="btn btn-outline" onclick="addBeneficiary('contingent')">+ Add Contingent Beneficiary</button>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="prevStep(2)">← Previous</button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep(4)">Next: Instructions →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Instructions -->
+                    <div id="instructionsTab" class="tab-content">
+                        <h2>Access Instructions</h2>
+                        <p class="tab-description">Provide detailed instructions for your executor and beneficiaries.</p>
+                        
+                        <div class="form-group">
+                            <label for="accessInstructions">Access Instructions</label>
+                            <textarea id="accessInstructions" name="accessInstructions" rows="6" placeholder="Detailed instructions on how to access your Bitcoin assets..." required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="securityNotes">Security Notes</label>
+                            <textarea id="securityNotes" name="securityNotes" rows="4" placeholder="Important security considerations, warnings, or special instructions..."></textarea>
+                        </div>
+                        
+                        <div class="trusted-contacts-section">
+                            <h3>Trusted Technical Contacts</h3>
+                            <p class="section-description">People who can help with technical aspects of Bitcoin recovery.</p>
+                            <div id="trustedContacts">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Contact Name</label>
+                                        <input type="text" name="trustedContactName" placeholder="Technical advisor name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Contact Information</label>
+                                        <input type="text" name="trustedContactInfo" placeholder="Phone or email">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline" onclick="addTrustedContact()">+ Add Trusted Contact</button>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="prevStep(3)">← Previous</button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep(5)">Next: Review →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Review -->
+                    <div id="reviewTab" class="tab-content">
+                        <h2>Review & Generate</h2>
+                        <p class="tab-description">Review your information and generate your Bitcoin will document.</p>
+                        
+                        <div id="reviewContent" class="review-content">
+                            <!-- Review content will be populated by JavaScript -->
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="prevStep(4)">← Previous</button>
+                            <button type="submit" class="btn btn-primary btn-large">Generate Bitcoin Will</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -328,201 +607,48 @@
         </div>
     </div>
 
-    <!-- Dashboard (Hidden by default) -->
-    <div id="dashboard" class="dashboard hidden">
-        <div class="container">
-            <div class="dashboard-header">
-                <h1>Dashboard</h1>
-                <p>Manage your Bitcoin will documents</p>
-                <button class="btn btn-primary" onclick="showWillCreator()">
-                    Create New Will
-                </button>
+    <!-- Subscription Modal -->
+    <div id="subscriptionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Subscription Required</h2>
+                <button class="modal-close" onclick="closeSubscriptionModal()">&times;</button>
             </div>
-            
-            <div class="subscription-status" id="subscriptionStatus">
-                <div class="status-card">
-                    <h3>Subscription Status</h3>
-                    <div class="status-info">
-                        <span class="status-badge" id="statusBadge">Active</span>
-                        <p id="statusText">Next billing: Loading...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="wills-section">
-                <h2>Your Bitcoin Wills</h2>
-                <div id="willsList" class="wills-list">
-                    <!-- Wills will be loaded here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Will Creator (Hidden by default) -->
-    <div id="willCreator" class="will-creator hidden">
-        <div class="container">
-            <div class="creator-header">
-                <h1>Create Your Bitcoin Will</h1>
-                <p>Complete all sections to generate your comprehensive Bitcoin will document</p>
-                <button class="btn btn-outline" onclick="hideWillCreator()">
-                    ← Back to Dashboard
-                </button>
-            </div>
-            
-            <form id="willForm" class="will-form">
-                <div class="form-section">
-                    <label for="willTitle">Will Title</label>
-                    <input type="text" id="willTitle" name="title" value="My Bitcoin Will" required>
-                </div>
-
-                <div class="form-tabs">
-                    <button type="button" class="tab-btn active" onclick="showTab('personal')">Personal Info</button>
-                    <button type="button" class="tab-btn" onclick="showTab('assets')">Bitcoin Assets</button>
-                    <button type="button" class="tab-btn" onclick="showTab('beneficiaries')">Beneficiaries</button>
-                    <button type="button" class="tab-btn" onclick="showTab('instructions')">Instructions</button>
-                </div>
-
-                <div id="personalTab" class="tab-content active">
-                    <h3>Personal Information</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="fullName">Full Name</label>
-                            <input type="text" id="fullName" name="fullName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="dateOfBirth">Date of Birth</label>
-                            <input type="date" id="dateOfBirth" name="dateOfBirth" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="address">Address</label>
-                        <textarea id="address" name="address" rows="3" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="ssn">Social Security Number</label>
-                        <input type="text" id="ssn" name="ssn" placeholder="XXX-XX-XXXX">
-                    </div>
-                    <h4>Executor Information</h4>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="executorName">Executor Name</label>
-                            <input type="text" id="executorName" name="executorName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="executorContact">Executor Contact</label>
-                            <input type="text" id="executorContact" name="executorContact" required>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="assetsTab" class="tab-content">
-                    <h3>Bitcoin Assets</h3>
-                    <div id="walletsContainer">
-                        <div class="wallet-entry">
-                            <h4>Wallet 1</h4>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label>Cryptocurrency Type</label>
-                                    <input type="text" name="walletType" value="Bitcoin" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Approximate Value</label>
-                                    <input type="text" name="walletValue" placeholder="$10,000 or 0.5 BTC">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Description</label>
-                                <input type="text" name="walletDescription" placeholder="Hardware wallet, exchange account, etc.">
-                            </div>
-                            <div class="form-group">
-                                <label>Wallet Address (Public)</label>
-                                <input type="text" name="walletAddress" placeholder="Public wallet address">
-                            </div>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-outline" onclick="addWallet()">Add Another Wallet</button>
+            <div class="modal-body">
+                <div class="subscription-message">
+                    <div class="subscription-icon">🔒</div>
+                    <h3>Premium Feature</h3>
+                    <p>Creating Bitcoin wills requires an active subscription. Choose a plan to get started:</p>
                     
-                    <h4>Asset Storage Information</h4>
-                    <div class="form-group">
-                        <label for="storageMethod">Storage Method</label>
-                        <input type="text" id="storageMethod" name="storageMethod" placeholder="Hardware wallet, paper wallet, etc.">
-                    </div>
-                    <div class="form-group">
-                        <label for="storageLocation">Location</label>
-                        <input type="text" id="storageLocation" name="storageLocation" placeholder="Safe deposit box, home safe, etc.">
-                    </div>
-                    <div class="form-group">
-                        <label for="storageDetails">Additional Details</label>
-                        <textarea id="storageDetails" name="storageDetails" rows="3" placeholder="Any additional information about accessing the assets"></textarea>
-                    </div>
-                </div>
-
-                <div id="beneficiariesTab" class="tab-content">
-                    <h3>Primary Beneficiaries</h3>
-                    <div id="primaryBeneficiaries">
-                        <div class="beneficiary-entry">
-                            <h4>Primary Beneficiary 1</h4>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label>Name</label>
-                                    <input type="text" name="beneficiaryName" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Relationship</label>
-                                    <input type="text" name="beneficiaryRelationship" placeholder="Spouse, child, etc.">
-                                </div>
+                    <div class="subscription-plans">
+                        <div class="plan-option" onclick="selectPlan('monthly')">
+                            <div class="plan-details">
+                                <h4>Monthly Plan</h4>
+                                <p class="plan-price">$29.99/month</p>
                             </div>
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label>Percentage (%)</label>
-                                    <input type="number" name="beneficiaryPercentage" min="0" max="100" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Contact Information</label>
-                                    <input type="text" name="beneficiaryContact" placeholder="Phone or email">
-                                </div>
+                            <div class="plan-arrow">→</div>
+                        </div>
+                        <div class="plan-option featured" onclick="selectPlan('yearly')">
+                            <div class="plan-badge">Best Value</div>
+                            <div class="plan-details">
+                                <h4>Yearly Plan</h4>
+                                <p class="plan-price">$299.99/year</p>
+                                <p class="plan-savings">Save 17%</p>
                             </div>
+                            <div class="plan-arrow">→</div>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-outline" onclick="addBeneficiary('primary')">Add Primary Beneficiary</button>
-                    
-                    <h3>Contingent Beneficiaries</h3>
-                    <div id="contingentBeneficiaries">
-                        <!-- Contingent beneficiaries will be added here -->
-                    </div>
-                    <button type="button" class="btn btn-outline" onclick="addBeneficiary('contingent')">Add Contingent Beneficiary</button>
                 </div>
-
-                <div id="instructionsTab" class="tab-content">
-                    <h3>Special Instructions</h3>
-                    <div class="form-group">
-                        <label for="accessInstructions">Access Instructions</label>
-                        <textarea id="accessInstructions" name="accessInstructions" rows="4" placeholder="Detailed instructions on how to understand and access your Bitcoin assets"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="securityNotes">Security Notes</label>
-                        <textarea id="securityNotes" name="securityNotes" rows="4" placeholder="Important security considerations and warnings"></textarea>
-                    </div>
-                    <h4>Trusted Technical Contacts</h4>
-                    <div id="trustedContacts">
-                        <!-- Trusted contacts will be added here -->
-                    </div>
-                    <button type="button" class="btn btn-outline" onclick="addTrustedContact()">Add Trusted Contact</button>
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary btn-large">
-                        Create Will Document
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay hidden">
-        <div class="loading-spinner"></div>
-        <p>Processing...</p>
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
     </div>
 
     <script src="script.js"></script>

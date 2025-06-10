@@ -3,13 +3,16 @@ let currentUser = null;
 let authToken = null;
 let currentPlan = null;
 let currentPaymentMethod = null;
+let currentStep = 1;
+let userSubscription = null;
 
 // API Configuration
-const API_BASE_URL = 'https://bitcoin-will-backend-production.up.railway.app/api'; // Update this when deploying
+const API_BASE_URL = 'https://bitcoin-will-backend-production.up.railway.app/api';
 
 // DOM Elements
 const authModal = document.getElementById('authModal');
 const paymentModal = document.getElementById('paymentModal');
+const subscriptionModal = document.getElementById('subscriptionModal');
 const dashboard = document.getElementById('dashboard');
 const willCreator = document.getElementById('willCreator');
 const loadingOverlay = document.getElementById('loadingOverlay');
@@ -53,6 +56,12 @@ function setupEventListeners() {
     paymentModal.addEventListener('click', function(e) {
         if (e.target === paymentModal) {
             closePaymentModal();
+        }
+    });
+    
+    subscriptionModal.addEventListener('click', function(e) {
+        if (e.target === subscriptionModal) {
+            closeSubscriptionModal();
         }
     });
     
@@ -147,6 +156,9 @@ async function handleAuthSubmit(e) {
             closeAuthModal();
             showUserInterface();
             
+            // Load subscription status
+            await loadSubscriptionStatus();
+            
             if (!isLogin) {
                 // New user, show subscription options
                 setTimeout(() => {
@@ -167,6 +179,7 @@ async function handleAuthSubmit(e) {
 function logout() {
     authToken = null;
     currentUser = null;
+    userSubscription = null;
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
     
@@ -206,6 +219,8 @@ async function checkAuthStatus() {
         
         if (!response.ok) {
             logout();
+        } else {
+            await loadSubscriptionStatus();
         }
     } catch (error) {
         console.error('Auth check error:', error);
@@ -214,6 +229,41 @@ async function checkAuthStatus() {
 }
 
 // Subscription Functions
+async function loadSubscriptionStatus() {
+    if (!authToken) return;
+    
+    try {
+        const response = await fetch(API_BASE_URL + '/subscription/status', {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            userSubscription = data;
+            updateSubscriptionDisplay(data);
+        }
+    } catch (error) {
+        console.error('Subscription status error:', error);
+    }
+}
+
+function updateSubscriptionDisplay(subscription) {
+    const statusBadge = document.getElementById('statusBadge');
+    const statusText = document.getElementById('statusText');
+    
+    if (subscription && subscription.active) {
+        statusBadge.textContent = 'Active';
+        statusBadge.style.backgroundColor = '#10b981';
+        statusText.textContent = `Next billing: ${new Date(subscription.next_billing_date).toLocaleDateString()}`;
+    } else {
+        statusBadge.textContent = 'Inactive';
+        statusBadge.style.backgroundColor = '#ef4444';
+        statusText.textContent = 'Subscribe to create Bitcoin wills';
+    }
+}
+
 function selectPlan(plan) {
     if (!currentUser) {
         showAuthModal('register');
@@ -315,6 +365,28 @@ async function processBTCPayPayment() {
     }
 }
 
+// Subscription Modal Functions
+function showSubscriptionModal() {
+    subscriptionModal.classList.add('show');
+    subscriptionModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSubscriptionModal() {
+    subscriptionModal.classList.remove('show');
+    subscriptionModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function checkSubscriptionAndCreateWill() {
+    if (!userSubscription || !userSubscription.active) {
+        showSubscriptionModal();
+        return;
+    }
+    
+    showWillCreator();
+}
+
 // Dashboard Functions
 async function showDashboard() {
     if (!currentUser) {
@@ -329,7 +401,7 @@ async function showDashboard() {
     // Show dashboard
     dashboard.classList.remove('hidden');
     
-    // Load user data
+    // Load dashboard data
     await loadDashboardData();
 }
 
@@ -338,16 +410,7 @@ async function loadDashboardData() {
     
     try {
         // Load subscription status
-        const subResponse = await fetch(API_BASE_URL + '/subscription/status', {
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
-        });
-        
-        if (subResponse.ok) {
-            const subData = await subResponse.json();
-            updateSubscriptionStatus(subData);
-        }
+        await loadSubscriptionStatus();
         
         // Load user's wills
         const willsResponse = await fetch(API_BASE_URL + '/will/list', {
@@ -367,21 +430,6 @@ async function loadDashboardData() {
     }
 }
 
-function updateSubscriptionStatus(data) {
-    const statusBadge = document.getElementById('statusBadge');
-    const statusText = document.getElementById('statusText');
-    
-    if (data.active) {
-        statusBadge.textContent = 'Active';
-        statusBadge.style.backgroundColor = '#10b981';
-        statusText.textContent = `Next billing: ${new Date(data.next_billing_date).toLocaleDateString()}`;
-    } else {
-        statusBadge.textContent = 'Inactive';
-        statusBadge.style.backgroundColor = '#ef4444';
-        statusText.textContent = 'Please subscribe to create Bitcoin wills';
-    }
-}
-
 function updateWillsList(wills) {
     const willsList = document.getElementById('willsList');
     
@@ -391,7 +439,7 @@ function updateWillsList(wills) {
                 <h3>No wills created yet</h3>
                 <p>Create your first Bitcoin will to get started</p>
                 <div class="will-actions">
-                    <button class="btn btn-primary" onclick="showWillCreator()">Create Will</button>
+                    <button class="btn btn-primary" onclick="checkSubscriptionAndCreateWill()">Create Will</button>
                 </div>
             </div>
         `;
@@ -425,9 +473,11 @@ function showWillCreator() {
     // Show will creator
     willCreator.classList.remove('hidden');
     
-    // Reset form
+    // Reset form and progress
     document.getElementById('willForm').reset();
-    showTab('personal');
+    currentStep = 1;
+    updateProgressBar();
+    showStep(1);
 }
 
 function hideWillCreator() {
@@ -435,19 +485,144 @@ function hideWillCreator() {
     showDashboard();
 }
 
-function showTab(tabName) {
+function updateProgressBar() {
+    const steps = document.querySelectorAll('.progress-step');
+    steps.forEach((step, index) => {
+        const stepNumber = index + 1;
+        step.classList.remove('active', 'completed');
+        
+        if (stepNumber < currentStep) {
+            step.classList.add('completed');
+        } else if (stepNumber === currentStep) {
+            step.classList.add('active');
+        }
+    });
+}
+
+function showStep(stepNumber) {
     // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
     });
     
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
     // Show selected tab
-    document.getElementById(tabName + 'Tab').classList.add('active');
-    document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+    const tabs = ['personal', 'assets', 'beneficiaries', 'instructions', 'review'];
+    const tabId = tabs[stepNumber - 1] + 'Tab';
+    document.getElementById(tabId).classList.add('active');
+    
+    // Update review content if on review step
+    if (stepNumber === 5) {
+        updateReviewContent();
+    }
+}
+
+function nextStep(stepNumber) {
+    if (validateCurrentStep()) {
+        currentStep = stepNumber;
+        updateProgressBar();
+        showStep(stepNumber);
+    }
+}
+
+function prevStep(stepNumber) {
+    currentStep = stepNumber;
+    updateProgressBar();
+    showStep(stepNumber);
+}
+
+function validateCurrentStep() {
+    const currentTab = document.querySelector('.tab-content.active');
+    const requiredFields = currentTab.querySelectorAll('input[required], select[required], textarea[required]');
+    
+    for (let field of requiredFields) {
+        if (!field.value.trim()) {
+            field.focus();
+            showError('willError', 'Please fill in all required fields');
+            return false;
+        }
+    }
+    
+    // Additional validation for specific steps
+    if (currentStep === 3) {
+        // Validate beneficiary percentages
+        const percentages = Array.from(document.querySelectorAll('input[name="beneficiaryPercentage"]'))
+            .map(input => parseInt(input.value) || 0);
+        
+        const total = percentages.reduce((sum, pct) => sum + pct, 0);
+        if (total !== 100) {
+            showError('willError', 'Beneficiary percentages must total 100%');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+function updateReviewContent() {
+    const formData = new FormData(document.getElementById('willForm'));
+    const reviewContent = document.getElementById('reviewContent');
+    
+    const personalInfo = {
+        title: formData.get('title'),
+        fullName: formData.get('fullName'),
+        dateOfBirth: formData.get('dateOfBirth'),
+        address: formData.get('address'),
+        executorName: formData.get('executorName'),
+        executorContact: formData.get('executorContact')
+    };
+    
+    const wallets = [];
+    const walletTypes = formData.getAll('walletType');
+    const walletValues = formData.getAll('walletValue');
+    const walletDescriptions = formData.getAll('walletDescription');
+    
+    for (let i = 0; i < walletTypes.length; i++) {
+        wallets.push({
+            type: walletTypes[i],
+            value: walletValues[i],
+            description: walletDescriptions[i]
+        });
+    }
+    
+    const beneficiaries = [];
+    const beneficiaryNames = formData.getAll('beneficiaryName');
+    const beneficiaryPercentages = formData.getAll('beneficiaryPercentage');
+    
+    for (let i = 0; i < beneficiaryNames.length; i++) {
+        beneficiaries.push({
+            name: beneficiaryNames[i],
+            percentage: beneficiaryPercentages[i]
+        });
+    }
+    
+    reviewContent.innerHTML = `
+        <div class="review-section">
+            <h3>Personal Information</h3>
+            <p><strong>Will Title:</strong> ${personalInfo.title}</p>
+            <p><strong>Full Name:</strong> ${personalInfo.fullName}</p>
+            <p><strong>Date of Birth:</strong> ${personalInfo.dateOfBirth}</p>
+            <p><strong>Executor:</strong> ${personalInfo.executorName}</p>
+        </div>
+        
+        <div class="review-section">
+            <h3>Bitcoin Assets</h3>
+            ${wallets.map((wallet, index) => `
+                <p><strong>Wallet ${index + 1}:</strong> ${wallet.type} - ${wallet.value}</p>
+            `).join('')}
+        </div>
+        
+        <div class="review-section">
+            <h3>Beneficiaries</h3>
+            ${beneficiaries.map(beneficiary => `
+                <p><strong>${beneficiary.name}:</strong> ${beneficiary.percentage}%</p>
+            `).join('')}
+        </div>
+        
+        <div class="review-section">
+            <h3>Instructions</h3>
+            <p><strong>Access Instructions:</strong> ${formData.get('accessInstructions')}</p>
+        </div>
+    `;
 }
 
 function addWallet() {
@@ -527,7 +702,6 @@ function removeBeneficiary(button) {
 
 function addTrustedContact() {
     const container = document.getElementById('trustedContacts');
-    const contactCount = container.children.length + 1;
     
     const contactHTML = `
         <div class="form-grid" style="margin-bottom: 16px;">
@@ -550,6 +724,15 @@ async function handleWillSubmit(e) {
     
     if (!currentUser) {
         showAuthModal('login');
+        return;
+    }
+    
+    if (!userSubscription || !userSubscription.active) {
+        showSubscriptionModal();
+        return;
+    }
+    
+    if (!validateCurrentStep()) {
         return;
     }
     
@@ -634,8 +817,9 @@ function extractWillData(formData) {
     const beneficiaryPercentages = formData.getAll('beneficiaryPercentage');
     const beneficiaryContacts = formData.getAll('beneficiaryContact');
     
-    // Assume first half are primary, second half are contingent
-    const primaryCount = Math.ceil(beneficiaryNames.length / 2);
+    // Determine primary vs contingent based on container
+    const primaryContainer = document.getElementById('primaryBeneficiaries');
+    const primaryCount = primaryContainer.querySelectorAll('.beneficiary-entry').length;
     
     for (let i = 0; i < beneficiaryNames.length; i++) {
         const beneficiary = {
@@ -718,13 +902,25 @@ function hideLoading() {
 
 function showError(elementId, message) {
     const errorElement = document.getElementById(elementId);
-    errorElement.textContent = message;
-    errorElement.classList.add('show');
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.classList.add('show');
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            hideError(elementId);
+        }, 5000);
+    } else {
+        // Fallback to alert if error element not found
+        alert(message);
+    }
 }
 
 function hideError(elementId) {
     const errorElement = document.getElementById(elementId);
-    errorElement.classList.remove('show');
+    if (errorElement) {
+        errorElement.classList.remove('show');
+    }
 }
 
 function toggleMobileMenu() {
@@ -740,12 +936,30 @@ function goHome() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// URL handling for GitHub Pages
-function updateAPIBaseURL() {
-    const API_BASE_URL = 'https://bitcoin-will-backend-production.up.railway.app/api';
-    return API_BASE_URL;
+// Handle URL parameters for payment success/failure
+function handleURLParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.get('payment') === 'success') {
+        // Payment successful, reload subscription status
+        if (authToken) {
+            loadSubscriptionStatus();
+            showDashboard();
+        }
+        
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (urlParams.get('payment') === 'cancelled') {
+        // Payment cancelled
+        alert('Payment was cancelled. You can try again anytime.');
+        
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
 }
 
 // Call this on page load
-updateAPIBaseURL();
+document.addEventListener('DOMContentLoaded', function() {
+    handleURLParameters();
+});
 
