@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
     setupEventListeners();
     checkAuthStatus();
+    handleURLParameters();
 });
 
 function initializeApp() {
@@ -256,7 +257,7 @@ function updateSubscriptionDisplay(subscription) {
     if (subscription && subscription.active) {
         statusBadge.textContent = 'Active';
         statusBadge.style.backgroundColor = '#10b981';
-        statusText.textContent = `Next billing: ${new Date(subscription.next_billing_date).toLocaleDateString()}`;
+        statusText.textContent = `Next billing: ${new Date(subscription.subscription.current_period_end).toLocaleDateString()}`;
     } else {
         statusBadge.textContent = 'Inactive';
         statusBadge.style.backgroundColor = '#ef4444';
@@ -303,7 +304,7 @@ async function selectPaymentMethod(method) {
         }
     } catch (error) {
         console.error('Payment error:', error);
-        alert('Payment processing failed. Please try again.');
+        showError('paymentError', 'Payment processing failed. Please try again.');
     } finally {
         hideLoading();
     }
@@ -318,8 +319,7 @@ async function processStripePayment() {
                 'Authorization': `Bearer ${authToken}`
             },
             body: JSON.stringify({
-                plan: currentPlan,
-                payment_method: 'stripe'
+                plan: currentPlan
             })
         });
         
@@ -346,8 +346,7 @@ async function processBTCPayPayment() {
                 'Authorization': `Bearer ${authToken}`
             },
             body: JSON.stringify({
-                plan: currentPlan,
-                payment_method: 'btcpay'
+                plan: currentPlan
             })
         });
         
@@ -363,6 +362,84 @@ async function processBTCPayPayment() {
         console.error('BTCPay payment error:', error);
         throw error;
     }
+}
+
+// Payment Success Handling
+async function handlePaymentSuccess(sessionId) {
+    if (!authToken || !sessionId) return;
+    
+    showLoading();
+    
+    try {
+        const response = await fetch(API_BASE_URL + '/subscription/verify-payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({
+                session_id: sessionId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            // Show success message
+            showPaymentSuccessMessage();
+            
+            // Reload subscription status
+            await loadSubscriptionStatus();
+            
+            // Show dashboard
+            setTimeout(() => {
+                showDashboard();
+            }, 2000);
+        } else {
+            console.error('Payment verification failed:', data.message);
+            showError('paymentError', 'Payment verification failed. Please contact support.');
+        }
+    } catch (error) {
+        console.error('Payment verification error:', error);
+        showError('paymentError', 'Failed to verify payment. Please contact support.');
+    } finally {
+        hideLoading();
+    }
+}
+
+function showPaymentSuccessMessage() {
+    // Create and show success message
+    const successDiv = document.createElement('div');
+    successDiv.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        z-index: 3000;
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+    `;
+    
+    successDiv.innerHTML = `
+        <div style="color: #10b981; font-size: 3rem; margin-bottom: 1rem;">✅</div>
+        <h2 style="color: #1f2937; margin-bottom: 1rem;">Payment Successful!</h2>
+        <p style="color: #6b7280; margin-bottom: 1.5rem;">
+            Thank you for subscribing! Your account has been activated and you can now create Bitcoin wills.
+        </p>
+        <div style="color: #3b82f6; font-weight: 600;">Redirecting to dashboard...</div>
+    `;
+    
+    document.body.appendChild(successDiv);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        document.body.removeChild(successDiv);
+    }, 3000);
 }
 
 // Subscription Modal Functions
@@ -941,10 +1018,14 @@ function handleURLParameters() {
     const urlParams = new URLSearchParams(window.location.search);
     
     if (urlParams.get('payment') === 'success') {
-        // Payment successful, reload subscription status
-        if (authToken) {
+        const sessionId = urlParams.get('session_id');
+        if (sessionId && authToken) {
+            handlePaymentSuccess(sessionId);
+        } else if (authToken) {
+            // Payment successful but no session ID, just reload subscription status
             loadSubscriptionStatus();
             showDashboard();
+            showPaymentSuccessMessage();
         }
         
         // Clean up URL
@@ -957,9 +1038,4 @@ function handleURLParameters() {
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 }
-
-// Call this on page load
-document.addEventListener('DOMContentLoaded', function() {
-    handleURLParameters();
-});
 
