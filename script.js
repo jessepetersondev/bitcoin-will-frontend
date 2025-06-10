@@ -287,29 +287,66 @@ async function openSubscriptionManagement() {
     }
     
     try {
-        showLoading();
-        
-        const response = await fetch(API_BASE_URL + '/subscription/manage', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            // Redirect to Stripe customer portal
-            window.location.href = data.portal_url;
-        } else {
-            alert(data.message || 'Failed to open subscription management');
+        // Show loading state on button
+        const manageBtn = document.getElementById('manageSubscriptionBtn');
+        let originalText = 'Manage Subscription';
+        if (manageBtn) {
+            originalText = manageBtn.innerHTML;
+            manageBtn.innerHTML = '<span class="loading"></span> Loading...';
+            manageBtn.disabled = true;
         }
-    } catch (error) {
-        console.error('Subscription management error:', error);
-        alert('Failed to open subscription management');
-    } finally {
-        hideLoading();
+        
+        // Create portal session
+        let portal;
+        try {
+            portal = await fetch(API_BASE_URL + '/subscription/manage', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+        } catch (fetchError) {
+            console.error('Network error:', fetchError);
+            throw new Error('Network error. Please check your connection and try again.');
+        }
+        
+        if (!portal.ok) {
+            if (portal.status === 500) {
+                throw new Error('Server error. The portal service is currently unavailable.');
+            } else {
+                throw new Error(`Server responded with status: ${portal.status}`);
+            }
+        }
+        
+        let portalData;
+        try {
+            portalData = await portal.json();
+        } catch (jsonError) {
+            console.error('JSON parsing error:', jsonError);
+            throw new Error('Invalid response from server. Please try again later.');
+        }
+        
+        // Check if we have a valid URL
+        if (!portalData || !portalData.portal_url) {
+            throw new Error('No portal URL received. Please try again later.');
+        }
+        
+        // Redirect to Stripe portal
+        window.location.href = portalData.portal_url;
+        
+    } catch (err) {
+        console.error('Error creating portal session', err);
+        
+        // Reset button
+        const manageBtn = document.getElementById('manageSubscriptionBtn');
+        if (manageBtn) {
+            manageBtn.innerHTML = originalText;
+            manageBtn.disabled = false;
+        }
+        
+        // Show error
+        alert(err.message || 'Unable to open subscription management portal. Please try again later.');
     }
 }
 
