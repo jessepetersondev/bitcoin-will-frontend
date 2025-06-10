@@ -1275,11 +1275,17 @@ function hideError(elementId) {
         errorElement.classList.remove('show');
     }
 }
-
 function toggleMobileMenu() {
     const nav = document.getElementById('nav');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    
     nav.classList.toggle('mobile-open');
+    mobileMenuBtn.classList.toggle('active');
 }
+// function toggleMobileMenu() {
+//     const nav = document.getElementById('nav');
+//     nav.classList.toggle('mobile-open');
+// }
 
 // Navigation Functions
 function goHome() {
