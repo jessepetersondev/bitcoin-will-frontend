@@ -5,7 +5,6 @@ let currentPlan = null;
 let currentPaymentMethod = null;
 let currentStep = 1;
 let userSubscription = null;
-let editingWillId = null; // NEW: Track if we're editing an existing will
 
 // API Configuration
 const API_BASE_URL = 'https://bitcoin-will-backend-production.up.railway.app/api';
@@ -182,7 +181,6 @@ function logout() {
     authToken = null;
     currentUser = null;
     userSubscription = null;
-    editingWillId = null; // Clear editing state
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
     
@@ -260,57 +258,10 @@ function updateSubscriptionDisplay(subscription) {
         statusBadge.textContent = 'Active';
         statusBadge.style.backgroundColor = '#10b981';
         statusText.textContent = `Next billing: ${new Date(subscription.subscription.current_period_end).toLocaleDateString()}`;
-        
-        // ENHANCED: Update manage subscription button
-        const manageBtn = document.getElementById('manageSubscriptionBtn');
-        if (manageBtn) {
-            manageBtn.textContent = 'Manage Subscription';
-            manageBtn.onclick = openSubscriptionManagement;
-        }
     } else {
         statusBadge.textContent = 'Inactive';
         statusBadge.style.backgroundColor = '#ef4444';
         statusText.textContent = 'Subscribe to create Bitcoin wills';
-        
-        const manageBtn = document.getElementById('manageSubscriptionBtn');
-        if (manageBtn) {
-            manageBtn.textContent = 'Subscribe Now';
-            manageBtn.onclick = showSubscriptionModal;
-        }
-    }
-}
-
-// ENHANCED: New function for subscription management
-async function openSubscriptionManagement() {
-    if (!authToken) {
-        showAuthModal('login');
-        return;
-    }
-    
-    try {
-        showLoading();
-        
-        const response = await fetch(API_BASE_URL + '/subscription/manage', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            // Redirect to Stripe customer portal
-            window.location.href = data.portal_url;
-        } else {
-            showError('subscriptionError', data.message || 'Failed to open subscription management');
-        }
-    } catch (error) {
-        console.error('Subscription management error:', error);
-        showError('subscriptionError', 'Failed to open subscription management');
-    } finally {
-        hideLoading();
     }
 }
 
@@ -510,7 +461,6 @@ function checkSubscriptionAndCreateWill() {
         return;
     }
     
-    editingWillId = null; // Ensure we're creating new will
     showWillCreator();
 }
 
@@ -600,186 +550,16 @@ function showWillCreator() {
     // Show will creator
     willCreator.classList.remove('hidden');
     
-    // Reset form and progress if creating new will
-    if (!editingWillId) {
-        document.getElementById('willForm').reset();
-        currentStep = 1;
-        updateProgressBar();
-        showStep(1);
-    }
+    // Reset form and progress
+    document.getElementById('willForm').reset();
+    currentStep = 1;
+    updateProgressBar();
+    showStep(1);
 }
 
 function hideWillCreator() {
     willCreator.classList.add('hidden');
-    editingWillId = null; // Clear editing state
     showDashboard();
-}
-
-// ENHANCED: New function to edit existing will
-async function editWill(willId) {
-    if (!authToken) {
-        showAuthModal('login');
-        return;
-    }
-    
-    try {
-        showLoading();
-        
-        // Fetch will data
-        const response = await fetch(API_BASE_URL + `/will/${willId}`, {
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            const will = data.will;
-            
-            console.log('Loading will for editing:', will);
-            
-            // Set editing state
-            editingWillId = willId;
-            
-            // Show will creator
-            showWillCreator();
-            
-            // Populate form with existing data
-            populateWillForm(will);
-            
-        } else {
-            const errorData = await response.json();
-            showError('willError', errorData.message || 'Failed to load will');
-        }
-    } catch (error) {
-        console.error('Edit will error:', error);
-        showError('willError', 'Failed to load will for editing');
-    } finally {
-        hideLoading();
-    }
-}
-
-// ENHANCED: New function to populate form with existing will data
-function populateWillForm(will) {
-    console.log('Populating form with will data:', will);
-    
-    // Personal Information
-    if (will.personal_info) {
-        const personal = will.personal_info;
-        setFormValue('title', will.title);
-        setFormValue('fullName', personal.full_name);
-        setFormValue('dateOfBirth', personal.date_of_birth);
-        setFormValue('address', personal.address);
-        setFormValue('ssn', personal.ssn);
-        setFormValue('executorName', personal.executor_name);
-        setFormValue('executorContact', personal.executor_contact);
-    }
-    
-    // Bitcoin Assets
-    if (will.assets) {
-        const assets = will.assets;
-        setFormValue('storageMethod', assets.storage_method);
-        setFormValue('storageLocation', assets.storage_location);
-        setFormValue('storageDetails', assets.storage_details);
-        
-        // Populate wallets
-        if (assets.wallets && assets.wallets.length > 0) {
-            // Clear existing wallet entries
-            const walletsContainer = document.getElementById('walletsContainer');
-            walletsContainer.innerHTML = '';
-            
-            // Add each wallet
-            assets.wallets.forEach((wallet, index) => {
-                addWallet();
-                const walletEntries = walletsContainer.querySelectorAll('.wallet-entry');
-                const currentEntry = walletEntries[walletEntries.length - 1];
-                
-                setFormValueInContainer(currentEntry, 'walletType', wallet.type);
-                setFormValueInContainer(currentEntry, 'walletValue', wallet.value);
-                setFormValueInContainer(currentEntry, 'walletDescription', wallet.description);
-                setFormValueInContainer(currentEntry, 'walletAddress', wallet.address);
-            });
-        }
-    }
-    
-    // Beneficiaries
-    if (will.beneficiaries) {
-        const beneficiaries = will.beneficiaries;
-        
-        // Primary beneficiaries
-        if (beneficiaries.primary && beneficiaries.primary.length > 0) {
-            const primaryContainer = document.getElementById('primaryBeneficiaries');
-            primaryContainer.innerHTML = '';
-            
-            beneficiaries.primary.forEach((beneficiary, index) => {
-                addBeneficiary('primary');
-                const beneficiaryEntries = primaryContainer.querySelectorAll('.beneficiary-entry');
-                const currentEntry = beneficiaryEntries[beneficiaryEntries.length - 1];
-                
-                setFormValueInContainer(currentEntry, 'beneficiaryName', beneficiary.name);
-                setFormValueInContainer(currentEntry, 'beneficiaryRelationship', beneficiary.relationship);
-                setFormValueInContainer(currentEntry, 'beneficiaryPercentage', beneficiary.percentage);
-                setFormValueInContainer(currentEntry, 'beneficiaryContact', beneficiary.contact);
-            });
-        }
-        
-        // Contingent beneficiaries
-        if (beneficiaries.contingent && beneficiaries.contingent.length > 0) {
-            const contingentContainer = document.getElementById('contingentBeneficiaries');
-            contingentContainer.innerHTML = '';
-            
-            beneficiaries.contingent.forEach((beneficiary, index) => {
-                addBeneficiary('contingent');
-                const beneficiaryEntries = contingentContainer.querySelectorAll('.beneficiary-entry');
-                const currentEntry = beneficiaryEntries[beneficiaryEntries.length - 1];
-                
-                setFormValueInContainer(currentEntry, 'beneficiaryName', beneficiary.name);
-                setFormValueInContainer(currentEntry, 'beneficiaryRelationship', beneficiary.relationship);
-                setFormValueInContainer(currentEntry, 'beneficiaryPercentage', beneficiary.percentage);
-                setFormValueInContainer(currentEntry, 'beneficiaryContact', beneficiary.contact);
-            });
-        }
-    }
-    
-    // Instructions
-    if (will.instructions) {
-        const instructions = will.instructions;
-        setFormValue('accessInstructions', instructions.access_instructions);
-        setFormValue('securityNotes', instructions.security_notes);
-        
-        // Trusted contacts
-        if (instructions.trusted_contacts && instructions.trusted_contacts.length > 0) {
-            const contactsContainer = document.getElementById('trustedContacts');
-            contactsContainer.innerHTML = '';
-            
-            instructions.trusted_contacts.forEach((contact, index) => {
-                addTrustedContact();
-                const contactEntries = contactsContainer.querySelectorAll('.form-grid');
-                const currentEntry = contactEntries[contactEntries.length - 1];
-                
-                setFormValueInContainer(currentEntry, 'trustedContactName', contact.name);
-                setFormValueInContainer(currentEntry, 'trustedContactInfo', contact.contact);
-            });
-        }
-    }
-    
-    console.log('Form populated successfully');
-}
-
-// Helper function to set form values safely
-function setFormValue(fieldName, value) {
-    const field = document.querySelector(`[name="${fieldName}"]`);
-    if (field && value !== undefined && value !== null) {
-        field.value = value;
-    }
-}
-
-// Helper function to set form values within a specific container
-function setFormValueInContainer(container, fieldName, value) {
-    const field = container.querySelector(`[name="${fieldName}"]`);
-    if (field && value !== undefined && value !== null) {
-        field.value = value;
-    }
 }
 
 function updateProgressBar() {
@@ -1016,7 +796,6 @@ function addTrustedContact() {
     container.insertAdjacentHTML('beforeend', contactHTML);
 }
 
-// ENHANCED: Handle will form submission for both create and edit
 async function handleWillSubmit(e) {
     e.preventDefault();
     
@@ -1040,42 +819,27 @@ async function handleWillSubmit(e) {
         const formData = new FormData(e.target);
         const willData = extractWillData(formData);
         
-        let response;
-        
-        if (editingWillId) {
-            // Update existing will
-            response = await fetch(API_BASE_URL + `/will/${editingWillId}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(willData)
-            });
-        } else {
-            // Create new will
-            response = await fetch(API_BASE_URL + '/will/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${authToken}`
-                },
-                body: JSON.stringify(willData)
-            });
-        }
+        const response = await fetch(API_BASE_URL + '/will/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify(willData)
+        });
         
         const data = await response.json();
         
         if (response.ok) {
-            alert(editingWillId ? 'Will updated successfully!' : 'Bitcoin will created successfully!');
+            alert('Bitcoin will created successfully!');
             hideWillCreator();
             showDashboard();
         } else {
-            throw new Error(data.message || 'Failed to save will');
+            throw new Error(data.message || 'Failed to create will');
         }
     } catch (error) {
-        console.error('Will submit error:', error);
-        alert('Failed to save will. Please try again.');
+        console.error('Will creation error:', error);
+        alert('Failed to create will. Please try again.');
     } finally {
         hideLoading();
     }
@@ -1165,16 +929,10 @@ function extractWillData(formData) {
     return data;
 }
 
-// ENHANCED: Download will function
 async function downloadWill(willId) {
-    if (!authToken) {
-        showAuthModal('login');
-        return;
-    }
+    showLoading();
     
     try {
-        showLoading();
-        
         const response = await fetch(API_BASE_URL + `/will/${willId}/download`, {
             headers: {
                 'Authorization': `Bearer ${authToken}`
@@ -1182,39 +940,30 @@ async function downloadWill(willId) {
         });
         
         if (response.ok) {
-            // Get the filename from the response headers or use a default
-            const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = 'bitcoin_will.pdf';
-            
-            if (contentDisposition) {
-                const filenameMatch = contentDisposition.match(/filename="(.+)"/);
-                if (filenameMatch) {
-                    filename = filenameMatch[1];
-                }
-            }
-            
-            // Create blob and download
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = filename;
+            a.download = `bitcoin-will-${willId}.pdf`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
-            
-            alert('Will downloaded successfully!');
         } else {
-            const errorData = await response.json();
-            showError('willError', errorData.message || 'Failed to download will');
+            throw new Error('Failed to download will');
         }
     } catch (error) {
-        console.error('Download will error:', error);
-        showError('willError', 'Failed to download will');
+        console.error('Download error:', error);
+        alert('Failed to download will. Please try again.');
     } finally {
         hideLoading();
     }
+}
+
+async function editWill(willId) {
+    // For now, just show the will creator
+    // In a full implementation, you'd load the existing will data
+    showWillCreator();
 }
 
 // Utility Functions
@@ -1264,7 +1013,7 @@ function goHome() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ENHANCED: Handle URL parameters for payment success/failure and portal return
+// Handle URL parameters for payment success/failure
 function handleURLParameters() {
     const urlParams = new URLSearchParams(window.location.search);
     
@@ -1286,11 +1035,6 @@ function handleURLParameters() {
         alert('Payment was cancelled. You can try again anytime.');
         
         // Clean up URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (urlParams.get('portal') === 'return') {
-        // ENHANCED: Handle return from Stripe customer portal
-        alert('Subscription updated successfully!');
-        loadSubscriptionStatus(); // Refresh subscription status
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 }
