@@ -1334,4 +1334,3 @@ function toggleMobileMenu() {
     nav.classList.toggle('mobile-open');
     mobileMenuBtn.classList.toggle('active');
 }
-
