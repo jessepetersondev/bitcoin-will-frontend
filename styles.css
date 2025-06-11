@@ -1402,7 +1402,31 @@ p {
         padding: 1.5rem;
     }
 }
+/* Enhanced Feature Cards */
 
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #F7931A 0%, #FFB84D 50%, #F7931A 100%);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 
+        0 24px 60px rgba(0, 0, 0, 0.12),
+        0 8px 24px rgba(247, 147, 26, 0.1);
+    border-color: rgba(247, 147, 26, 0.2);
+}
+
+.feature-card:hover::before {
+    transform: scaleX(1);
+}
 @media (max-width: 480px) {
     .hero-title {
         font-size: 2rem;
