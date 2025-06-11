@@ -1312,6 +1312,34 @@ p {
     }
 }
 
+.service-icon {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.1) 0%, rgba(247, 147, 26, 0.05) 100%);
+    border-radius: 20px;
+    border: 2px solid rgba(247, 147, 26, 0.2);
+    box-shadow: 
+        0 8px 32px rgba(247, 147, 26, 0.1),
+        0 4px 16px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+}
+
+.service-icon:hover {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 
+        0 20px 40px rgba(247, 147, 26, 0.2),
+        0 8px 24px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border-color: rgba(247, 147, 26, 0.4);
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.15) 0%, rgba(247, 147, 26, 0.08) 100%);
+}
+
+
+
 @media (max-width: 480px) {
     .hero-title {
         font-size: 2rem;
