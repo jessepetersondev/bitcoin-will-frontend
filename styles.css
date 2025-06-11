@@ -211,6 +211,105 @@ p {
     transition: all 0.3s ease;
 }
 
+
+/* Logo Styles */
+.logo-horizontal {
+    height: 40px; /* Adjust based on your header height */
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
+}
+
+/* Responsive logo sizing */
+@media (max-width: 768px) {
+    .logo-horizontal {
+        height: 32px;
+        max-width: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-horizontal {
+        height: 28px;
+        max-width: 120px;
+    }
+}
+
+/* Hero section with background */
+.hero-section {
+    background-image: url('/images/branding/bitcoin_will_hero_banner.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    min-height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Overlay for better text readability on hero background */
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(26, 26, 46, 0.7); /* Dark overlay */
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+}
+
+/* Service icons */
+.service-icon {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    margin-bottom: 1rem;
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    margin-bottom: 0.5rem;
+}
+.loading-logo {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 400px;
+        background-position: center center;
+    }
+    
+    .service-icon {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .feature-icon {
+        width: 32px;
+        height: 32px;
+    }
+}
+
 /* Hero Section */
 .hero {
     background: linear-gradient(135deg, #F7931A 0%, #CC7A18 100%);

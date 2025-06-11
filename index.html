@@ -3,6 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Favicon and App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/branding/bitcoin_will_favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/branding/bitcoin_will_favicon.png">
+    <link rel="apple-touch-icon" href="/images/branding/bitcoin_will_favicon.png">
+    
+    <!-- Open Graph Meta Tags for Social Sharing -->
+    <meta property="og:title" content="Bitcoin Will - Professional Cryptocurrency Estate Planning">
+    <meta property="og:description" content="Secure your Bitcoin legacy with professional digital asset estate planning and will creation services.">
+    <meta property="og:image" content="https://thebitcoinwill.com/images/branding/bitcoin_will_logo_main.png">
+    <meta property="og:url" content="https://thebitcoinwill.com">
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Bitcoin Will - Professional Cryptocurrency Estate Planning">
+    <meta name="twitter:description" content="Secure your Bitcoin legacy with professional digital asset estate planning and will creation services.">
+    <meta name="twitter:image" content="https://thebitcoinwill.com/images/branding/bitcoin_will_logo_main.png">
+
     <title>Bitcoin Will - Secure Your Legacy</title>
     <meta name="description" content="Create comprehensive Bitcoin wills with professional legal templates. Generate documents to help your beneficiaries access your digital assets.">
     <link rel="stylesheet" href="styles.css">
@@ -15,9 +33,10 @@
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <div class="logo">
-                    <span class="bitcoin-icon">₿</span>
-                    <span class="logo-text">Bitcoin Will</span>
+                <div class="nav-brand">
+                    <img src="/images/branding/bitcoin_will_logo_horizontal.png" 
+                        alt="Bitcoin Will - Cryptocurrency Estate Planning" 
+                        class="logo-horizontal">
                 </div>
                 <nav class="nav" id="nav">
                     <a href="#home" class="nav-link" onclick="goHome()">Home</a>
@@ -53,8 +72,7 @@
                             Secure Your Legacy
                         </h1>
                         <p class="hero-description">
-                            Create comprehensive Bitcoin will documents with professional legal templates. 
-                            Generate the documentation your beneficiaries need to understand and access your digital assets.
+                            Professional cryptocurrency estate planning and digital asset will creation
                         </p>
                         <div class="hero-buttons">
                             <button class="btn btn-secondary btn-large" onclick="showAuthModal('register')">
@@ -82,28 +100,22 @@
                 </div>
                 
                 <div class="features-grid">
+                    <!-- Security/Protection Features -->
                     <div class="feature-card">
-                        <div class="feature-icon">📄</div>
-                        <h3 class="feature-title">Legal Templates</h3>
-                        <p class="feature-description">
-                            Professionally crafted legal templates specifically designed for Bitcoin asset documentation.
-                        </p>
+                        <img src="/images/branding/bitcoin_will_icon_shield.png" 
+                            alt="Secure Bitcoin Protection" 
+                            class="service-icon">
+                        <h3>Secure Asset Protection</h3>
+                        <p>Military-grade security for your Bitcoin and cryptocurrency assets</p>
                     </div>
-                    
+
+                    <!-- Will Creation Services -->
                     <div class="feature-card">
-                        <div class="feature-icon">👥</div>
-                        <h3 class="feature-title">Beneficiary Management</h3>
-                        <p class="feature-description">
-                            Easily manage primary and contingent beneficiaries with detailed instructions for asset understanding.
-                        </p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">🔐</div>
-                        <h3 class="feature-title">Asset Documentation</h3>
-                        <p class="feature-description">
-                            Comprehensive guidance on documenting your Bitcoin assets and creating instructions for beneficiaries.
-                        </p>
+                        <img src="/images/branding/bitcoin_will_icon_document.png" 
+                            alt="Bitcoin Will Creation" 
+                            class="service-icon">
+                        <h3>Professional Will Creation</h3>
+                        <p>Legally compliant Bitcoin wills with comprehensive estate planning</p>
                     </div>
                 </div>
             </div>
@@ -637,8 +649,11 @@
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay hidden">
         <div class="loading-spinner">
-            <div class="spinner"></div>
-            <p>Processing...</p>
+            <!-- <div class="spinner"></div>
+            <p></p> -->
+            <img src="/images/branding/bitcoin_will_logo_main.png" 
+            alt="Bitcoin Will" 
+            class="loading-logo">
         </div>
     </div>
 
