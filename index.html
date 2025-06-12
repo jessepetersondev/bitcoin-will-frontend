@@ -67,14 +67,20 @@
         <section id="home" class="hero">
             <div class="container">
                 <section class="hero-section">
-                    <video class="hero-video" autoplay muted loop playsinline>
+                    <!-- Desktop Video (hidden on mobile) -->
+                    <video class="hero-video" autoplay muted loop playsinline preload="metadata">
                         <source src="/videos/bitcoin_will_process_video.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
                     </video>
+                    
+                    <!-- Mobile Fallback Image (hidden on desktop) -->
+                    <img src="/images/branding/bitcoin_will_mobile_hero_bg.png" 
+                        alt="Bitcoin Will Background" 
+                        class="hero-mobile-bg">
+                    
                     <div class="hero-overlay"></div>
                     <div class="hero-content">
                         <h1 class="hero-title">Secure Your Bitcoin Legacy</h1>
-                        <p class="hero-subtitle">Professional cryptocurrency estate planning and digital asset will creation</p>
+                        <p class="hero-subtitle">Professional Bitcoin estate planning and will creation</p>
                         <div class="hero-buttons">
                             <button class="btn btn-primary btn-large" onclick="showAuthModal('register')">
                                 Get Started Today
@@ -561,7 +567,7 @@
             </div>
             <div class="footer-bottom">
                 <p class="copyright">
-                    © 2024 Bitcoin Will. All rights reserved. 
+                    © 2025 Bitcoin Will. All rights reserved. 
                     This service provides templates and guidance only. 
                     Please consult with a qualified attorney for legal advice.
                 </p>
