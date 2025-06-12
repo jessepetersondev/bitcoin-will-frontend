@@ -1552,6 +1552,322 @@ p {
 .feature-card:hover::before {
     transform: scaleX(1);
 }
+/* Enhanced Security Styling for Session-Only Mode */
+
+/* Security Notice Banner */
+.security-notice {
+    background: linear-gradient(135deg, #f7931a, #e8851c);
+    color: white;
+    padding: 12px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.5s ease-out;
+}
+
+.security-notice-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    gap: 15px;
+}
+
+.security-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.security-text {
+    flex: 1;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.security-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+}
+
+.security-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Session Warning Modal */
+.session-warning-modal,
+.edit-warning-modal,
+.will-success-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: 20px;
+}
+
+.session-warning-content,
+.edit-warning-content,
+.will-success-content {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+.session-warning-content h2,
+.edit-warning-content h2,
+.will-success-content h2 {
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.warning-points,
+.success-points {
+    margin: 1.5rem 0;
+}
+
+.warning-point,
+.success-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    border-left: 4px solid #f7931a;
+}
+
+.warning-icon,
+.success-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.warning-point div,
+.success-point div {
+    flex: 1;
+    line-height: 1.5;
+}
+
+.warning-point strong,
+.success-point strong {
+    color: #1f2937;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.warning-actions,
+.success-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.warning-actions .btn,
+.success-actions .btn {
+    min-width: 140px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+/* Enhanced Button Styles */
+.btn-primary {
+    background: linear-gradient(135deg, #f7931a, #e8851c);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #e8851c, #cc7a18);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(247, 147, 26, 0.3);
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+}
+
+/* Animations */
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Adjust body padding when security notice is shown */
+body {
+    padding-top: 48px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .security-notice-content {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+        padding: 0 15px;
+    }
+    
+    .security-text {
+        font-size: 0.8rem;
+    }
+    
+    .session-warning-content,
+    .edit-warning-content,
+    .will-success-content {
+        padding: 1.5rem;
+        margin: 10px;
+    }
+    
+    .warning-actions,
+    .success-actions {
+        flex-direction: column;
+    }
+    
+    .warning-actions .btn,
+    .success-actions .btn {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    body {
+        padding-top: 60px;
+    }
+}
+
+/* Session Data Indicator */
+.session-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(247, 147, 26, 0.9);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Enhanced Form Security Styling */
+.form-step.active {
+    border: 2px solid #f7931a;
+    border-radius: 12px;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.05), rgba(232, 133, 28, 0.05));
+}
+
+.form-group label {
+    color: #1f2937;
+    font-weight: 500;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #f7931a;
+    box-shadow: 0 0 0 3px rgba(247, 147, 26, 0.1);
+    outline: none;
+}
+
+/* Security Badge */
+.security-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-left: 8px;
+}
+
+.security-badge::before {
+    content: "🔒";
+    font-size: 0.8rem;
+}
+
+
 @media (max-width: 480px) {
     .hero-title {
         font-size: 2rem;
