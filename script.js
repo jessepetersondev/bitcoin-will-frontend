@@ -65,32 +65,47 @@ function showSecurityNotice() {
 
 function setupEventListeners() {
     // Auth form submission
-    document.getElementById('authForm').addEventListener('submit', handleAuthSubmit);
+    const authForm = document.getElementById('authForm');
+    if (authForm) {
+        authForm.addEventListener('submit', handleAuthSubmit);
+    }
     
     // Will form submission
-    document.getElementById('willForm').addEventListener('submit', handleWillSubmit);
+    const willForm = document.getElementById('willForm');
+    if (willForm) {
+        willForm.addEventListener('submit', handleWillSubmit);
+    }
     
     // Mobile menu toggle
-    document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+    }
     
     // Modal close on outside click
-    authModal.addEventListener('click', function(e) {
-        if (e.target === authModal) {
-            closeAuthModal();
-        }
-    });
+    if (authModal) {
+        authModal.addEventListener('click', function(e) {
+            if (e.target === authModal) {
+                closeAuthModal();
+            }
+        });
+    }
     
-    paymentModal.addEventListener('click', function(e) {
-        if (e.target === paymentModal) {
-            closePaymentModal();
-        }
-    });
+    if (paymentModal) {
+        paymentModal.addEventListener('click', function(e) {
+            if (e.target === paymentModal) {
+                closePaymentModal();
+            }
+        });
+    }
     
-    subscriptionModal.addEventListener('click', function(e) {
-        if (e.target === subscriptionModal) {
-            closeSubscriptionModal();
-        }
-    });
+    if (subscriptionModal) {
+        subscriptionModal.addEventListener('click', function(e) {
+            if (e.target === subscriptionModal) {
+                closeSubscriptionModal();
+            }
+        });
+    }
     
     // SECURITY: Warn before leaving if session data exists
     window.addEventListener('beforeunload', function(e) {
@@ -124,6 +139,37 @@ function hasSessionData() {
            Object.keys(sessionWillData.instructions).length > 0;
 }
 
+// Navigation Functions
+function goHome() {
+    // Show main content and hide other sections
+    document.querySelector('main').style.display = 'block';
+    if (dashboard) dashboard.classList.add('hidden');
+    if (willCreator) willCreator.classList.add('hidden');
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// MISSING FUNCTION: Check subscription and create will
+function checkSubscriptionAndCreateWill() {
+    if (!userSubscription || !userSubscription.active) {
+        showSubscriptionModal();
+        return;
+    }
+    
+    editingWillId = null; // Ensure we're creating new will
+    showWillCreator();
+}
+
+// MISSING FUNCTION: Hide will creator
+function hideWillCreator() {
+    if (willCreator) {
+        willCreator.classList.add('hidden');
+    }
+    editingWillId = null; // Clear editing state
+    showDashboard();
+}
+
 // Authentication Functions
 function showAuthModal(mode = 'login') {
     const authTitle = document.getElementById('authTitle');
@@ -131,41 +177,52 @@ function showAuthModal(mode = 'login') {
     const authToggleText = document.getElementById('authToggleText');
     const authToggleBtn = document.getElementById('authToggleBtn');
     
-    if (mode === 'login') {
-        authTitle.textContent = 'Welcome Back';
-        authSubmit.textContent = 'Sign In';
-        authToggleText.textContent = "Don't have an account?";
-        authToggleBtn.textContent = 'Sign up';
-        authToggleBtn.onclick = () => toggleAuthMode();
-    } else {
-        authTitle.textContent = 'Create Account';
-        authSubmit.textContent = 'Sign Up';
-        authToggleText.textContent = 'Already have an account?';
-        authToggleBtn.textContent = 'Sign in';
-        authToggleBtn.onclick = () => toggleAuthMode();
+    if (authTitle && authSubmit && authToggleText && authToggleBtn) {
+        if (mode === 'login') {
+            authTitle.textContent = 'Welcome Back';
+            authSubmit.textContent = 'Sign In';
+            authToggleText.textContent = "Don't have an account?";
+            authToggleBtn.textContent = 'Sign up';
+            authToggleBtn.onclick = () => toggleAuthMode();
+        } else {
+            authTitle.textContent = 'Create Account';
+            authSubmit.textContent = 'Sign Up';
+            authToggleText.textContent = 'Already have an account?';
+            authToggleBtn.textContent = 'Sign in';
+            authToggleBtn.onclick = () => toggleAuthMode();
+        }
     }
     
-    authModal.classList.add('show');
-    authModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    if (authModal) {
+        authModal.classList.add('show');
+        authModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function closeAuthModal() {
-    authModal.classList.remove('show');
-    authModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
-    clearAuthForm();
+    if (authModal) {
+        authModal.classList.remove('show');
+        authModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        clearAuthForm();
+    }
 }
 
 function toggleAuthMode() {
     const authTitle = document.getElementById('authTitle');
-    const isLogin = authTitle.textContent === 'Welcome Back';
-    showAuthModal(isLogin ? 'register' : 'login');
+    if (authTitle) {
+        const isLogin = authTitle.textContent === 'Welcome Back';
+        showAuthModal(isLogin ? 'register' : 'login');
+    }
 }
 
 function clearAuthForm() {
-    document.getElementById('authForm').reset();
-    hideError('authError');
+    const authForm = document.getElementById('authForm');
+    if (authForm) {
+        authForm.reset();
+        hideError('authError');
+    }
 }
 
 async function handleAuthSubmit(e) {
@@ -174,7 +231,8 @@ async function handleAuthSubmit(e) {
     const formData = new FormData(e.target);
     const email = formData.get('email');
     const password = formData.get('password');
-    const isLogin = document.getElementById('authTitle').textContent === 'Welcome Back';
+    const authTitle = document.getElementById('authTitle');
+    const isLogin = authTitle ? authTitle.textContent === 'Welcome Back' : true;
     
     showLoading();
     
@@ -206,7 +264,10 @@ async function handleAuthSubmit(e) {
             if (!isLogin) {
                 // New user, show subscription options
                 setTimeout(() => {
-                    document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });
+                    const pricingSection = document.getElementById('pricing');
+                    if (pricingSection) {
+                        pricingSection.scrollIntoView({ behavior: 'smooth' });
+                    }
                 }, 500);
             }
         } else {
@@ -242,21 +303,29 @@ function logout() {
 }
 
 function showUserInterface() {
-    document.getElementById('authButtons').classList.add('hidden');
-    document.getElementById('userMenu').classList.remove('hidden');
-    document.getElementById('userEmail').textContent = currentUser.email;
+    const authButtons = document.getElementById('authButtons');
+    const userMenu = document.getElementById('userMenu');
+    const userEmail = document.getElementById('userEmail');
+    
+    if (authButtons) authButtons.classList.add('hidden');
+    if (userMenu) userMenu.classList.remove('hidden');
+    if (userEmail && currentUser) userEmail.textContent = currentUser.email;
 }
 
 function showGuestInterface() {
-    document.getElementById('authButtons').classList.remove('hidden');
-    document.getElementById('userMenu').classList.add('hidden');
+    const authButtons = document.getElementById('authButtons');
+    const userMenu = document.getElementById('userMenu');
+    
+    if (authButtons) authButtons.classList.remove('hidden');
+    if (userMenu) userMenu.classList.add('hidden');
     
     // Hide dashboard and will creator
-    dashboard.classList.add('hidden');
-    willCreator.classList.add('hidden');
+    if (dashboard) dashboard.classList.add('hidden');
+    if (willCreator) willCreator.classList.add('hidden');
     
     // Show main content
-    document.querySelector('main').style.display = 'block';
+    const mainContent = document.querySelector('main');
+    if (mainContent) mainContent.style.display = 'block';
 }
 
 async function checkAuthStatus() {
@@ -305,26 +374,28 @@ function updateSubscriptionDisplay(subscription) {
     const statusBadge = document.getElementById('statusBadge');
     const statusText = document.getElementById('statusText');
     
-    if (subscription && subscription.active) {
-        statusBadge.textContent = 'Active';
-        statusBadge.style.backgroundColor = '#10b981';
-        statusText.textContent = `Next billing: ${new Date(subscription.subscription.current_period_end).toLocaleDateString()}`;
-        
-        // Update manage subscription button for active users
-        const manageBtn = document.getElementById('manageSubscriptionBtn');
-        if (manageBtn) {
-            manageBtn.textContent = 'Manage Subscription';
-            manageBtn.onclick = openSubscriptionManagement;
-        }
-    } else {
-        statusBadge.textContent = 'Inactive';
-        statusBadge.style.backgroundColor = '#ef4444';
-        statusText.textContent = 'Subscribe to create Bitcoin wills';
-        
-        const manageBtn = document.getElementById('manageSubscriptionBtn');
-        if (manageBtn) {
-            manageBtn.textContent = 'Subscribe Now';
-            manageBtn.onclick = showSubscriptionModal;
+    if (statusBadge && statusText) {
+        if (subscription && subscription.active) {
+            statusBadge.textContent = 'Active';
+            statusBadge.style.backgroundColor = '#10b981';
+            statusText.textContent = `Next billing: ${new Date(subscription.subscription.current_period_end).toLocaleDateString()}`;
+            
+            // Update manage subscription button for active users
+            const manageBtn = document.getElementById('manageSubscriptionBtn');
+            if (manageBtn) {
+                manageBtn.textContent = 'Manage Subscription';
+                manageBtn.onclick = openSubscriptionManagement;
+            }
+        } else {
+            statusBadge.textContent = 'Inactive';
+            statusBadge.style.backgroundColor = '#ef4444';
+            statusText.textContent = 'Subscribe to create Bitcoin wills';
+            
+            const manageBtn = document.getElementById('manageSubscriptionBtn');
+            if (manageBtn) {
+                manageBtn.textContent = 'Subscribe Now';
+                manageBtn.onclick = showSubscriptionModal;
+            }
         }
     }
 }
@@ -412,17 +483,23 @@ function selectPlan(plan) {
 
 function showPaymentModal() {
     const paymentTitle = document.getElementById('paymentTitle');
-    paymentTitle.textContent = `Choose Payment Method - ${currentPlan === 'monthly' ? 'Monthly' : 'Yearly'} Plan`;
+    if (paymentTitle) {
+        paymentTitle.textContent = `Choose Payment Method - ${currentPlan === 'monthly' ? 'Monthly' : 'Yearly'} Plan`;
+    }
     
-    paymentModal.classList.add('show');
-    paymentModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    if (paymentModal) {
+        paymentModal.classList.add('show');
+        paymentModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function closePaymentModal() {
-    paymentModal.classList.remove('show');
-    paymentModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
+    if (paymentModal) {
+        paymentModal.classList.remove('show');
+        paymentModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
 }
 
 async function selectPaymentMethod(method) {
@@ -582,16 +659,17 @@ function handleURLParameters() {
 }
 
 // Dashboard Functions
-function showDashboard() {
+async function showDashboard() {
     if (!currentUser) {
         showAuthModal('login');
         return;
     }
     
     // Hide main content and show dashboard
-    document.querySelector('main').style.display = 'none';
-    dashboard.classList.remove('hidden');
-    willCreator.classList.add('hidden');
+    const mainContent = document.querySelector('main');
+    if (mainContent) mainContent.style.display = 'none';
+    if (dashboard) dashboard.classList.remove('hidden');
+    if (willCreator) willCreator.classList.add('hidden');
     
     loadUserWills();
 }
@@ -620,12 +698,14 @@ async function loadUserWills() {
 function displayWills(wills) {
     const willsList = document.getElementById('willsList');
     
+    if (!willsList) return;
+    
     if (wills.length === 0) {
         willsList.innerHTML = `
             <div class="no-wills">
                 <h3>No wills created yet</h3>
                 <p>Create your first Bitcoin will to get started.</p>
-                <button onclick="showWillCreator()" class="btn btn-primary">Create Your First Will</button>
+                <button onclick="checkSubscriptionAndCreateWill()" class="btn btn-primary">Create Your First Will</button>
             </div>
         `;
         return;
@@ -668,9 +748,10 @@ function showWillCreator() {
     }
     
     // Hide other sections and show will creator
-    document.querySelector('main').style.display = 'none';
-    dashboard.classList.add('hidden');
-    willCreator.classList.remove('hidden');
+    const mainContent = document.querySelector('main');
+    if (mainContent) mainContent.style.display = 'none';
+    if (dashboard) dashboard.classList.add('hidden');
+    if (willCreator) willCreator.classList.remove('hidden');
     
     // Reset form and state
     editingWillId = null;
@@ -746,9 +827,10 @@ function proceedWithWillCreation() {
     }
     
     // Proceed with will creation
-    document.querySelector('main').style.display = 'none';
-    dashboard.classList.add('hidden');
-    willCreator.classList.remove('hidden');
+    const mainContent = document.querySelector('main');
+    if (mainContent) mainContent.style.display = 'none';
+    if (dashboard) dashboard.classList.add('hidden');
+    if (willCreator) willCreator.classList.remove('hidden');
     
     editingWillId = null;
     currentStep = 1;
@@ -849,9 +931,10 @@ function proceedWithEdit() {
     }
     
     // Proceed with editing
-    document.querySelector('main').style.display = 'none';
-    dashboard.classList.add('hidden');
-    willCreator.classList.remove('hidden');
+    const mainContent = document.querySelector('main');
+    if (mainContent) mainContent.style.display = 'none';
+    if (dashboard) dashboard.classList.add('hidden');
+    if (willCreator) willCreator.classList.remove('hidden');
     
     currentStep = 1;
     updateWillForm();
@@ -944,8 +1027,12 @@ function updateWillForm() {
     const prevBtn = document.getElementById('prevStep');
     const nextBtn = document.getElementById('nextStep');
     
-    prevBtn.style.display = currentStep === 1 ? 'none' : 'block';
-    nextBtn.textContent = currentStep === 4 ? 'Generate Will' : 'Next Step';
+    if (prevBtn) {
+        prevBtn.style.display = currentStep === 1 ? 'none' : 'block';
+    }
+    if (nextBtn) {
+        nextBtn.textContent = currentStep === 4 ? 'Generate Will' : 'Next Step';
+    }
 }
 
 function populateWillForm() {
@@ -954,20 +1041,32 @@ function populateWillForm() {
         const personalInfo = sessionWillData.personal_info;
         
         // Populate personal information fields
-        if (personalInfo.full_name) document.getElementById('fullName').value = personalInfo.full_name;
-        if (personalInfo.date_of_birth) document.getElementById('dateOfBirth').value = personalInfo.date_of_birth;
-        if (personalInfo.phone) document.getElementById('phone').value = personalInfo.phone;
-        if (personalInfo.executor_name) document.getElementById('executorName').value = personalInfo.executor_name;
-        if (personalInfo.executor_contact) document.getElementById('executorContact').value = personalInfo.executor_contact;
+        const fullNameField = document.getElementById('fullName');
+        const dobField = document.getElementById('dateOfBirth');
+        const phoneField = document.getElementById('phone');
+        const executorNameField = document.getElementById('executorName');
+        const executorContactField = document.getElementById('executorContact');
+        
+        if (fullNameField && personalInfo.full_name) fullNameField.value = personalInfo.full_name;
+        if (dobField && personalInfo.date_of_birth) dobField.value = personalInfo.date_of_birth;
+        if (phoneField && personalInfo.phone) phoneField.value = personalInfo.phone;
+        if (executorNameField && personalInfo.executor_name) executorNameField.value = personalInfo.executor_name;
+        if (executorContactField && personalInfo.executor_contact) executorContactField.value = personalInfo.executor_contact;
         
         // Populate address if available
         if (personalInfo.address) {
             const address = personalInfo.address;
-            if (address.street) document.getElementById('address').value = address.street;
-            if (address.city) document.getElementById('city').value = address.city;
-            if (address.state) document.getElementById('state').value = address.state;
-            if (address.zip_code) document.getElementById('zipCode').value = address.zip_code;
-            if (address.country) document.getElementById('country').value = address.country;
+            const addressField = document.getElementById('address');
+            const cityField = document.getElementById('city');
+            const stateField = document.getElementById('state');
+            const zipField = document.getElementById('zipCode');
+            const countryField = document.getElementById('country');
+            
+            if (addressField && address.street) addressField.value = address.street;
+            if (cityField && address.city) cityField.value = address.city;
+            if (stateField && address.state) stateField.value = address.state;
+            if (zipField && address.zip_code) zipField.value = address.zip_code;
+            if (countryField && address.country) countryField.value = address.country;
         }
     }
     
@@ -999,18 +1098,29 @@ function saveCurrentStepToSession() {
     switch(currentStep) {
         case 1:
             // Save personal information
+            const fullNameField = document.getElementById('fullName');
+            const dobField = document.getElementById('dateOfBirth');
+            const phoneField = document.getElementById('phone');
+            const executorNameField = document.getElementById('executorName');
+            const executorContactField = document.getElementById('executorContact');
+            const addressField = document.getElementById('address');
+            const cityField = document.getElementById('city');
+            const stateField = document.getElementById('state');
+            const zipField = document.getElementById('zipCode');
+            const countryField = document.getElementById('country');
+            
             sessionWillData.personal_info = {
-                full_name: document.getElementById('fullName').value,
-                date_of_birth: document.getElementById('dateOfBirth').value,
-                phone: document.getElementById('phone').value,
-                executor_name: document.getElementById('executorName').value,
-                executor_contact: document.getElementById('executorContact').value,
+                full_name: fullNameField ? fullNameField.value : '',
+                date_of_birth: dobField ? dobField.value : '',
+                phone: phoneField ? phoneField.value : '',
+                executor_name: executorNameField ? executorNameField.value : '',
+                executor_contact: executorContactField ? executorContactField.value : '',
                 address: {
-                    street: document.getElementById('address').value,
-                    city: document.getElementById('city').value,
-                    state: document.getElementById('state').value,
-                    zip_code: document.getElementById('zipCode').value,
-                    country: document.getElementById('country').value
+                    street: addressField ? addressField.value : '',
+                    city: cityField ? cityField.value : '',
+                    state: stateField ? stateField.value : '',
+                    zip_code: zipField ? zipField.value : '',
+                    country: countryField ? countryField.value : ''
                 }
             };
             break;
@@ -1058,10 +1168,14 @@ function collectAssetsData() {
         exchanges.push(exchange);
     });
     
+    const storageMethodField = document.getElementById('storageMethod');
+    const storageLocationField = document.getElementById('storageLocation');
+    const storageDetailsField = document.getElementById('storageDetails');
+    
     return {
-        storage_method: document.getElementById('storageMethod')?.value || '',
-        storage_location: document.getElementById('storageLocation')?.value || '',
-        storage_details: document.getElementById('storageDetails')?.value || '',
+        storage_method: storageMethodField ? storageMethodField.value : '',
+        storage_location: storageLocationField ? storageLocationField.value : '',
+        storage_details: storageDetailsField ? storageDetailsField.value : '',
         wallets: wallets,
         exchanges: exchanges
     };
@@ -1129,11 +1243,16 @@ function collectInstructionsData() {
         trusted_contacts.push(contact);
     });
     
+    const accessInstructionsField = document.getElementById('accessInstructions');
+    const securityNotesField = document.getElementById('securityNotes');
+    const additionalInstructionsField = document.getElementById('additionalInstructions');
+    const emergencyContactField = document.getElementById('emergencyContact');
+    
     return {
-        access_instructions: document.getElementById('accessInstructions')?.value || '',
-        security_notes: document.getElementById('securityNotes')?.value || '',
-        additional_instructions: document.getElementById('additionalInstructions')?.value || '',
-        emergency_contact: document.getElementById('emergencyContact')?.value || '',
+        access_instructions: accessInstructionsField ? accessInstructionsField.value : '',
+        security_notes: securityNotesField ? securityNotesField.value : '',
+        additional_instructions: additionalInstructionsField ? additionalInstructionsField.value : '',
+        emergency_contact: emergencyContactField ? emergencyContactField.value : '',
         trusted_contacts: trusted_contacts
     };
 }
@@ -1262,26 +1381,34 @@ function createAnotherWill() {
 
 // Subscription Modal Functions
 function showSubscriptionModal() {
-    subscriptionModal.classList.add('show');
-    subscriptionModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    if (subscriptionModal) {
+        subscriptionModal.classList.add('show');
+        subscriptionModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function closeSubscriptionModal() {
-    subscriptionModal.classList.remove('show');
-    subscriptionModal.style.display = 'none';
-    document.body.style.overflow = 'auto';
+    if (subscriptionModal) {
+        subscriptionModal.classList.remove('show');
+        subscriptionModal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
 }
 
 // Utility Functions
 function showLoading() {
-    loadingOverlay.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
+    if (loadingOverlay) {
+        loadingOverlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function hideLoading() {
-    loadingOverlay.classList.add('hidden');
-    document.body.style.overflow = 'auto';
+    if (loadingOverlay) {
+        loadingOverlay.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
 }
 
 function showError(elementId, message) {
@@ -1309,6 +1436,8 @@ function toggleMobileMenu() {
 // Dynamic form functions (preserved from original)
 function addWallet() {
     const container = document.getElementById('walletsContainer');
+    if (!container) return;
+    
     const walletCount = container.children.length + 1;
     
     const walletDiv = document.createElement('div');
@@ -1361,6 +1490,8 @@ function removeWallet(button) {
 
 function addExchange() {
     const container = document.getElementById('exchangesContainer');
+    if (!container) return;
+    
     const exchangeCount = container.children.length + 1;
     
     const exchangeDiv = document.createElement('div');
@@ -1399,6 +1530,8 @@ function removeExchange(button) {
 
 function addBeneficiary(type = 'primary') {
     const container = document.getElementById(type === 'primary' ? 'primaryBeneficiariesContainer' : 'contingentBeneficiariesContainer');
+    if (!container) return;
+    
     const beneficiaryCount = container.children.length + 1;
     const className = type === 'primary' ? 'primary-beneficiary' : 'contingent-beneficiary';
     const namePrefix = type === 'primary' ? 'beneficiary' : 'contingent';
@@ -1463,6 +1596,8 @@ function removeBeneficiary(button) {
 
 function addTrustedContact() {
     const container = document.getElementById('trustedContactsContainer');
+    if (!container) return;
+    
     const contactCount = container.children.length + 1;
     
     const contactDiv = document.createElement('div');

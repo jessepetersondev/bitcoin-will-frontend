@@ -1552,7 +1552,7 @@ p {
 .feature-card:hover::before {
     transform: scaleX(1);
 }
-/* Enhanced Security Styling for Session-Only Mode */
+/* Fixed Security Styling - Readable Text */
 
 /* Security Notice Banner */
 .security-notice {
@@ -1581,12 +1581,14 @@ p {
 .security-icon {
     font-size: 1.2rem;
     flex-shrink: 0;
+    color: white;
 }
 
 .security-text {
     flex: 1;
     font-size: 0.9rem;
     line-height: 1.4;
+    color: white;
 }
 
 .security-close {
@@ -1670,12 +1672,14 @@ p {
     font-size: 1.2rem;
     flex-shrink: 0;
     margin-top: 2px;
+    color: #f7931a;
 }
 
 .warning-point div,
 .success-point div {
     flex: 1;
     line-height: 1.5;
+    color: #374151;
 }
 
 .warning-point strong,
@@ -1701,6 +1705,9 @@ p {
     border-radius: 8px;
     font-weight: 500;
     transition: all 0.3s ease;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 
 /* Enhanced Button Styles */
@@ -1838,6 +1845,9 @@ body {
     padding: 12px;
     transition: all 0.3s ease;
     background: white;
+    color: #1f2937;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .form-group input:focus,
@@ -1865,6 +1875,98 @@ body {
 .security-badge::before {
     content: "🔒";
     font-size: 0.8rem;
+}
+
+/* Fix text visibility issues */
+.dashboard h1,
+.dashboard h2,
+.dashboard h3,
+.will-creator h1,
+.will-creator h2,
+.will-creator h3 {
+    color: #1f2937;
+}
+
+.dashboard p,
+.dashboard span,
+.will-creator p,
+.will-creator span {
+    color: #374151;
+}
+
+/* Will cards styling */
+.will-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.will-card h3 {
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.will-card p {
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+}
+
+.will-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.will-actions .btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid #f7931a;
+    color: #f7931a;
+}
+
+.btn-outline:hover {
+    background: #f7931a;
+    color: white;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+/* No wills state */
+.no-wills {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: white;
+    border-radius: 12px;
+    border: 2px dashed #e5e7eb;
+}
+
+.no-wills h3 {
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.no-wills p {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
 }
 
 
