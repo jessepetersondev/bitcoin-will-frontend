@@ -7,14 +7,6 @@ let currentStep = 1;
 let userSubscription = null;
 let editingWillId = null; // Track if we're editing an existing will
 
-// SECURITY: Session-only will data (NOT stored in database)
-let sessionWillData = {
-    personal_info: {},
-    assets: {},
-    beneficiaries: {},
-    instructions: {}
-};
-
 // API Configuration
 const API_BASE_URL = 'https://bitcoin-will-backend-production.up.railway.app/api';
 
@@ -32,7 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
     checkAuthStatus();
     handleURLParameters();
-    showSecurityNotice();
 });
 
 function initializeApp() {
@@ -47,72 +38,32 @@ function initializeApp() {
     }
 }
 
-// SECURITY: Show security notice about session-only mode
-function showSecurityNotice() {
-    const securityBanner = document.createElement('div');
-    securityBanner.className = 'security-notice';
-    securityBanner.innerHTML = `
-        <div class="security-notice-content">
-            <span class="security-icon">🔒</span>
-            <span class="security-text">
-                <strong>Enhanced Security:</strong> For your protection, Bitcoin data is processed session-only and never stored in our database.
-            </span>
-            <button onclick="this.parentElement.parentElement.style.display='none'" class="security-close">×</button>
-        </div>
-    `;
-    document.body.insertBefore(securityBanner, document.body.firstChild);
-}
-
 function setupEventListeners() {
     // Auth form submission
-    const authForm = document.getElementById('authForm');
-    if (authForm) {
-        authForm.addEventListener('submit', handleAuthSubmit);
-    }
+    document.getElementById('authForm').addEventListener('submit', handleAuthSubmit);
     
     // Will form submission
-    const willForm = document.getElementById('willForm');
-    if (willForm) {
-        willForm.addEventListener('submit', handleWillSubmit);
-    }
+    document.getElementById('willForm').addEventListener('submit', handleWillSubmit);
     
     // Mobile menu toggle
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    if (mobileMenuBtn) {
-        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
-    }
+    document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
     
     // Modal close on outside click
-    if (authModal) {
-        authModal.addEventListener('click', function(e) {
-            if (e.target === authModal) {
-                closeAuthModal();
-            }
-        });
-    }
+    authModal.addEventListener('click', function(e) {
+        if (e.target === authModal) {
+            closeAuthModal();
+        }
+    });
     
-    if (paymentModal) {
-        paymentModal.addEventListener('click', function(e) {
-            if (e.target === paymentModal) {
-                closePaymentModal();
-            }
-        });
-    }
+    paymentModal.addEventListener('click', function(e) {
+        if (e.target === paymentModal) {
+            closePaymentModal();
+        }
+    });
     
-    if (subscriptionModal) {
-        subscriptionModal.addEventListener('click', function(e) {
-            if (e.target === subscriptionModal) {
-                closeSubscriptionModal();
-            }
-        });
-    }
-    
-    // SECURITY: Warn before leaving if session data exists
-    window.addEventListener('beforeunload', function(e) {
-        if (hasSessionData()) {
-            e.preventDefault();
-            e.returnValue = 'You have unsaved Bitcoin will data that will be lost. Are you sure you want to leave?';
-            return e.returnValue;
+    subscriptionModal.addEventListener('click', function(e) {
+        if (e.target === subscriptionModal) {
+            closeSubscriptionModal();
         }
     });
     
@@ -131,45 +82,6 @@ function setupEventListeners() {
     });
 }
 
-// SECURITY: Check if user has session data
-function hasSessionData() {
-    return Object.keys(sessionWillData.personal_info).length > 0 ||
-           Object.keys(sessionWillData.assets).length > 0 ||
-           Object.keys(sessionWillData.beneficiaries).length > 0 ||
-           Object.keys(sessionWillData.instructions).length > 0;
-}
-
-// Navigation Functions
-function goHome() {
-    // Show main content and hide other sections
-    document.querySelector('main').style.display = 'block';
-    if (dashboard) dashboard.classList.add('hidden');
-    if (willCreator) willCreator.classList.add('hidden');
-    
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// MISSING FUNCTION: Check subscription and create will
-function checkSubscriptionAndCreateWill() {
-    if (!userSubscription || !userSubscription.active) {
-        showSubscriptionModal();
-        return;
-    }
-    
-    editingWillId = null; // Ensure we're creating new will
-    showWillCreator();
-}
-
-// MISSING FUNCTION: Hide will creator
-function hideWillCreator() {
-    if (willCreator) {
-        willCreator.classList.add('hidden');
-    }
-    editingWillId = null; // Clear editing state
-    showDashboard();
-}
-
 // Authentication Functions
 function showAuthModal(mode = 'login') {
     const authTitle = document.getElementById('authTitle');
@@ -177,52 +89,41 @@ function showAuthModal(mode = 'login') {
     const authToggleText = document.getElementById('authToggleText');
     const authToggleBtn = document.getElementById('authToggleBtn');
     
-    if (authTitle && authSubmit && authToggleText && authToggleBtn) {
-        if (mode === 'login') {
-            authTitle.textContent = 'Welcome Back';
-            authSubmit.textContent = 'Sign In';
-            authToggleText.textContent = "Don't have an account?";
-            authToggleBtn.textContent = 'Sign up';
-            authToggleBtn.onclick = () => toggleAuthMode();
-        } else {
-            authTitle.textContent = 'Create Account';
-            authSubmit.textContent = 'Sign Up';
-            authToggleText.textContent = 'Already have an account?';
-            authToggleBtn.textContent = 'Sign in';
-            authToggleBtn.onclick = () => toggleAuthMode();
-        }
+    if (mode === 'login') {
+        authTitle.textContent = 'Welcome Back';
+        authSubmit.textContent = 'Sign In';
+        authToggleText.textContent = "Don't have an account?";
+        authToggleBtn.textContent = 'Sign up';
+        authToggleBtn.onclick = () => toggleAuthMode();
+    } else {
+        authTitle.textContent = 'Create Account';
+        authSubmit.textContent = 'Sign Up';
+        authToggleText.textContent = 'Already have an account?';
+        authToggleBtn.textContent = 'Sign in';
+        authToggleBtn.onclick = () => toggleAuthMode();
     }
     
-    if (authModal) {
-        authModal.classList.add('show');
-        authModal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
+    authModal.classList.add('show');
+    authModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
 }
 
 function closeAuthModal() {
-    if (authModal) {
-        authModal.classList.remove('show');
-        authModal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-        clearAuthForm();
-    }
+    authModal.classList.remove('show');
+    authModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+    clearAuthForm();
 }
 
 function toggleAuthMode() {
     const authTitle = document.getElementById('authTitle');
-    if (authTitle) {
-        const isLogin = authTitle.textContent === 'Welcome Back';
-        showAuthModal(isLogin ? 'register' : 'login');
-    }
+    const isLogin = authTitle.textContent === 'Welcome Back';
+    showAuthModal(isLogin ? 'register' : 'login');
 }
 
 function clearAuthForm() {
-    const authForm = document.getElementById('authForm');
-    if (authForm) {
-        authForm.reset();
-        hideError('authError');
-    }
+    document.getElementById('authForm').reset();
+    hideError('authError');
 }
 
 async function handleAuthSubmit(e) {
@@ -231,8 +132,7 @@ async function handleAuthSubmit(e) {
     const formData = new FormData(e.target);
     const email = formData.get('email');
     const password = formData.get('password');
-    const authTitle = document.getElementById('authTitle');
-    const isLogin = authTitle ? authTitle.textContent === 'Welcome Back' : true;
+    const isLogin = document.getElementById('authTitle').textContent === 'Welcome Back';
     
     showLoading();
     
@@ -264,10 +164,7 @@ async function handleAuthSubmit(e) {
             if (!isLogin) {
                 // New user, show subscription options
                 setTimeout(() => {
-                    const pricingSection = document.getElementById('pricing');
-                    if (pricingSection) {
-                        pricingSection.scrollIntoView({ behavior: 'smooth' });
-                    }
+                    document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });
                 }, 500);
             }
         } else {
@@ -282,14 +179,6 @@ async function handleAuthSubmit(e) {
 }
 
 function logout() {
-    // SECURITY: Clear session data on logout
-    sessionWillData = {
-        personal_info: {},
-        assets: {},
-        beneficiaries: {},
-        instructions: {}
-    };
-    
     authToken = null;
     currentUser = null;
     userSubscription = null;
@@ -303,29 +192,21 @@ function logout() {
 }
 
 function showUserInterface() {
-    const authButtons = document.getElementById('authButtons');
-    const userMenu = document.getElementById('userMenu');
-    const userEmail = document.getElementById('userEmail');
-    
-    if (authButtons) authButtons.classList.add('hidden');
-    if (userMenu) userMenu.classList.remove('hidden');
-    if (userEmail && currentUser) userEmail.textContent = currentUser.email;
+    document.getElementById('authButtons').classList.add('hidden');
+    document.getElementById('userMenu').classList.remove('hidden');
+    document.getElementById('userEmail').textContent = currentUser.email;
 }
 
 function showGuestInterface() {
-    const authButtons = document.getElementById('authButtons');
-    const userMenu = document.getElementById('userMenu');
-    
-    if (authButtons) authButtons.classList.remove('hidden');
-    if (userMenu) userMenu.classList.add('hidden');
+    document.getElementById('authButtons').classList.remove('hidden');
+    document.getElementById('userMenu').classList.add('hidden');
     
     // Hide dashboard and will creator
-    if (dashboard) dashboard.classList.add('hidden');
-    if (willCreator) willCreator.classList.add('hidden');
+    dashboard.classList.add('hidden');
+    willCreator.classList.add('hidden');
     
     // Show main content
-    const mainContent = document.querySelector('main');
-    if (mainContent) mainContent.style.display = 'block';
+    document.querySelector('main').style.display = 'block';
 }
 
 async function checkAuthStatus() {
@@ -374,28 +255,26 @@ function updateSubscriptionDisplay(subscription) {
     const statusBadge = document.getElementById('statusBadge');
     const statusText = document.getElementById('statusText');
     
-    if (statusBadge && statusText) {
-        if (subscription && subscription.active) {
-            statusBadge.textContent = 'Active';
-            statusBadge.style.backgroundColor = '#10b981';
-            statusText.textContent = `Next billing: ${new Date(subscription.subscription.current_period_end).toLocaleDateString()}`;
-            
-            // Update manage subscription button for active users
-            const manageBtn = document.getElementById('manageSubscriptionBtn');
-            if (manageBtn) {
-                manageBtn.textContent = 'Manage Subscription';
-                manageBtn.onclick = openSubscriptionManagement;
-            }
-        } else {
-            statusBadge.textContent = 'Inactive';
-            statusBadge.style.backgroundColor = '#ef4444';
-            statusText.textContent = 'Subscribe to create Bitcoin wills';
-            
-            const manageBtn = document.getElementById('manageSubscriptionBtn');
-            if (manageBtn) {
-                manageBtn.textContent = 'Subscribe Now';
-                manageBtn.onclick = showSubscriptionModal;
-            }
+    if (subscription && subscription.active) {
+        statusBadge.textContent = 'Active';
+        statusBadge.style.backgroundColor = '#10b981';
+        statusText.textContent = `Next billing: ${new Date(subscription.subscription.current_period_end).toLocaleDateString()}`;
+        
+        // Update manage subscription button for active users
+        const manageBtn = document.getElementById('manageSubscriptionBtn');
+        if (manageBtn) {
+            manageBtn.textContent = 'Manage Subscription';
+            manageBtn.onclick = openSubscriptionManagement;
+        }
+    } else {
+        statusBadge.textContent = 'Inactive';
+        statusBadge.style.backgroundColor = '#ef4444';
+        statusText.textContent = 'Subscribe to create Bitcoin wills';
+        
+        const manageBtn = document.getElementById('manageSubscriptionBtn');
+        if (manageBtn) {
+            manageBtn.textContent = 'Subscribe Now';
+            manageBtn.onclick = showSubscriptionModal;
         }
     }
 }
@@ -483,23 +362,17 @@ function selectPlan(plan) {
 
 function showPaymentModal() {
     const paymentTitle = document.getElementById('paymentTitle');
-    if (paymentTitle) {
-        paymentTitle.textContent = `Choose Payment Method - ${currentPlan === 'monthly' ? 'Monthly' : 'Yearly'} Plan`;
-    }
+    paymentTitle.textContent = `Choose Payment Method - ${currentPlan === 'monthly' ? 'Monthly' : 'Yearly'} Plan`;
     
-    if (paymentModal) {
-        paymentModal.classList.add('show');
-        paymentModal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
+    paymentModal.classList.add('show');
+    paymentModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
 }
 
 function closePaymentModal() {
-    if (paymentModal) {
-        paymentModal.classList.remove('show');
-        paymentModal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
+    paymentModal.classList.remove('show');
+    paymentModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
 }
 
 async function selectPaymentMethod(method) {
@@ -639,23 +512,42 @@ function showPaymentSuccessMessage() {
     
     successDiv.innerHTML = `
         <div style="color: #10b981; font-size: 3rem; margin-bottom: 1rem;">✅</div>
-        <h3 style="color: #1f2937; margin-bottom: 1rem;">Payment Successful!</h3>
-        <p style="color: #6b7280; margin-bottom: 1.5rem;">Your subscription is now active. You can start creating Bitcoin wills.</p>
-        <button onclick="this.parentElement.remove()" style="background: #f7931a; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer;">Continue</button>
+        <h2 style="color: #1f2937; margin-bottom: 1rem;">Payment Successful!</h2>
+        <p style="color: #6b7280; margin-bottom: 1.5rem;">
+            Thank you for subscribing! Your account has been activated and you can now create Bitcoin wills.
+        </p>
+        <div style="color: #3b82f6; font-weight: 600;">Redirecting to dashboard...</div>
     `;
     
     document.body.appendChild(successDiv);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        document.body.removeChild(successDiv);
+    }, 3000);
 }
 
-// URL Parameter Handling
-function handleURLParameters() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get('session_id');
-    const success = urlParams.get('success');
-    
-    if (success === 'true' && sessionId) {
-        handlePaymentSuccess(sessionId);
+// Subscription Modal Functions
+function showSubscriptionModal() {
+    subscriptionModal.classList.add('show');
+    subscriptionModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSubscriptionModal() {
+    subscriptionModal.classList.remove('show');
+    subscriptionModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function checkSubscriptionAndCreateWill() {
+    if (!userSubscription || !userSubscription.active) {
+        showSubscriptionModal();
+        return;
     }
+    
+    editingWillId = null; // Ensure we're creating new will
+    showWillCreator();
 }
 
 // Dashboard Functions
@@ -665,47 +557,53 @@ async function showDashboard() {
         return;
     }
     
-    // Hide main content and show dashboard
-    const mainContent = document.querySelector('main');
-    if (mainContent) mainContent.style.display = 'none';
-    if (dashboard) dashboard.classList.remove('hidden');
-    if (willCreator) willCreator.classList.add('hidden');
+    // Hide main content
+    document.querySelector('main').style.display = 'none';
+    willCreator.classList.add('hidden');
     
-    loadUserWills();
+    // Show dashboard
+    dashboard.classList.remove('hidden');
+    
+    // Load dashboard data
+    await loadDashboardData();
 }
 
-async function loadUserWills() {
-    if (!authToken) return;
+async function loadDashboardData() {
+    showLoading();
     
     try {
-        const response = await fetch(API_BASE_URL + '/will/list', {
+        // Load subscription status
+        await loadSubscriptionStatus();
+        
+        // Load user's wills
+        const willsResponse = await fetch(API_BASE_URL + '/will/list', {
             headers: {
                 'Authorization': `Bearer ${authToken}`
             }
         });
         
-        if (response.ok) {
-            const wills = await response.json();
-            displayWills(wills);
-        } else {
-            console.error('Failed to load wills');
+        if (willsResponse.ok) {
+            const willsData = await willsResponse.json();
+            updateWillsList(willsData.wills || []);
         }
     } catch (error) {
-        console.error('Error loading wills:', error);
+        console.error('Dashboard load error:', error);
+    } finally {
+        hideLoading();
     }
 }
 
-function displayWills(wills) {
+function updateWillsList(wills) {
     const willsList = document.getElementById('willsList');
-    
-    if (!willsList) return;
     
     if (wills.length === 0) {
         willsList.innerHTML = `
-            <div class="no-wills">
+            <div class="will-card">
                 <h3>No wills created yet</h3>
-                <p>Create your first Bitcoin will to get started.</p>
-                <button onclick="checkSubscriptionAndCreateWill()" class="btn btn-primary">Create Your First Will</button>
+                <p>Create your first Bitcoin will to get started</p>
+                <div class="will-actions">
+                    <button class="btn btn-primary" onclick="checkSubscriptionAndCreateWill()">Create Will</button>
+                </div>
             </div>
         `;
         return;
@@ -713,236 +611,433 @@ function displayWills(wills) {
     
     willsList.innerHTML = wills.map(will => `
         <div class="will-card">
-            <div class="will-info">
-                <h3>${will.title}</h3>
-                <p>Testator: ${will.testator_name}</p>
-                <p>Created: ${new Date(will.created_at).toLocaleDateString()}</p>
-                <p>Updated: ${new Date(will.updated_at).toLocaleDateString()}</p>
-            </div>
+            <h3>${will.title}</h3>
+            <p>Created: ${new Date(will.created_at).toLocaleDateString()}</p>
+            <p>Status: ${will.status}</p>
             <div class="will-actions">
-                <button onclick="editWill(${will.id})" class="btn btn-outline">Edit</button>
-                <button onclick="downloadWill(${will.id})" class="btn btn-primary">Download</button>
-                <button onclick="deleteWill(${will.id})" class="btn btn-danger">Delete</button>
+                <button class="btn btn-primary" onclick="downloadWill(${will.id})">Download PDF</button>
+                <button class="btn btn-outline" onclick="editWill(${will.id})">Edit</button>
             </div>
         </div>
     `).join('');
 }
 
-// Will Creation Functions
+// Will Creator Functions
 function showWillCreator() {
     if (!currentUser) {
         showAuthModal('login');
         return;
     }
     
-    // Check subscription
+    // Hide other sections
+    document.querySelector('main').style.display = 'none';
+    dashboard.classList.add('hidden');
+    
+    // Show will creator
+    willCreator.classList.remove('hidden');
+    
+    // Reset form and progress if creating new will
+    if (!editingWillId) {
+        document.getElementById('willForm').reset();
+        currentStep = 1;
+        updateProgressBar();
+        showStep(1);
+    }
+}
+
+function hideWillCreator() {
+    willCreator.classList.add('hidden');
+    editingWillId = null; // Clear editing state
+    showDashboard();
+}
+
+function updateProgressBar() {
+    const steps = document.querySelectorAll('.progress-step');
+    steps.forEach((step, index) => {
+        const stepNumber = index + 1;
+        step.classList.remove('active', 'completed');
+        
+        if (stepNumber < currentStep) {
+            step.classList.add('completed');
+        } else if (stepNumber === currentStep) {
+            step.classList.add('active');
+        }
+    });
+}
+
+function showStep(stepNumber) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Show selected tab
+    const tabs = ['personal', 'assets', 'beneficiaries', 'instructions', 'review'];
+    const tabId = tabs[stepNumber - 1] + 'Tab';
+    document.getElementById(tabId).classList.add('active');
+    
+    // Update review content if on review step
+    if (stepNumber === 5) {
+        updateReviewContent();
+    }
+}
+
+function nextStep(stepNumber) {
+    if (validateCurrentStep()) {
+        currentStep = stepNumber;
+        updateProgressBar();
+        showStep(stepNumber);
+    }
+}
+
+function prevStep(stepNumber) {
+    currentStep = stepNumber;
+    updateProgressBar();
+    showStep(stepNumber);
+}
+
+function validateCurrentStep() {
+    const currentTab = document.querySelector('.tab-content.active');
+    const requiredFields = currentTab.querySelectorAll('input[required], select[required], textarea[required]');
+    
+    for (let field of requiredFields) {
+        if (!field.value.trim()) {
+            field.focus();
+            showError('willError', 'Please fill in all required fields');
+            return false;
+        }
+    }
+    
+    // Additional validation for specific steps
+    if (currentStep === 3) {
+        // Validate beneficiary percentages
+        const percentages = Array.from(document.querySelectorAll('input[name="beneficiaryPercentage"]'))
+            .map(input => parseInt(input.value) || 0);
+        
+        const total = percentages.reduce((sum, pct) => sum + pct, 0);
+        if (total !== 100) {
+            showError('willError', 'Beneficiary percentages must total 100%');
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+function updateReviewContent() {
+    const formData = new FormData(document.getElementById('willForm'));
+    const reviewContent = document.getElementById('reviewContent');
+    
+    const personalInfo = {
+        title: formData.get('title'),
+        fullName: formData.get('fullName'),
+        dateOfBirth: formData.get('dateOfBirth'),
+        address: formData.get('address'),
+        executorName: formData.get('executorName'),
+        executorContact: formData.get('executorContact')
+    };
+    
+    const wallets = [];
+    const walletTypes = formData.getAll('walletType');
+    const walletValues = formData.getAll('walletValue');
+    const walletDescriptions = formData.getAll('walletDescription');
+    
+    for (let i = 0; i < walletTypes.length; i++) {
+        wallets.push({
+            type: walletTypes[i],
+            value: walletValues[i],
+            description: walletDescriptions[i]
+        });
+    }
+    
+    const beneficiaries = [];
+    const beneficiaryNames = formData.getAll('beneficiaryName');
+    const beneficiaryPercentages = formData.getAll('beneficiaryPercentage');
+    
+    for (let i = 0; i < beneficiaryNames.length; i++) {
+        beneficiaries.push({
+            name: beneficiaryNames[i],
+            percentage: beneficiaryPercentages[i]
+        });
+    }
+    
+    reviewContent.innerHTML = `
+        <div class="review-section">
+            <h3>Personal Information</h3>
+            <p><strong>Will Title:</strong> ${personalInfo.title}</p>
+            <p><strong>Full Name:</strong> ${personalInfo.fullName}</p>
+            <p><strong>Date of Birth:</strong> ${personalInfo.dateOfBirth}</p>
+            <p><strong>Executor:</strong> ${personalInfo.executorName}</p>
+        </div>
+        
+        <div class="review-section">
+            <h3>Bitcoin Assets</h3>
+            ${wallets.map((wallet, index) => `
+                <p><strong>Wallet ${index + 1}:</strong> ${wallet.type} - ${wallet.value}</p>
+            `).join('')}
+        </div>
+        
+        <div class="review-section">
+            <h3>Beneficiaries</h3>
+            ${beneficiaries.map(beneficiary => `
+                <p><strong>${beneficiary.name}:</strong> ${beneficiary.percentage}%</p>
+            `).join('')}
+        </div>
+        
+        <div class="review-section">
+            <h3>Instructions</h3>
+            <p><strong>Access Instructions:</strong> ${formData.get('accessInstructions')}</p>
+        </div>
+    `;
+}
+
+function addWallet() {
+    const container = document.getElementById('walletsContainer');
+    const walletCount = container.children.length + 1;
+    
+    const walletHTML = `
+        <div class="wallet-entry">
+            <h4>Wallet ${walletCount}</h4>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Cryptocurrency Type</label>
+                    <input type="text" name="walletType" value="Bitcoin" required>
+                </div>
+                <div class="form-group">
+                    <label>Approximate Value</label>
+                    <input type="text" name="walletValue" placeholder="$10,000 or 0.5 BTC">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" name="walletDescription" placeholder="Hardware wallet, exchange account, etc.">
+            </div>
+            <div class="form-group">
+                <label>Wallet Address (Public)</label>
+                <input type="text" name="walletAddress" placeholder="Public wallet address">
+            </div>
+            <button type="button" class="btn btn-outline" onclick="removeWallet(this)">Remove Wallet</button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', walletHTML);
+}
+
+function removeWallet(button) {
+    button.closest('.wallet-entry').remove();
+}
+
+function addBeneficiary(type) {
+    const container = document.getElementById(type + 'Beneficiaries');
+    const beneficiaryCount = container.children.length + 1;
+    const title = type === 'primary' ? 'Primary' : 'Contingent';
+    
+    const beneficiaryHTML = `
+        <div class="beneficiary-entry">
+            <h4>${title} Beneficiary ${beneficiaryCount}</h4>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" name="beneficiaryName" required>
+                </div>
+                <div class="form-group">
+                    <label>Relationship</label>
+                    <input type="text" name="beneficiaryRelationship" placeholder="Spouse, child, etc.">
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Percentage (%)</label>
+                    <input type="number" name="beneficiaryPercentage" min="0" max="100" required>
+                </div>
+                <div class="form-group">
+                    <label>Contact Information</label>
+                    <input type="text" name="beneficiaryContact" placeholder="Phone or email">
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline" onclick="removeBeneficiary(this)">Remove Beneficiary</button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', beneficiaryHTML);
+}
+
+function removeBeneficiary(button) {
+    button.closest('.beneficiary-entry').remove();
+}
+
+function addTrustedContact() {
+    const container = document.getElementById('trustedContacts');
+    
+    const contactHTML = `
+        <div class="form-grid" style="margin-bottom: 16px;">
+            <div class="form-group">
+                <label>Contact Name</label>
+                <input type="text" name="trustedContactName" placeholder="Technical advisor name">
+            </div>
+            <div class="form-group">
+                <label>Contact Information</label>
+                <input type="text" name="trustedContactInfo" placeholder="Phone or email">
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', contactHTML);
+}
+
+async function handleWillSubmit(e) {
+    e.preventDefault();
+    
+    if (!currentUser) {
+        showAuthModal('login');
+        return;
+    }
+    
     if (!userSubscription || !userSubscription.active) {
         showSubscriptionModal();
         return;
     }
     
-    // SECURITY: Show warning about session-only mode
-    if (!hasSessionData()) {
-        showSessionWarning();
+    if (!validateCurrentStep()) {
         return;
     }
     
-    // Hide other sections and show will creator
-    const mainContent = document.querySelector('main');
-    if (mainContent) mainContent.style.display = 'none';
-    if (dashboard) dashboard.classList.add('hidden');
-    if (willCreator) willCreator.classList.remove('hidden');
-    
-    // Reset form and state
-    editingWillId = null;
-    currentStep = 1;
-    
-    // SECURITY: Clear session data for new will
-    sessionWillData = {
-        personal_info: {},
-        assets: {},
-        beneficiaries: {},
-        instructions: {}
-    };
-    
-    updateWillForm();
-}
-
-// SECURITY: Show session warning
-function showSessionWarning() {
-    const warningModal = document.createElement('div');
-    warningModal.className = 'session-warning-modal';
-    warningModal.innerHTML = `
-        <div class="session-warning-content">
-            <h2>🔒 Enhanced Security Mode</h2>
-            <div class="warning-points">
-                <div class="warning-point">
-                    <span class="warning-icon">🛡️</span>
-                    <div>
-                        <strong>No Data Storage:</strong> Your Bitcoin information is NEVER stored in our database for maximum security.
-                    </div>
-                </div>
-                <div class="warning-point">
-                    <span class="warning-icon">⏱️</span>
-                    <div>
-                        <strong>Session Only:</strong> Will creation must be completed in one session. You cannot save and return later.
-                    </div>
-                </div>
-                <div class="warning-point">
-                    <span class="warning-icon">📋</span>
-                    <div>
-                        <strong>Be Prepared:</strong> Have all your Bitcoin wallet information, beneficiary details, and instructions ready.
-                    </div>
-                </div>
-                <div class="warning-point">
-                    <span class="warning-icon">⚠️</span>
-                    <div>
-                        <strong>Data Loss Warning:</strong> If you close your browser or navigate away, all data will be lost.
-                    </div>
-                </div>
-            </div>
-            <div class="warning-actions">
-                <button onclick="cancelWillCreation()" class="btn btn-secondary">Cancel - Let Me Prepare</button>
-                <button onclick="proceedWithWillCreation()" class="btn btn-primary">I'm Ready - Start Creating</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(warningModal);
-    document.body.style.overflow = 'hidden';
-}
-
-function cancelWillCreation() {
-    const warningModal = document.querySelector('.session-warning-modal');
-    if (warningModal) {
-        warningModal.remove();
-        document.body.style.overflow = '';
-    }
-}
-
-function proceedWithWillCreation() {
-    const warningModal = document.querySelector('.session-warning-modal');
-    if (warningModal) {
-        warningModal.remove();
-        document.body.style.overflow = '';
-    }
-    
-    // Proceed with will creation
-    const mainContent = document.querySelector('main');
-    if (mainContent) mainContent.style.display = 'none';
-    if (dashboard) dashboard.classList.add('hidden');
-    if (willCreator) willCreator.classList.remove('hidden');
-    
-    editingWillId = null;
-    currentStep = 1;
-    
-    sessionWillData = {
-        personal_info: {},
-        assets: {},
-        beneficiaries: {},
-        instructions: {}
-    };
-    
-    updateWillForm();
-}
-
-async function editWill(willId) {
-    if (!authToken) return;
+    showLoading();
     
     try {
-        const response = await fetch(API_BASE_URL + `/will/${willId}`, {
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
-        });
+        const formData = new FormData(e.target);
+        const willData = extractWillData(formData);
+        
+        let response;
+        
+        if (editingWillId) {
+            // Update existing will
+            response = await fetch(API_BASE_URL + `/will/${editingWillId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(willData)
+            });
+        } else {
+            // Create new will
+            response = await fetch(API_BASE_URL + '/will/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify(willData)
+            });
+        }
+        
+        const data = await response.json();
         
         if (response.ok) {
-            const will = await response.json();
-            
-            // SECURITY: Only load personal info, no Bitcoin data
-            editingWillId = willId;
-            sessionWillData = {
-                personal_info: will.personal_info || {},
-                assets: {},  // Empty for security
-                beneficiaries: {},  // Empty for security
-                instructions: {}  // Empty for security
-            };
-            
-            // Show security warning for editing
-            showEditWarning();
+            alert(editingWillId ? 'Will updated successfully!' : 'Bitcoin will created successfully!');
+            hideWillCreator();
+            showDashboard();
         } else {
-            console.error('Failed to load will for editing');
+            throw new Error(data.message || 'Failed to save will');
         }
     } catch (error) {
-        console.error('Error loading will:', error);
+        console.error('Will submit error:', error);
+        alert('Failed to save will. Please try again.');
+    } finally {
+        hideLoading();
     }
 }
 
-// SECURITY: Show edit warning
-function showEditWarning() {
-    const warningModal = document.createElement('div');
-    warningModal.className = 'edit-warning-modal';
-    warningModal.innerHTML = `
-        <div class="edit-warning-content">
-            <h2>🔒 Secure Editing Mode</h2>
-            <div class="warning-points">
-                <div class="warning-point">
-                    <span class="warning-icon">🛡️</span>
-                    <div>
-                        <strong>Security Notice:</strong> Only personal information is loaded. Bitcoin data must be re-entered for security.
-                    </div>
-                </div>
-                <div class="warning-point">
-                    <span class="warning-icon">⏱️</span>
-                    <div>
-                        <strong>Session Only:</strong> All Bitcoin data must be re-entered and completed in this session.
-                    </div>
-                </div>
-                <div class="warning-point">
-                    <span class="warning-icon">📋</span>
-                    <div>
-                        <strong>Fresh Start:</strong> This ensures your Bitcoin information is never stored in our database.
-                    </div>
-                </div>
-            </div>
-            <div class="warning-actions">
-                <button onclick="cancelEdit()" class="btn btn-secondary">Cancel</button>
-                <button onclick="proceedWithEdit()" class="btn btn-primary">Continue Editing</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(warningModal);
-    document.body.style.overflow = 'hidden';
-}
-
-function cancelEdit() {
-    const warningModal = document.querySelector('.edit-warning-modal');
-    if (warningModal) {
-        warningModal.remove();
-        document.body.style.overflow = '';
-    }
-    editingWillId = null;
-}
-
-function proceedWithEdit() {
-    const warningModal = document.querySelector('.edit-warning-modal');
-    if (warningModal) {
-        warningModal.remove();
-        document.body.style.overflow = '';
+function extractWillData(formData) {
+    const data = {
+        title: formData.get('title'),
+        personal_info: {
+            full_name: formData.get('fullName'),
+            date_of_birth: formData.get('dateOfBirth'),
+            address: formData.get('address'),
+            ssn: formData.get('ssn'),
+            executor_name: formData.get('executorName'),
+            executor_contact: formData.get('executorContact')
+        },
+        assets: {
+            wallets: [],
+            storage_method: formData.get('storageMethod'),
+            storage_location: formData.get('storageLocation'),
+            storage_details: formData.get('storageDetails')
+        },
+        beneficiaries: {
+            primary: [],
+            contingent: []
+        },
+        instructions: {
+            access_instructions: formData.get('accessInstructions'),
+            security_notes: formData.get('securityNotes'),
+            trusted_contacts: []
+        }
+    };
+    
+    // Extract wallet data
+    const walletTypes = formData.getAll('walletType');
+    const walletValues = formData.getAll('walletValue');
+    const walletDescriptions = formData.getAll('walletDescription');
+    const walletAddresses = formData.getAll('walletAddress');
+    
+    for (let i = 0; i < walletTypes.length; i++) {
+        data.assets.wallets.push({
+            type: walletTypes[i],
+            value: walletValues[i],
+            description: walletDescriptions[i],
+            address: walletAddresses[i]
+        });
     }
     
-    // Proceed with editing
-    const mainContent = document.querySelector('main');
-    if (mainContent) mainContent.style.display = 'none';
-    if (dashboard) dashboard.classList.add('hidden');
-    if (willCreator) willCreator.classList.remove('hidden');
+    // Extract beneficiary data
+    const beneficiaryNames = formData.getAll('beneficiaryName');
+    const beneficiaryRelationships = formData.getAll('beneficiaryRelationship');
+    const beneficiaryPercentages = formData.getAll('beneficiaryPercentage');
+    const beneficiaryContacts = formData.getAll('beneficiaryContact');
     
-    currentStep = 1;
-    updateWillForm();
-    populateWillForm();
+    // Determine primary vs contingent based on container
+    const primaryContainer = document.getElementById('primaryBeneficiaries');
+    const primaryCount = primaryContainer.querySelectorAll('.beneficiary-entry').length;
+    
+    for (let i = 0; i < beneficiaryNames.length; i++) {
+        const beneficiary = {
+            name: beneficiaryNames[i],
+            relationship: beneficiaryRelationships[i],
+            percentage: parseInt(beneficiaryPercentages[i]),
+            contact: beneficiaryContacts[i]
+        };
+        
+        if (i < primaryCount) {
+            data.beneficiaries.primary.push(beneficiary);
+        } else {
+            data.beneficiaries.contingent.push(beneficiary);
+        }
+    }
+    
+    // Extract trusted contacts
+    const trustedContactNames = formData.getAll('trustedContactName');
+    const trustedContactInfos = formData.getAll('trustedContactInfo');
+    
+    for (let i = 0; i < trustedContactNames.length; i++) {
+        if (trustedContactNames[i]) {
+            data.instructions.trusted_contacts.push({
+                name: trustedContactNames[i],
+                contact: trustedContactInfos[i]
+            });
+        }
+    }
+    
+    return data;
 }
 
 async function downloadWill(willId) {
-    if (!authToken) return;
+    if (!authToken) {
+        showAuthModal('login');
+        return;
+    }
     
     try {
         showLoading();
@@ -954,679 +1049,288 @@ async function downloadWill(willId) {
         });
         
         if (response.ok) {
+            // Get the filename from the response headers or use a default
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'bitcoin_will.pdf';
+            
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                if (filenameMatch) {
+                    filename = filenameMatch[1];
+                }
+            }
+            
+            // Create blob and download
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `bitcoin_will_${willId}.pdf`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
+            
+            alert('Will downloaded successfully!');
         } else {
-            console.error('Failed to download will');
-            alert('Failed to download will. Please try again.');
+            const errorData = await response.json();
+            alert(errorData.message || 'Failed to download will');
         }
     } catch (error) {
-        console.error('Download error:', error);
-        alert('Failed to download will. Please try again.');
+        console.error('Download will error:', error);
+        alert('Failed to download will');
     } finally {
         hideLoading();
     }
 }
 
-async function deleteWill(willId) {
-    if (!confirm('Are you sure you want to delete this will? This action cannot be undone.')) {
-        return;
-    }
-    
-    try {
-        const response = await fetch(API_BASE_URL + `/will/${willId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
-        });
-        
-        if (response.ok) {
-            loadUserWills(); // Refresh the list
-        } else {
-            console.error('Failed to delete will');
-            alert('Failed to delete will. Please try again.');
-        }
-    } catch (error) {
-        console.error('Delete error:', error);
-        alert('Failed to delete will. Please try again.');
-    }
-}
-
-// Will Form Functions
-function updateWillForm() {
-    const stepIndicators = document.querySelectorAll('.step');
-    const formSteps = document.querySelectorAll('.form-step');
-    
-    // Update step indicators
-    stepIndicators.forEach((step, index) => {
-        if (index + 1 === currentStep) {
-            step.classList.add('active');
-        } else {
-            step.classList.remove('active');
-        }
-    });
-    
-    // Show current form step
-    formSteps.forEach((step, index) => {
-        if (index + 1 === currentStep) {
-            step.classList.add('active');
-        } else {
-            step.classList.remove('active');
-        }
-    });
-    
-    // Update navigation buttons
-    const prevBtn = document.getElementById('prevStep');
-    const nextBtn = document.getElementById('nextStep');
-    
-    if (prevBtn) {
-        prevBtn.style.display = currentStep === 1 ? 'none' : 'block';
-    }
-    if (nextBtn) {
-        nextBtn.textContent = currentStep === 4 ? 'Generate Will' : 'Next Step';
-    }
-}
-
-function populateWillForm() {
-    // SECURITY: Only populate personal info, Bitcoin data must be re-entered
-    if (sessionWillData.personal_info) {
-        const personalInfo = sessionWillData.personal_info;
-        
-        // Populate personal information fields
-        const fullNameField = document.getElementById('fullName');
-        const dobField = document.getElementById('dateOfBirth');
-        const phoneField = document.getElementById('phone');
-        const executorNameField = document.getElementById('executorName');
-        const executorContactField = document.getElementById('executorContact');
-        
-        if (fullNameField && personalInfo.full_name) fullNameField.value = personalInfo.full_name;
-        if (dobField && personalInfo.date_of_birth) dobField.value = personalInfo.date_of_birth;
-        if (phoneField && personalInfo.phone) phoneField.value = personalInfo.phone;
-        if (executorNameField && personalInfo.executor_name) executorNameField.value = personalInfo.executor_name;
-        if (executorContactField && personalInfo.executor_contact) executorContactField.value = personalInfo.executor_contact;
-        
-        // Populate address if available
-        if (personalInfo.address) {
-            const address = personalInfo.address;
-            const addressField = document.getElementById('address');
-            const cityField = document.getElementById('city');
-            const stateField = document.getElementById('state');
-            const zipField = document.getElementById('zipCode');
-            const countryField = document.getElementById('country');
-            
-            if (addressField && address.street) addressField.value = address.street;
-            if (cityField && address.city) cityField.value = address.city;
-            if (stateField && address.state) stateField.value = address.state;
-            if (zipField && address.zip_code) zipField.value = address.zip_code;
-            if (countryField && address.country) countryField.value = address.country;
-        }
-    }
-    
-    // Note: Bitcoin data fields remain empty for security
-}
-
-function nextStep() {
-    if (currentStep < 4) {
-        // SECURITY: Save current step to session data
-        saveCurrentStepToSession();
-        currentStep++;
-        updateWillForm();
-    } else {
-        // Generate will
-        handleWillSubmit();
-    }
-}
-
-function prevStep() {
-    if (currentStep > 1) {
-        saveCurrentStepToSession();
-        currentStep--;
-        updateWillForm();
-    }
-}
-
-// SECURITY: Save current step data to session only
-function saveCurrentStepToSession() {
-    switch(currentStep) {
-        case 1:
-            // Save personal information
-            const fullNameField = document.getElementById('fullName');
-            const dobField = document.getElementById('dateOfBirth');
-            const phoneField = document.getElementById('phone');
-            const executorNameField = document.getElementById('executorName');
-            const executorContactField = document.getElementById('executorContact');
-            const addressField = document.getElementById('address');
-            const cityField = document.getElementById('city');
-            const stateField = document.getElementById('state');
-            const zipField = document.getElementById('zipCode');
-            const countryField = document.getElementById('country');
-            
-            sessionWillData.personal_info = {
-                full_name: fullNameField ? fullNameField.value : '',
-                date_of_birth: dobField ? dobField.value : '',
-                phone: phoneField ? phoneField.value : '',
-                executor_name: executorNameField ? executorNameField.value : '',
-                executor_contact: executorContactField ? executorContactField.value : '',
-                address: {
-                    street: addressField ? addressField.value : '',
-                    city: cityField ? cityField.value : '',
-                    state: stateField ? stateField.value : '',
-                    zip_code: zipField ? zipField.value : '',
-                    country: countryField ? countryField.value : ''
-                }
-            };
-            break;
-        case 2:
-            // Save Bitcoin assets
-            sessionWillData.assets = collectAssetsData();
-            break;
-        case 3:
-            // Save beneficiaries
-            sessionWillData.beneficiaries = collectBeneficiariesData();
-            break;
-        case 4:
-            // Save instructions
-            sessionWillData.instructions = collectInstructionsData();
-            break;
-    }
-}
-
-function collectAssetsData() {
-    // Collect wallet data
-    const wallets = [];
-    document.querySelectorAll('.wallet-entry').forEach((entry, index) => {
-        const wallet = {
-            name: entry.querySelector('[name="walletName"]')?.value || '',
-            type: entry.querySelector('[name="walletType"]')?.value || '',
-            description: entry.querySelector('[name="walletDescription"]')?.value || '',
-            access_method: entry.querySelector('[name="accessMethod"]')?.value || '',
-            seed_phrase_location: entry.querySelector('[name="seedPhraseLocation"]')?.value || '',
-            private_key_location: entry.querySelector('[name="privateKeyLocation"]')?.value || '',
-            additional_notes: entry.querySelector('[name="additionalNotes"]')?.value || ''
-        };
-        wallets.push(wallet);
-    });
-    
-    // Collect exchange data
-    const exchanges = [];
-    document.querySelectorAll('.exchange-entry').forEach((entry, index) => {
-        const exchange = {
-            name: entry.querySelector('[name="exchangeName"]')?.value || '',
-            username: entry.querySelector('[name="exchangeUsername"]')?.value || '',
-            email: entry.querySelector('[name="exchangeEmail"]')?.value || '',
-            two_factor_backup: entry.querySelector('[name="twoFactorBackup"]')?.value || '',
-            additional_notes: entry.querySelector('[name="exchangeNotes"]')?.value || ''
-        };
-        exchanges.push(exchange);
-    });
-    
-    const storageMethodField = document.getElementById('storageMethod');
-    const storageLocationField = document.getElementById('storageLocation');
-    const storageDetailsField = document.getElementById('storageDetails');
-    
-    return {
-        storage_method: storageMethodField ? storageMethodField.value : '',
-        storage_location: storageLocationField ? storageLocationField.value : '',
-        storage_details: storageDetailsField ? storageDetailsField.value : '',
-        wallets: wallets,
-        exchanges: exchanges
-    };
-}
-
-function collectBeneficiariesData() {
-    // Collect primary beneficiaries
-    const primary = [];
-    document.querySelectorAll('.primary-beneficiary').forEach((entry, index) => {
-        const beneficiary = {
-            name: entry.querySelector('[name="beneficiaryName"]')?.value || '',
-            relationship: entry.querySelector('[name="beneficiaryRelationship"]')?.value || '',
-            percentage: entry.querySelector('[name="beneficiaryPercentage"]')?.value || '',
-            phone: entry.querySelector('[name="beneficiaryPhone"]')?.value || '',
-            email: entry.querySelector('[name="beneficiaryEmail"]')?.value || '',
-            bitcoin_address: entry.querySelector('[name="beneficiaryBitcoinAddress"]')?.value || '',
-            address: {
-                street: entry.querySelector('[name="beneficiaryStreet"]')?.value || '',
-                city: entry.querySelector('[name="beneficiaryCity"]')?.value || '',
-                state: entry.querySelector('[name="beneficiaryState"]')?.value || '',
-                zip_code: entry.querySelector('[name="beneficiaryZip"]')?.value || '',
-                country: entry.querySelector('[name="beneficiaryCountry"]')?.value || ''
-            }
-        };
-        primary.push(beneficiary);
-    });
-    
-    // Collect contingent beneficiaries
-    const contingent = [];
-    document.querySelectorAll('.contingent-beneficiary').forEach((entry, index) => {
-        const beneficiary = {
-            name: entry.querySelector('[name="contingentName"]')?.value || '',
-            relationship: entry.querySelector('[name="contingentRelationship"]')?.value || '',
-            percentage: entry.querySelector('[name="contingentPercentage"]')?.value || '',
-            phone: entry.querySelector('[name="contingentPhone"]')?.value || '',
-            email: entry.querySelector('[name="contingentEmail"]')?.value || '',
-            bitcoin_address: entry.querySelector('[name="contingentBitcoinAddress"]')?.value || '',
-            address: {
-                street: entry.querySelector('[name="contingentStreet"]')?.value || '',
-                city: entry.querySelector('[name="contingentCity"]')?.value || '',
-                state: entry.querySelector('[name="contingentState"]')?.value || '',
-                zip_code: entry.querySelector('[name="contingentZip"]')?.value || '',
-                country: entry.querySelector('[name="contingentCountry"]')?.value || ''
-            }
-        };
-        contingent.push(beneficiary);
-    });
-    
-    return {
-        primary: primary,
-        contingent: contingent
-    };
-}
-
-function collectInstructionsData() {
-    // Collect trusted contacts
-    const trusted_contacts = [];
-    document.querySelectorAll('.trusted-contact').forEach((entry, index) => {
-        const contact = {
-            name: entry.querySelector('[name="contactName"]')?.value || '',
-            contact: entry.querySelector('[name="contactInfo"]')?.value || '',
-            relationship: entry.querySelector('[name="contactRelationship"]')?.value || '',
-            role: entry.querySelector('[name="contactRole"]')?.value || ''
-        };
-        trusted_contacts.push(contact);
-    });
-    
-    const accessInstructionsField = document.getElementById('accessInstructions');
-    const securityNotesField = document.getElementById('securityNotes');
-    const additionalInstructionsField = document.getElementById('additionalInstructions');
-    const emergencyContactField = document.getElementById('emergencyContact');
-    
-    return {
-        access_instructions: accessInstructionsField ? accessInstructionsField.value : '',
-        security_notes: securityNotesField ? securityNotesField.value : '',
-        additional_instructions: additionalInstructionsField ? additionalInstructionsField.value : '',
-        emergency_contact: emergencyContactField ? emergencyContactField.value : '',
-        trusted_contacts: trusted_contacts
-    };
-}
-
-// MODIFIED: Will submission for session-only processing
-async function handleWillSubmit(e) {
-    if (e) e.preventDefault();
-    
+async function editWill(willId) {
     if (!authToken) {
         showAuthModal('login');
-        return;
-    }
-    
-    // Check subscription
-    if (!userSubscription || !userSubscription.active) {
-        showSubscriptionModal();
         return;
     }
     
     try {
         showLoading();
         
-        // Save current step data
-        saveCurrentStepToSession();
-        
-        // SECURITY: Use session-only endpoint
-        const endpoint = '/will/create-session';
-        
-        const response = await fetch(API_BASE_URL + endpoint, {
-            method: 'POST',
+        // Fetch will data
+        const response = await fetch(API_BASE_URL + `/will/${willId}`, {
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify({
-                title: `Bitcoin Will - ${sessionWillData.personal_info.full_name || 'Untitled'} - ${new Date().toLocaleDateString()}`,
-                personal_info: sessionWillData.personal_info,
-                assets: sessionWillData.assets,
-                beneficiaries: sessionWillData.beneficiaries,
-                instructions: sessionWillData.instructions
-            })
+            }
         });
         
         if (response.ok) {
-            // Download the PDF
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `bitcoin_will_${Date.now()}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
+            const data = await response.json();
+            const will = data.will;
             
-            // SECURITY: Clear session data after successful generation
-            sessionWillData = {
-                personal_info: {},
-                assets: {},
-                beneficiaries: {},
-                instructions: {}
-            };
+            // Set editing state
+            editingWillId = willId;
             
-            // Show success message
-            showWillSuccessMessage();
+            // Show will creator
+            showWillCreator();
+            
+            // Populate form with existing data
+            populateWillForm(will);
             
         } else {
             const errorData = await response.json();
-            showError('willError', errorData.message || 'Failed to create will');
+            alert(errorData.message || 'Failed to load will');
         }
     } catch (error) {
-        console.error('Will creation error:', error);
-        showError('willError', 'Failed to create will. Please try again.');
+        console.error('Edit will error:', error);
+        alert('Failed to load will for editing');
     } finally {
         hideLoading();
     }
 }
 
-function showWillSuccessMessage() {
-    const successModal = document.createElement('div');
-    successModal.className = 'will-success-modal';
-    successModal.innerHTML = `
-        <div class="will-success-content">
-            <h2>✅ Bitcoin Will Created Successfully!</h2>
-            <div class="success-points">
-                <div class="success-point">
-                    <span class="success-icon">📄</span>
-                    <div>Your Bitcoin will has been generated and downloaded.</div>
-                </div>
-                <div class="success-point">
-                    <span class="success-icon">🔒</span>
-                    <div>For your security, no Bitcoin data was stored in our database.</div>
-                </div>
-                <div class="success-point">
-                    <span class="success-icon">🗑️</span>
-                    <div>All session data has been cleared from memory.</div>
-                </div>
-            </div>
-            <div class="success-actions">
-                <button onclick="returnToDashboard()" class="btn btn-primary">Return to Dashboard</button>
-                <button onclick="createAnotherWill()" class="btn btn-secondary">Create Another Will</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(successModal);
-    document.body.style.overflow = 'hidden';
-}
-
-function returnToDashboard() {
-    const successModal = document.querySelector('.will-success-modal');
-    if (successModal) {
-        successModal.remove();
-        document.body.style.overflow = '';
+// Populate form with existing will data
+function populateWillForm(will) {
+    // Personal Information
+    if (will.personal_info) {
+        const personal = will.personal_info;
+        setFormValue('title', will.title);
+        setFormValue('fullName', personal.full_name);
+        setFormValue('dateOfBirth', personal.date_of_birth);
+        setFormValue('address', personal.address);
+        setFormValue('ssn', personal.ssn);
+        setFormValue('executorName', personal.executor_name);
+        setFormValue('executorContact', personal.executor_contact);
     }
-    showDashboard();
-}
-
-function createAnotherWill() {
-    const successModal = document.querySelector('.will-success-modal');
-    if (successModal) {
-        successModal.remove();
-        document.body.style.overflow = '';
+    
+    // Bitcoin Assets
+    if (will.assets) {
+        const assets = will.assets;
+        setFormValue('storageMethod', assets.storage_method);
+        setFormValue('storageLocation', assets.storage_location);
+        setFormValue('storageDetails', assets.storage_details);
+        
+        // Populate wallets
+        if (assets.wallets && assets.wallets.length > 0) {
+            const walletsContainer = document.getElementById('walletsContainer');
+            walletsContainer.innerHTML = '';
+            
+            assets.wallets.forEach((wallet, index) => {
+                addWallet();
+                const walletEntries = walletsContainer.querySelectorAll('.wallet-entry');
+                const currentEntry = walletEntries[walletEntries.length - 1];
+                
+                setFormValueInContainer(currentEntry, 'walletType', wallet.type);
+                setFormValueInContainer(currentEntry, 'walletValue', wallet.value);
+                setFormValueInContainer(currentEntry, 'walletDescription', wallet.description);
+                setFormValueInContainer(currentEntry, 'walletAddress', wallet.address);
+            });
+        }
     }
-    showWillCreator();
-}
-
-// Subscription Modal Functions
-function showSubscriptionModal() {
-    if (subscriptionModal) {
-        subscriptionModal.classList.add('show');
-        subscriptionModal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+    
+    // Beneficiaries
+    if (will.beneficiaries) {
+        const beneficiaries = will.beneficiaries;
+        
+        // Primary beneficiaries
+        if (beneficiaries.primary && beneficiaries.primary.length > 0) {
+            const primaryContainer = document.getElementById('primaryBeneficiaries');
+            primaryContainer.innerHTML = '';
+            
+            beneficiaries.primary.forEach((beneficiary, index) => {
+                addBeneficiary('primary');
+                const beneficiaryEntries = primaryContainer.querySelectorAll('.beneficiary-entry');
+                const currentEntry = beneficiaryEntries[beneficiaryEntries.length - 1];
+                
+                setFormValueInContainer(currentEntry, 'beneficiaryName', beneficiary.name);
+                setFormValueInContainer(currentEntry, 'beneficiaryRelationship', beneficiary.relationship);
+                setFormValueInContainer(currentEntry, 'beneficiaryPercentage', beneficiary.percentage);
+                setFormValueInContainer(currentEntry, 'beneficiaryContact', beneficiary.contact);
+            });
+        }
+        
+        // Contingent beneficiaries
+        if (beneficiaries.contingent && beneficiaries.contingent.length > 0) {
+            const contingentContainer = document.getElementById('contingentBeneficiaries');
+            contingentContainer.innerHTML = '';
+            
+            beneficiaries.contingent.forEach((beneficiary, index) => {
+                addBeneficiary('contingent');
+                const beneficiaryEntries = contingentContainer.querySelectorAll('.beneficiary-entry');
+                const currentEntry = beneficiaryEntries[beneficiaryEntries.length - 1];
+                
+                setFormValueInContainer(currentEntry, 'beneficiaryName', beneficiary.name);
+                setFormValueInContainer(currentEntry, 'beneficiaryRelationship', beneficiary.relationship);
+                setFormValueInContainer(currentEntry, 'beneficiaryPercentage', beneficiary.percentage);
+                setFormValueInContainer(currentEntry, 'beneficiaryContact', beneficiary.contact);
+            });
+        }
+    }
+    
+    // Instructions
+    if (will.instructions) {
+        const instructions = will.instructions;
+        setFormValue('accessInstructions', instructions.access_instructions);
+        setFormValue('securityNotes', instructions.security_notes);
+        
+        // Trusted contacts
+        if (instructions.trusted_contacts && instructions.trusted_contacts.length > 0) {
+            const contactsContainer = document.getElementById('trustedContacts');
+            contactsContainer.innerHTML = '';
+            
+            instructions.trusted_contacts.forEach((contact, index) => {
+                addTrustedContact();
+                const contactEntries = contactsContainer.querySelectorAll('.form-grid');
+                const currentEntry = contactEntries[contactEntries.length - 1];
+                
+                setFormValueInContainer(currentEntry, 'trustedContactName', contact.name);
+                setFormValueInContainer(currentEntry, 'trustedContactInfo', contact.contact);
+            });
+        }
     }
 }
 
-function closeSubscriptionModal() {
-    if (subscriptionModal) {
-        subscriptionModal.classList.remove('show');
-        subscriptionModal.style.display = 'none';
-        document.body.style.overflow = 'auto';
+// Helper function to set form values safely
+function setFormValue(fieldName, value) {
+    const field = document.querySelector(`[name="${fieldName}"]`);
+    if (field && value !== undefined && value !== null) {
+        field.value = value;
+    }
+}
+
+// Helper function to set form values within a specific container
+function setFormValueInContainer(container, fieldName, value) {
+    const field = container.querySelector(`[name="${fieldName}"]`);
+    if (field && value !== undefined && value !== null) {
+        field.value = value;
     }
 }
 
 // Utility Functions
 function showLoading() {
-    if (loadingOverlay) {
-        loadingOverlay.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
+    loadingOverlay.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
 }
 
 function hideLoading() {
-    if (loadingOverlay) {
-        loadingOverlay.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }
+    loadingOverlay.classList.add('hidden');
+    document.body.style.overflow = 'auto';
 }
 
 function showError(elementId, message) {
     const errorElement = document.getElementById(elementId);
     if (errorElement) {
         errorElement.textContent = message;
-        errorElement.style.display = 'block';
+        errorElement.classList.add('show');
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            hideError(elementId);
+        }, 5000);
+    } else {
+        // Fallback to alert if error element not found
+        alert(message);
     }
 }
 
 function hideError(elementId) {
     const errorElement = document.getElementById(elementId);
     if (errorElement) {
-        errorElement.style.display = 'none';
+        errorElement.classList.remove('show');
     }
 }
 
 function toggleMobileMenu() {
-    const mobileMenu = document.getElementById('mobileMenu');
-    if (mobileMenu) {
-        mobileMenu.classList.toggle('show');
+    const nav = document.getElementById('nav');
+    nav.classList.toggle('mobile-open');
+}
+
+// Navigation Functions
+function goHome() {
+    document.querySelector('main').style.display = 'block';
+    dashboard.classList.add('hidden');
+    willCreator.classList.add('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Handle URL parameters for payment success/failure
+function handleURLParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.get('payment') === 'success') {
+        const sessionId = urlParams.get('session_id');
+        if (sessionId && authToken) {
+            handlePaymentSuccess(sessionId);
+        } else if (authToken) {
+            // Payment successful but no session ID, just reload subscription status
+            loadSubscriptionStatus();
+            showDashboard();
+            showPaymentSuccessMessage();
+        }
+        
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (urlParams.get('payment') === 'cancelled') {
+        // Payment cancelled
+        alert('Payment was cancelled. You can try again anytime.');
+        
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (urlParams.get('return') === 'portal') {
+        // Returning from Stripe customer portal
+        if (authToken) {
+            loadSubscriptionStatus();
+            showDashboard();
+            alert('Subscription management completed successfully!');
+        }
+        
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
     }
 }
 
-// Dynamic form functions (preserved from original)
-function addWallet() {
-    const container = document.getElementById('walletsContainer');
-    if (!container) return;
-    
-    const walletCount = container.children.length + 1;
-    
-    const walletDiv = document.createElement('div');
-    walletDiv.className = 'wallet-entry';
-    walletDiv.innerHTML = `
-        <h4>Wallet ${walletCount}</h4>
-        <div class="form-group">
-            <label>Wallet Name/Label</label>
-            <input type="text" name="walletName" placeholder="e.g., Ledger Nano S">
-        </div>
-        <div class="form-group">
-            <label>Wallet Type</label>
-            <select name="walletType">
-                <option value="">Select type</option>
-                <option value="hardware">Hardware Wallet</option>
-                <option value="software">Software Wallet</option>
-                <option value="paper">Paper Wallet</option>
-                <option value="brain">Brain Wallet</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Description</label>
-            <input type="text" name="walletDescription" placeholder="Brief description">
-        </div>
-        <div class="form-group">
-            <label>Access Method</label>
-            <input type="text" name="accessMethod" placeholder="How to access this wallet">
-        </div>
-        <div class="form-group">
-            <label>Seed Phrase Location</label>
-            <input type="text" name="seedPhraseLocation" placeholder="Where seed phrase is stored">
-        </div>
-        <div class="form-group">
-            <label>Private Key Location</label>
-            <input type="text" name="privateKeyLocation" placeholder="Where private key is stored">
-        </div>
-        <div class="form-group">
-            <label>Additional Notes</label>
-            <textarea name="additionalNotes" rows="3" placeholder="Any additional information"></textarea>
-        </div>
-        <button type="button" onclick="removeWallet(this)" class="btn btn-danger">Remove Wallet</button>
-    `;
-    
-    container.appendChild(walletDiv);
-}
 
-function removeWallet(button) {
-    button.parentElement.remove();
+// Mobile menu functionality
+function toggleMobileMenu() {
+    const nav = document.getElementById('nav');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    
+    nav.classList.toggle('mobile-open');
+    mobileMenuBtn.classList.toggle('active');
 }
-
-function addExchange() {
-    const container = document.getElementById('exchangesContainer');
-    if (!container) return;
-    
-    const exchangeCount = container.children.length + 1;
-    
-    const exchangeDiv = document.createElement('div');
-    exchangeDiv.className = 'exchange-entry';
-    exchangeDiv.innerHTML = `
-        <h4>Exchange ${exchangeCount}</h4>
-        <div class="form-group">
-            <label>Exchange Name</label>
-            <input type="text" name="exchangeName" placeholder="e.g., Coinbase, Binance">
-        </div>
-        <div class="form-group">
-            <label>Username/Account ID</label>
-            <input type="text" name="exchangeUsername" placeholder="Username or account identifier">
-        </div>
-        <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" name="exchangeEmail" placeholder="Account email">
-        </div>
-        <div class="form-group">
-            <label>2FA Backup Codes Location</label>
-            <input type="text" name="twoFactorBackup" placeholder="Where 2FA backup codes are stored">
-        </div>
-        <div class="form-group">
-            <label>Additional Notes</label>
-            <textarea name="exchangeNotes" rows="3" placeholder="Any additional information about this exchange account"></textarea>
-        </div>
-        <button type="button" onclick="removeExchange(this)" class="btn btn-danger">Remove Exchange</button>
-    `;
-    
-    container.appendChild(exchangeDiv);
-}
-
-function removeExchange(button) {
-    button.parentElement.remove();
-}
-
-function addBeneficiary(type = 'primary') {
-    const container = document.getElementById(type === 'primary' ? 'primaryBeneficiariesContainer' : 'contingentBeneficiariesContainer');
-    if (!container) return;
-    
-    const beneficiaryCount = container.children.length + 1;
-    const className = type === 'primary' ? 'primary-beneficiary' : 'contingent-beneficiary';
-    const namePrefix = type === 'primary' ? 'beneficiary' : 'contingent';
-    
-    const beneficiaryDiv = document.createElement('div');
-    beneficiaryDiv.className = className;
-    beneficiaryDiv.innerHTML = `
-        <h4>${type.charAt(0).toUpperCase() + type.slice(1)} Beneficiary ${beneficiaryCount}</h4>
-        <div class="form-group">
-            <label>Full Name</label>
-            <input type="text" name="${namePrefix}Name" required>
-        </div>
-        <div class="form-group">
-            <label>Relationship</label>
-            <input type="text" name="${namePrefix}Relationship" placeholder="e.g., Spouse, Child, Friend" required>
-        </div>
-        <div class="form-group">
-            <label>Percentage of Assets</label>
-            <input type="number" name="${namePrefix}Percentage" min="0" max="100" step="0.01" required>
-        </div>
-        <div class="form-group">
-            <label>Phone Number</label>
-            <input type="tel" name="${namePrefix}Phone">
-        </div>
-        <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" name="${namePrefix}Email">
-        </div>
-        <div class="form-group">
-            <label>Bitcoin Address (Optional)</label>
-            <input type="text" name="${namePrefix}BitcoinAddress" placeholder="Their Bitcoin address if known">
-        </div>
-        <div class="form-group">
-            <label>Street Address</label>
-            <input type="text" name="${namePrefix}Street">
-        </div>
-        <div class="form-group">
-            <label>City</label>
-            <input type="text" name="${namePrefix}City">
-        </div>
-        <div class="form-group">
-            <label>State/Province</label>
-            <input type="text" name="${namePrefix}State">
-        </div>
-        <div class="form-group">
-            <label>ZIP/Postal Code</label>
-            <input type="text" name="${namePrefix}Zip">
-        </div>
-        <div class="form-group">
-            <label>Country</label>
-            <input type="text" name="${namePrefix}Country" value="United States">
-        </div>
-        <button type="button" onclick="removeBeneficiary(this)" class="btn btn-danger">Remove Beneficiary</button>
-    `;
-    
-    container.appendChild(beneficiaryDiv);
-}
-
-function removeBeneficiary(button) {
-    button.parentElement.remove();
-}
-
-function addTrustedContact() {
-    const container = document.getElementById('trustedContactsContainer');
-    if (!container) return;
-    
-    const contactCount = container.children.length + 1;
-    
-    const contactDiv = document.createElement('div');
-    contactDiv.className = 'trusted-contact';
-    contactDiv.innerHTML = `
-        <h4>Trusted Contact ${contactCount}</h4>
-        <div class="form-group">
-            <label>Name</label>
-            <input type="text" name="contactName" placeholder="Full name">
-        </div>
-        <div class="form-group">
-            <label>Contact Information</label>
-            <input type="text" name="contactInfo" placeholder="Phone and/or email">
-        </div>
-        <div class="form-group">
-            <label>Relationship</label>
-            <input type="text" name="contactRelationship" placeholder="e.g., Friend, Colleague">
-        </div>
-        <div class="form-group">
-            <label>Role/Expertise</label>
-            <input type="text" name="contactRole" placeholder="e.g., Bitcoin expert, Tech support">
-        </div>
-        <button type="button" onclick="removeTrustedContact(this)" class="btn btn-danger">Remove Contact</button>
-    `;
-    
-    container.appendChild(contactDiv);
-}
-
-function removeTrustedContact(button) {
-    button.parentElement.remove();
-}
-
