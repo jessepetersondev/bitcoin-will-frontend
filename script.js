@@ -42,7 +42,7 @@ function setupEventListeners() {
     // Auth form submission
     document.getElementById('authForm').addEventListener('submit', handleAuthSubmit);
     
-    // Will form submission
+    // Will form submission - FIXED: Use custom validation
     document.getElementById('willForm').addEventListener('submit', handleWillSubmit);
     
     // Mobile menu toggle
@@ -664,24 +664,37 @@ function prevStep() {
     }
 }
 
-// FIXED: Form validation that handles hidden fields properly
+// COMPLETELY FIXED: Form validation that properly handles hidden fields
 function validateCurrentStep() {
     const currentStepElement = document.getElementById(`step${currentStep}`);
     if (!currentStepElement) return true;
     
+    // Get all required fields in the current step
     const requiredFields = currentStepElement.querySelectorAll('[required]');
     let isValid = true;
+    let firstInvalidField = null;
     
     requiredFields.forEach(field => {
-        // FIX: Remove required attribute from hidden fields to prevent validation errors
-        if (field.offsetParent === null) {
+        // Check if field is actually visible (not hidden by CSS or parent elements)
+        const isVisible = field.offsetParent !== null && 
+                         getComputedStyle(field).display !== 'none' && 
+                         getComputedStyle(field).visibility !== 'hidden';
+        
+        if (!isVisible) {
+            // CRITICAL FIX: Temporarily remove required attribute from hidden fields
             field.removeAttribute('required');
+            // Store original required state for restoration later
+            field.setAttribute('data-was-required', 'true');
             return;
         }
         
+        // Validate visible required fields
         if (!field.value.trim()) {
             field.classList.add('error');
             isValid = false;
+            if (!firstInvalidField) {
+                firstInvalidField = field;
+            }
         } else {
             field.classList.remove('error');
         }
@@ -689,14 +702,27 @@ function validateCurrentStep() {
     
     if (!isValid) {
         alert('Please fill in all required fields before proceeding.');
+        if (firstInvalidField) {
+            firstInvalidField.focus();
+        }
     }
     
     return isValid;
 }
 
+// Function to restore required attributes after form submission
+function restoreRequiredAttributes() {
+    const fieldsToRestore = document.querySelectorAll('[data-was-required="true"]');
+    fieldsToRestore.forEach(field => {
+        field.setAttribute('required', '');
+        field.removeAttribute('data-was-required');
+    });
+}
+
 async function handleWillSubmit(e) {
     e.preventDefault();
     
+    // FIXED: Use custom validation instead of browser validation
     if (!validateCurrentStep()) {
         return;
     }
@@ -732,6 +758,10 @@ async function handleWillSubmit(e) {
         if (response.ok) {
             const result = await response.json();
             alert(editingWillId ? 'Will updated successfully!' : 'Will created successfully!');
+            
+            // Restore required attributes
+            restoreRequiredAttributes();
+            
             showDashboard();
         } else {
             const error = await response.json();
@@ -740,6 +770,9 @@ async function handleWillSubmit(e) {
     } catch (error) {
         console.error('Will submit error:', error);
         alert('Error saving will: ' + error.message);
+        
+        // Restore required attributes even on error
+        restoreRequiredAttributes();
     } finally {
         hideLoading();
     }
@@ -1569,11 +1602,5 @@ function checkSubscriptionAndCreateWill() {
     }
     
     showWillCreator();
-}
-
-// Hide will creator
-function hideWillCreator() {
-    willCreator.classList.add('hidden');
-    showDashboard();
 }
 
