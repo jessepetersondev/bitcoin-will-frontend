@@ -1,140 +1,147 @@
 // Global state
 let currentUser = null;
-let authToken = localStorage.getItem('authToken');
+let authToken = null;
+let currentPlan = null;
+let currentPaymentMethod = null;
 let currentStep = 1;
-let editingWillId = null;
+let userSubscription = null;
+let editingWillId = null; // Track if we're editing an existing will
 
 // API Configuration
 const API_BASE_URL = 'https://bitcoin-will-backend-production.up.railway.app/api';
 
+// DOM Elements
+const authModal = document.getElementById('authModal');
+const paymentModal = document.getElementById('paymentModal');
+const subscriptionModal = document.getElementById('subscriptionModal');
+const dashboard = document.getElementById('dashboard');
+const willCreator = document.getElementById('willCreator');
+const loadingOverlay = document.getElementById('loadingOverlay');
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing app...');
-    
-    // Check authentication status
-    if (authToken) {
-        console.log('Auth token found, verifying...');
-        verifyToken();
-    } else {
-        console.log('No auth token found, showing guest interface');
-        showGuestInterface();
-    }
-    
-    // Handle URL parameters for payment success
+    initializeApp();
+    setupEventListeners();
+    checkAuthStatus();
     handleURLParameters();
-    
-    // Initialize mobile menu
-    initializeMobileMenu();
 });
 
-// Authentication Functions
-async function verifyToken() {
-    try {
-        const response = await fetch(API_BASE_URL + '/auth/verify', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${authToken}`
+function initializeApp() {
+    // Check for stored auth token
+    const storedToken = localStorage.getItem('authToken');
+    const storedUser = localStorage.getItem('currentUser');
+    
+    if (storedToken && storedUser) {
+        authToken = storedToken;
+        currentUser = JSON.parse(storedUser);
+        showUserInterface();
+    }
+}
+
+function setupEventListeners() {
+    // Auth form submission
+    document.getElementById('authForm').addEventListener('submit', handleAuthSubmit);
+    
+    // Will form submission - FIXED: Use custom validation
+    document.getElementById('willForm').addEventListener('submit', handleWillSubmit);
+    
+    // Mobile menu toggle
+    document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+    
+    // Modal close on outside click
+    authModal.addEventListener('click', function(e) {
+        if (e.target === authModal) {
+            closeAuthModal();
+        }
+    });
+    
+    paymentModal.addEventListener('click', function(e) {
+        if (e.target === paymentModal) {
+            closePaymentModal();
+        }
+    });
+    
+    subscriptionModal.addEventListener('click', function(e) {
+        if (e.target === subscriptionModal) {
+            closeSubscriptionModal();
+        }
+    });
+    
+    // Smooth scrolling for navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
             }
         });
-        
-        if (response.ok) {
-            const userData = await response.json();
-            currentUser = userData;
-            showUserInterface();
-            loadDashboardData();
-        } else {
-            localStorage.removeItem('authToken');
-            authToken = null;
-            showGuestInterface();
-        }
-    } catch (error) {
-        console.error('Token verification failed:', error);
-        localStorage.removeItem('authToken');
-        authToken = null;
-        showGuestInterface();
-    }
+    });
 }
 
-function showUserInterface() {
-    document.getElementById('authSection').style.display = 'none';
-    document.getElementById('userSection').style.display = 'block';
+// Authentication Functions
+function showAuthModal(mode = 'login') {
+    const authTitle = document.getElementById('authTitle');
+    const authSubmit = document.getElementById('authSubmit');
+    const authToggleText = document.getElementById('authToggleText');
+    const authToggleBtn = document.getElementById('authToggleBtn');
     
-    if (currentUser) {
-        document.getElementById('userEmail').textContent = currentUser.email;
+    if (mode === 'login') {
+        authTitle.textContent = 'Welcome Back';
+        authSubmit.textContent = 'Sign In';
+        authToggleText.textContent = "Don't have an account?";
+        authToggleBtn.textContent = 'Sign up';
+        authToggleBtn.onclick = () => toggleAuthMode();
+    } else {
+        authTitle.textContent = 'Create Account';
+        authSubmit.textContent = 'Sign Up';
+        authToggleText.textContent = 'Already have an account?';
+        authToggleBtn.textContent = 'Sign in';
+        authToggleBtn.onclick = () => toggleAuthMode();
     }
     
-    showDashboard();
-}
-
-function showGuestInterface() {
-    document.getElementById('authSection').style.display = 'block';
-    document.getElementById('userSection').style.display = 'none';
-}
-
-function logout() {
-    localStorage.removeItem('authToken');
-    authToken = null;
-    currentUser = null;
-    showGuestInterface();
-    hideWillCreator();
-}
-
-// Authentication Modal Functions
-function openAuthModal() {
-    document.getElementById('authModal').style.display = 'block';
+    authModal.classList.add('show');
+    authModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
 }
 
 function closeAuthModal() {
-    document.getElementById('authModal').style.display = 'none';
+    authModal.classList.remove('show');
+    authModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
     clearAuthForm();
 }
 
 function toggleAuthMode() {
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    
-    if (loginForm.style.display === 'none') {
-        loginForm.style.display = 'block';
-        registerForm.style.display = 'none';
-    } else {
-        loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
-    }
-    clearAuthForm();
+    const authTitle = document.getElementById('authTitle');
+    const isLogin = authTitle.textContent === 'Welcome Back';
+    showAuthModal(isLogin ? 'register' : 'login');
 }
 
 function clearAuthForm() {
-    document.getElementById('loginEmail').value = '';
-    document.getElementById('loginPassword').value = '';
-    document.getElementById('registerEmail').value = '';
-    document.getElementById('registerPassword').value = '';
-    document.getElementById('confirmPassword').value = '';
+    document.getElementById('authForm').reset();
+    hideError('authError');
 }
 
-async function handleAuthSubmit(event, isLogin) {
-    event.preventDefault();
+async function handleAuthSubmit(e) {
+    e.preventDefault();
     
-    const email = isLogin ? 
-        document.getElementById('loginEmail').value : 
-        document.getElementById('registerEmail').value;
-    const password = isLogin ? 
-        document.getElementById('loginPassword').value : 
-        document.getElementById('registerPassword').value;
+    const formData = new FormData(e.target);
+    const email = formData.get('email');
+    const password = formData.get('password');
+    const isLogin = document.getElementById('authTitle').textContent === 'Welcome Back';
     
-    if (!isLogin) {
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        if (password !== confirmPassword) {
-            alert('Passwords do not match');
-            return;
-        }
-    }
+    showLoading();
     
     try {
         const endpoint = isLogin ? '/auth/login' : '/auth/register';
         const response = await fetch(API_BASE_URL + endpoint, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify({ email, password })
         });
@@ -143,84 +150,92 @@ async function handleAuthSubmit(event, isLogin) {
         
         if (response.ok) {
             authToken = data.access_token;
+            currentUser = data.user;
+            
             localStorage.setItem('authToken', authToken);
-            currentUser = { email: email };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
             closeAuthModal();
             showUserInterface();
-            loadDashboardData();
+            
+            // Load subscription status
+            await loadSubscriptionStatus();
+            
+            if (!isLogin) {
+                // New user, show subscription options
+                setTimeout(() => {
+                    document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });
+                }, 500);
+            }
         } else {
-            alert(data.message || 'Authentication failed');
+            showError('authError', data.message || 'Authentication failed');
         }
     } catch (error) {
         console.error('Auth error:', error);
-        alert('Authentication failed. Please try again.');
-    }
-}
-
-// Dashboard Functions
-function showDashboard() {
-    document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('willCreator').style.display = 'none';
-    document.getElementById('subscriptionSection').style.display = 'none';
-    loadDashboardData();
-}
-
-async function loadDashboardData() {
-    try {
-        showLoading();
-        
-        // Load subscription status
-        await loadSubscriptionStatus();
-        
-        // Load wills
-        const response = await fetch(API_BASE_URL + '/will/list', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
-        });
-        
-        if (response.ok) {
-            const wills = await response.json();
-            displayWills(wills);
-        } else {
-            console.error('Failed to load wills');
-        }
-    } catch (error) {
-        console.error('Error loading dashboard:', error);
+        showError('authError', 'Connection error. Please try again.');
     } finally {
         hideLoading();
     }
 }
 
-function displayWills(wills) {
-    const willsList = document.getElementById('willsList');
+function logout() {
+    authToken = null;
+    currentUser = null;
+    userSubscription = null;
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
     
-    if (wills.length === 0) {
-        willsList.innerHTML = '<p>No wills created yet. Create your first Bitcoin will!</p>';
-        return;
+    showGuestInterface();
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showUserInterface() {
+    document.getElementById('authButtons').classList.add('hidden');
+    document.getElementById('userMenu').classList.remove('hidden');
+    document.getElementById('userEmail').textContent = currentUser.email;
+}
+
+function showGuestInterface() {
+    document.getElementById('authButtons').classList.remove('hidden');
+    document.getElementById('userMenu').classList.add('hidden');
+    
+    // Hide dashboard and will creator
+    dashboard.classList.add('hidden');
+    willCreator.classList.add('hidden');
+    
+    // Show main content
+    document.querySelector('main').style.display = 'block';
+}
+
+async function checkAuthStatus() {
+    if (!authToken) return;
+    
+    try {
+        const response = await fetch(API_BASE_URL + '/auth/me', {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (!response.ok) {
+            logout();
+        } else {
+            await loadSubscriptionStatus();
+        }
+    } catch (error) {
+        console.error('Auth check error:', error);
+        logout();
     }
-    
-    willsList.innerHTML = wills.map(will => `
-        <div class="will-item">
-            <h3>${will.title}</h3>
-            <p><strong>Testator:</strong> ${will.testator_name}</p>
-            <p><strong>Status:</strong> ${will.status}</p>
-            <p><strong>Created:</strong> ${new Date(will.created_at).toLocaleDateString()}</p>
-            <div class="will-actions">
-                <button onclick="editWill(${will.id})" class="btn btn-secondary">Edit</button>
-                <button onclick="downloadWill(${will.id})" class="btn btn-primary">Download PDF</button>
-                <button onclick="deleteWill(${will.id})" class="btn btn-danger">Delete</button>
-            </div>
-        </div>
-    `).join('');
 }
 
 // Subscription Functions
 async function loadSubscriptionStatus() {
+    if (!authToken) return;
+    
     try {
         const response = await fetch(API_BASE_URL + '/subscription/status', {
-            method: 'GET',
             headers: {
                 'Authorization': `Bearer ${authToken}`
             }
@@ -228,97 +243,160 @@ async function loadSubscriptionStatus() {
         
         if (response.ok) {
             const data = await response.json();
+            userSubscription = data;
             updateSubscriptionDisplay(data);
         }
     } catch (error) {
-        console.error('Error loading subscription status:', error);
+        console.error('Subscription status error:', error);
     }
 }
 
-function updateSubscriptionDisplay(subscriptionData) {
-    const statusElement = document.getElementById('subscriptionStatus');
-    const actionsElement = document.getElementById('subscriptionActions');
+function updateSubscriptionDisplay(subscription) {
+    const statusBadge = document.getElementById('statusBadge');
+    const statusText = document.getElementById('statusText');
     
-    if (subscriptionData.active) {
-        statusElement.innerHTML = `
-            <span class="status-active">✓ Active Subscription</span>
-            <p>Plan: ${subscriptionData.plan_name}</p>
-            <p>Next billing: ${new Date(subscriptionData.current_period_end * 1000).toLocaleDateString()}</p>
-        `;
-        actionsElement.innerHTML = `
-            <button onclick="openSubscriptionManagement()" class="btn btn-secondary">Manage Subscription</button>
-        `;
-    } else {
-        statusElement.innerHTML = `
-            <span class="status-inactive">⚠ No Active Subscription</span>
-            <p>Subscribe to create and download Bitcoin wills</p>
-        `;
-        actionsElement.innerHTML = `
-            <button onclick="showSubscriptionSection()" class="btn btn-primary">Subscribe Now</button>
-        `;
-    }
-}
-
-function showSubscriptionSection() {
-    document.getElementById('dashboard').style.display = 'none';
-    document.getElementById('willCreator').style.display = 'none';
-    document.getElementById('subscriptionSection').style.display = 'block';
-}
-
-async function openSubscriptionManagement() {
-    try {
-        const response = await fetch(API_BASE_URL + '/subscription/portal', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${authToken}`,
-                'Content-Type': 'application/json'
-            }
-        });
+    if (subscription && subscription.active) {
+        statusBadge.textContent = 'Active';
+        statusBadge.style.backgroundColor = '#10b981';
+        statusText.textContent = `Next billing: ${new Date(subscription.subscription.current_period_end).toLocaleDateString()}`;
         
-        if (response.ok) {
-            const data = await response.json();
-            window.open(data.url, '_blank');
-        } else {
-            alert('Failed to open subscription management');
+        // Update manage subscription button for active users
+        const manageBtn = document.getElementById('manageSubscriptionBtn');
+        if (manageBtn) {
+            manageBtn.textContent = 'Manage Subscription';
+            manageBtn.onclick = openSubscriptionManagement;
         }
-    } catch (error) {
-        console.error('Error opening subscription management:', error);
-        alert('Failed to open subscription management');
+    } else {
+        statusBadge.textContent = 'Inactive';
+        statusBadge.style.backgroundColor = '#ef4444';
+        statusText.textContent = 'Subscribe to create Bitcoin wills';
+        
+        const manageBtn = document.getElementById('manageSubscriptionBtn');
+        if (manageBtn) {
+            manageBtn.textContent = 'Subscribe Now';
+            manageBtn.onclick = showSubscriptionModal;
+        }
     }
 }
 
-// Payment Functions
-function selectPlan(planType) {
-    document.querySelectorAll('.plan-card').forEach(card => {
-        card.classList.remove('selected');
-    });
-    
-    event.target.closest('.plan-card').classList.add('selected');
-    
-    // Store selected plan
-    window.selectedPlan = planType;
-    
-    // Show payment methods
-    document.getElementById('paymentMethods').style.display = 'block';
-}
-
-function selectPaymentMethod(method) {
-    if (method === 'stripe') {
-        processStripePayment();
-    } else if (method === 'btcpay') {
-        processBTCPayPayment();
-    }
-}
-
-async function processStripePayment() {
-    if (!window.selectedPlan) {
-        alert('Please select a plan first');
+// Subscription management function
+async function openSubscriptionManagement() {
+    if (!authToken) {
+        showAuthModal('login');
         return;
     }
     
     try {
-        showLoading();
+        // Show loading state on button
+        const manageBtn = document.getElementById('manageSubscriptionBtn');
+        let originalText = 'Manage Subscription';
+        if (manageBtn) {
+            originalText = manageBtn.innerHTML;
+            manageBtn.innerHTML = '<span class="loading"></span> Loading...';
+            manageBtn.disabled = true;
+        }
         
+        // Create portal session
+        let portal;
+        try {
+            portal = await fetch(API_BASE_URL + '/subscription/manage', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+        } catch (fetchError) {
+            console.error('Network error:', fetchError);
+            throw new Error('Network error. Please check your connection and try again.');
+        }
+        
+        if (!portal.ok) {
+            if (portal.status === 500) {
+                throw new Error('Server error. The portal service is currently unavailable.');
+            } else {
+                throw new Error(`Server responded with status: ${portal.status}`);
+            }
+        }
+        
+        let portalData;
+        try {
+            portalData = await portal.json();
+        } catch (jsonError) {
+            console.error('JSON parsing error:', jsonError);
+            throw new Error('Invalid response from server. Please try again later.');
+        }
+        
+        // Check if we have a valid URL
+        if (!portalData || !portalData.portal_url) {
+            throw new Error('No portal URL received. Please try again later.');
+        }
+        
+        // Redirect to Stripe portal
+        window.location.href = portalData.portal_url;
+        
+    } catch (err) {
+        console.error('Error creating portal session', err);
+        
+        // Reset button
+        const manageBtn = document.getElementById('manageSubscriptionBtn');
+        if (manageBtn) {
+            manageBtn.innerHTML = originalText;
+            manageBtn.disabled = false;
+        }
+        
+        // Show error
+        alert(err.message || 'Unable to open subscription management portal. Please try again later.');
+    }
+}
+
+function selectPlan(plan) {
+    if (!currentUser) {
+        showAuthModal('register');
+        return;
+    }
+    
+    currentPlan = plan;
+    showPaymentModal();
+}
+
+function showPaymentModal() {
+    const paymentTitle = document.getElementById('paymentTitle');
+    paymentTitle.textContent = `Choose Payment Method - ${currentPlan === 'monthly' ? 'Monthly' : 'Yearly'} Plan`;
+    
+    paymentModal.classList.add('show');
+    paymentModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closePaymentModal() {
+    paymentModal.classList.remove('show');
+    paymentModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+async function selectPaymentMethod(method) {
+    currentPaymentMethod = method;
+    closePaymentModal();
+    
+    showLoading();
+    
+    try {
+        if (method === 'stripe') {
+            await processStripePayment();
+        } else if (method === 'btcpay') {
+            await processBTCPayPayment();
+        }
+    } catch (error) {
+        console.error('Payment error:', error);
+        showError('paymentError', 'Payment processing failed. Please try again.');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function processStripePayment() {
+    try {
         const response = await fetch(API_BASE_URL + '/subscription/create-checkout-session', {
             method: 'POST',
             headers: {
@@ -326,7 +404,7 @@ async function processStripePayment() {
                 'Authorization': `Bearer ${authToken}`
             },
             body: JSON.stringify({
-                plan_type: window.selectedPlan
+                plan: currentPlan
             })
         });
         
@@ -336,25 +414,16 @@ async function processStripePayment() {
             // Redirect to Stripe Checkout
             window.location.href = data.checkout_url;
         } else {
-            alert(data.error || 'Failed to create checkout session');
+            throw new Error(data.message || 'Failed to create checkout session');
         }
     } catch (error) {
         console.error('Stripe payment error:', error);
-        alert('Payment processing failed. Please try again.');
-    } finally {
-        hideLoading();
+        throw error;
     }
 }
 
 async function processBTCPayPayment() {
-    if (!window.selectedPlan) {
-        alert('Please select a plan first');
-        return;
-    }
-    
     try {
-        showLoading();
-        
         const response = await fetch(API_BASE_URL + '/subscription/create-btcpay-invoice', {
             method: 'POST',
             headers: {
@@ -362,561 +431,311 @@ async function processBTCPayPayment() {
                 'Authorization': `Bearer ${authToken}`
             },
             body: JSON.stringify({
-                plan_type: window.selectedPlan
+                plan: currentPlan
             })
         });
         
         const data = await response.json();
         
         if (response.ok) {
-            // Redirect to BTCPay invoice
+            // Redirect to BTCPay Server invoice
             window.location.href = data.invoice_url;
         } else {
-            alert(data.error || 'Failed to create BTCPay invoice');
+            throw new Error(data.message || 'Failed to create BTCPay invoice');
         }
     } catch (error) {
         console.error('BTCPay payment error:', error);
-        alert('Payment processing failed. Please try again.');
+        throw error;
+    }
+}
+
+// Payment Success Handling
+async function handlePaymentSuccess(sessionId) {
+    if (!authToken || !sessionId) return;
+    
+    showLoading();
+    
+    try {
+        const response = await fetch(API_BASE_URL + '/subscription/verify-payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({
+                session_id: sessionId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            // Show success message
+            showPaymentSuccessMessage();
+            
+            // Reload subscription status
+            await loadSubscriptionStatus();
+            
+            // Show dashboard
+            setTimeout(() => {
+                showDashboard();
+            }, 2000);
+        } else {
+            console.error('Payment verification failed:', data.message);
+            showError('paymentError', 'Payment verification failed. Please contact support.');
+        }
+    } catch (error) {
+        console.error('Payment verification error:', error);
+        showError('paymentError', 'Failed to verify payment. Please contact support.');
     } finally {
         hideLoading();
     }
 }
 
-// Will Creation Functions
-async function checkSubscriptionAndCreateWill() {
-    try {
-        const response = await fetch(API_BASE_URL + '/subscription/status', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            if (data.active) {
-                showWillCreator();
-            } else {
-                alert('Please subscribe to create Bitcoin wills');
-                showSubscriptionSection();
-            }
-        } else {
-            alert('Please check your subscription status');
-        }
-    } catch (error) {
-        console.error('Subscription check error:', error);
-        alert('Failed to verify subscription. Please try again.');
+function showPaymentSuccessMessage() {
+    // Create and show success message
+    const successDiv = document.createElement('div');
+    successDiv.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        z-index: 3000;
+        text-align: center;
+        max-width: 400px;
+    `;
+    
+    successDiv.innerHTML = `
+        <div style="color: #10b981; font-size: 3rem; margin-bottom: 1rem;">✓</div>
+        <h3 style="margin: 0 0 1rem 0; color: #1f2937;">Payment Successful!</h3>
+        <p style="margin: 0; color: #6b7280;">Your subscription is now active. Redirecting to dashboard...</p>
+    `;
+    
+    document.body.appendChild(successDiv);
+    
+    setTimeout(() => {
+        document.body.removeChild(successDiv);
+    }, 3000);
+}
+
+function showSubscriptionModal() {
+    subscriptionModal.classList.add('show');
+    subscriptionModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSubscriptionModal() {
+    subscriptionModal.classList.remove('show');
+    subscriptionModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Navigation Functions
+function goHome() {
+    // Hide all sections
+    dashboard.classList.add('hidden');
+    willCreator.classList.add('hidden');
+    
+    // Show main content
+    document.querySelector('main').style.display = 'block';
+    
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showDashboard() {
+    if (!currentUser) {
+        showAuthModal('login');
+        return;
     }
+    
+    // Hide main content
+    document.querySelector('main').style.display = 'none';
+    
+    // Show dashboard
+    dashboard.classList.remove('hidden');
+    willCreator.classList.add('hidden');
+    
+    // Load wills
+    loadWills();
 }
 
 function showWillCreator() {
-    document.getElementById('dashboard').style.display = 'none';
-    document.getElementById('willCreator').style.display = 'block';
-    document.getElementById('subscriptionSection').style.display = 'none';
+    if (!currentUser) {
+        showAuthModal('login');
+        return;
+    }
+    
+    // Check subscription
+    if (!userSubscription || !userSubscription.active) {
+        showSubscriptionModal();
+        return;
+    }
+    
+    // Hide main content and dashboard
+    document.querySelector('main').style.display = 'none';
+    dashboard.classList.add('hidden');
+    
+    // Show will creator
+    willCreator.classList.remove('hidden');
     
     // Reset form
-    editingWillId = null;
     currentStep = 1;
-    updateWillForm();
-    
-    // Clear all form data
+    editingWillId = null;
     document.getElementById('willForm').reset();
-    
-    // Clear dynamic sections
-    document.getElementById('walletsContainer').innerHTML = '';
-    document.getElementById('exchangesContainer').innerHTML = '';
-    document.getElementById('primaryBeneficiariesContainer').innerHTML = '';
-    document.getElementById('contingentBeneficiariesContainer').innerHTML = '';
-    document.getElementById('trustedContactsContainer').innerHTML = '';
-    
-    // Add initial dynamic items
-    addWallet();
-    addExchange();
-    addBeneficiary('primary');
-    addBeneficiary('contingent');
-    addTrustedContact();
+    showStep(1);
 }
 
 function hideWillCreator() {
-    document.getElementById('willCreator').style.display = 'none';
+    willCreator.classList.add('hidden');
     showDashboard();
 }
 
-function updateWillForm() {
+// Will Creation Functions
+function showStep(step) {
     // Hide all steps
     for (let i = 1; i <= 4; i++) {
-        const step = document.getElementById(`step${i}`);
-        if (step) {
-            step.style.display = 'none';
+        const stepElement = document.getElementById(`step${i}`);
+        if (stepElement) {
+            stepElement.classList.add('hidden');
         }
     }
     
     // Show current step
-    const currentStepElement = document.getElementById(`step${currentStep}`);
+    const currentStepElement = document.getElementById(`step${step}`);
     if (currentStepElement) {
-        currentStepElement.style.display = 'block';
+        currentStepElement.classList.remove('hidden');
     }
     
-    // Update progress bar
-    const progressBar = document.querySelector('.progress-bar');
-    if (progressBar) {
-        progressBar.style.width = `${(currentStep / 4) * 100}%`;
-    }
-    
-    // Update step indicators
-    document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
-        indicator.classList.toggle('active', index + 1 === currentStep);
-        indicator.classList.toggle('completed', index + 1 < currentStep);
-    });
+    // Update progress
+    updateProgress();
     
     // Update navigation buttons
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const submitBtn = document.getElementById('submitBtn');
+    updateNavigationButtons();
+}
+
+function updateProgress() {
+    const progressBar = document.querySelector('.progress-fill');
+    const progressText = document.querySelector('.progress-text');
     
-    if (prevBtn) prevBtn.style.display = currentStep === 1 ? 'none' : 'inline-block';
-    if (nextBtn) nextBtn.style.display = currentStep === 4 ? 'none' : 'inline-block';
-    if (submitBtn) submitBtn.style.display = currentStep === 4 ? 'inline-block' : 'none';
+    if (progressBar) {
+        const progress = (currentStep / 4) * 100;
+        progressBar.style.width = `${progress}%`;
+    }
+    
+    if (progressText) {
+        progressText.textContent = `Step ${currentStep} of 4`;
+    }
+}
+
+function updateNavigationButtons() {
+    const prevBtn = document.querySelector('.prev-step');
+    const nextBtn = document.querySelector('.next-step');
+    const submitBtn = document.querySelector('.submit-will');
+    
+    if (prevBtn) {
+        prevBtn.style.display = currentStep > 1 ? 'inline-block' : 'none';
+    }
+    
+    if (nextBtn) {
+        nextBtn.style.display = currentStep < 4 ? 'inline-block' : 'none';
+    }
+    
+    if (submitBtn) {
+        submitBtn.style.display = currentStep === 4 ? 'inline-block' : 'none';
+    }
 }
 
 function nextStep() {
-    if (validateCurrentStep()) {
-        if (currentStep < 4) {
-            currentStep++;
-            updateWillForm();
-        }
+    if (currentStep < 4) {
+        currentStep++;
+        showStep(currentStep);
     }
 }
 
 function prevStep() {
     if (currentStep > 1) {
         currentStep--;
-        updateWillForm();
+        showStep(currentStep);
     }
 }
 
+// COMPLETELY FIXED: Form validation that properly handles hidden fields
 function validateCurrentStep() {
     const currentStepElement = document.getElementById(`step${currentStep}`);
     if (!currentStepElement) return true;
     
-    // Get all required fields in current step that are visible
+    // Get all required fields in the current step
     const requiredFields = currentStepElement.querySelectorAll('[required]');
     let isValid = true;
+    let firstInvalidField = null;
     
     requiredFields.forEach(field => {
-        // FIXED: Check if field is actually visible before validating
+        // Check if field is actually visible (not hidden by CSS or parent elements)
         const isVisible = field.offsetParent !== null && 
                          getComputedStyle(field).display !== 'none' && 
                          getComputedStyle(field).visibility !== 'hidden';
         
-        if (isVisible) {
-            if (!field.value.trim()) {
-                field.classList.add('error');
-                isValid = false;
-            } else {
-                field.classList.remove('error');
+        if (!isVisible) {
+            // CRITICAL FIX: Temporarily remove required attribute from hidden fields
+            field.removeAttribute('required');
+            // Store original required state for restoration later
+            field.setAttribute('data-was-required', 'true');
+            return;
+        }
+        
+        // Validate visible required fields
+        if (!field.value.trim()) {
+            field.classList.add('error');
+            isValid = false;
+            if (!firstInvalidField) {
+                firstInvalidField = field;
             }
         } else {
-            // FIXED: Remove required attribute from hidden fields to prevent validation errors
-            field.removeAttribute('required');
-            field.setAttribute('data-was-required', 'true');
+            field.classList.remove('error');
         }
     });
     
     if (!isValid) {
         alert('Please fill in all required fields before proceeding.');
+        if (firstInvalidField) {
+            firstInvalidField.focus();
+        }
     }
     
     return isValid;
 }
 
-// Dynamic Form Functions
-function addWallet() {
-    const container = document.getElementById('walletsContainer');
-    const walletCount = container.children.length;
-    
-    const walletDiv = document.createElement('div');
-    walletDiv.className = 'wallet-item';
-    walletDiv.innerHTML = `
-        <h4>Wallet ${walletCount + 1}</h4>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Wallet Name:</label>
-                <input type="text" name="walletName" required>
-            </div>
-            <div class="form-group">
-                <label>Wallet Type:</label>
-                <select name="walletType" required>
-                    <option value="">Select type</option>
-                    <option value="hardware">Hardware Wallet</option>
-                    <option value="software">Software Wallet</option>
-                    <option value="paper">Paper Wallet</option>
-                    <option value="mobile">Mobile Wallet</option>
-                    <option value="web">Web Wallet</option>
-                </select>
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Description:</label>
-            <textarea name="walletDescription" rows="2"></textarea>
-        </div>
-        <div class="form-group">
-            <label>Access Method:</label>
-            <textarea name="accessMethod" rows="2" required></textarea>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Seed Phrase Location:</label>
-                <input type="text" name="seedPhraseLocation">
-            </div>
-            <div class="form-group">
-                <label>Private Key Location:</label>
-                <input type="text" name="privateKeyLocation">
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Additional Notes:</label>
-            <textarea name="walletNotes" rows="2"></textarea>
-        </div>
-        <button type="button" onclick="removeWallet(this)" class="btn btn-danger btn-small">Remove Wallet</button>
-    `;
-    
-    container.appendChild(walletDiv);
-}
-
-function removeWallet(button) {
-    const walletItem = button.closest('.wallet-item');
-    walletItem.remove();
-    
-    // Update wallet numbers
-    const wallets = document.querySelectorAll('.wallet-item');
-    wallets.forEach((wallet, index) => {
-        wallet.querySelector('h4').textContent = `Wallet ${index + 1}`;
+// Function to restore required attributes after form submission
+function restoreRequiredAttributes() {
+    const fieldsToRestore = document.querySelectorAll('[data-was-required="true"]');
+    fieldsToRestore.forEach(field => {
+        field.setAttribute('required', '');
+        field.removeAttribute('data-was-required');
     });
 }
 
-function addExchange() {
-    const container = document.getElementById('exchangesContainer');
-    const exchangeCount = container.children.length;
+async function handleWillSubmit(e) {
+    e.preventDefault();
     
-    const exchangeDiv = document.createElement('div');
-    exchangeDiv.className = 'exchange-item';
-    exchangeDiv.innerHTML = `
-        <h4>Exchange ${exchangeCount + 1}</h4>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Exchange Name:</label>
-                <input type="text" name="exchangeName" required>
-            </div>
-            <div class="form-group">
-                <label>Username/Account ID:</label>
-                <input type="text" name="exchangeUsername" required>
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Email Address:</label>
-            <input type="email" name="exchangeEmail">
-        </div>
-        <div class="form-group">
-            <label>2FA Backup Location:</label>
-            <input type="text" name="twoFactorBackup">
-        </div>
-        <div class="form-group">
-            <label>Additional Notes:</label>
-            <textarea name="exchangeNotes" rows="2"></textarea>
-        </div>
-        <button type="button" onclick="removeExchange(this)" class="btn btn-danger btn-small">Remove Exchange</button>
-    `;
-    
-    container.appendChild(exchangeDiv);
-}
-
-function removeExchange(button) {
-    const exchangeItem = button.closest('.exchange-item');
-    exchangeItem.remove();
-    
-    // Update exchange numbers
-    const exchanges = document.querySelectorAll('.exchange-item');
-    exchanges.forEach((exchange, index) => {
-        exchange.querySelector('h4').textContent = `Exchange ${index + 1}`;
-    });
-}
-
-function addBeneficiary(type) {
-    const container = document.getElementById(`${type}BeneficiariesContainer`);
-    const beneficiaryCount = container.children.length;
-    
-    const beneficiaryDiv = document.createElement('div');
-    beneficiaryDiv.className = 'beneficiary-item';
-    beneficiaryDiv.innerHTML = `
-        <h4>${type.charAt(0).toUpperCase() + type.slice(1)} Beneficiary ${beneficiaryCount + 1}</h4>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Full Name:</label>
-                <input type="text" name="beneficiaryName" required>
-            </div>
-            <div class="form-group">
-                <label>Relationship:</label>
-                <input type="text" name="beneficiaryRelationship" required>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Percentage of Assets:</label>
-                <input type="number" name="beneficiaryPercentage" min="0" max="100" required>
-            </div>
-            <div class="form-group">
-                <label>Phone Number:</label>
-                <input type="tel" name="beneficiaryPhone">
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Email Address:</label>
-            <input type="email" name="beneficiaryEmail">
-        </div>
-        <div class="form-group">
-            <label>Bitcoin Address (optional):</label>
-            <input type="text" name="beneficiaryBitcoinAddress">
-        </div>
-        <div class="address-section">
-            <h5>Address Information</h5>
-            <div class="form-group">
-                <label>Street Address:</label>
-                <input type="text" name="beneficiaryStreet">
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>City:</label>
-                    <input type="text" name="beneficiaryCity">
-                </div>
-                <div class="form-group">
-                    <label>State/Province:</label>
-                    <input type="text" name="beneficiaryState">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>ZIP/Postal Code:</label>
-                    <input type="text" name="beneficiaryZip">
-                </div>
-                <div class="form-group">
-                    <label>Country:</label>
-                    <input type="text" name="beneficiaryCountry">
-                </div>
-            </div>
-        </div>
-        <button type="button" onclick="removeBeneficiary(this, '${type}')" class="btn btn-danger btn-small">Remove Beneficiary</button>
-    `;
-    
-    container.appendChild(beneficiaryDiv);
-}
-
-function removeBeneficiary(button, type) {
-    const beneficiaryItem = button.closest('.beneficiary-item');
-    beneficiaryItem.remove();
-    
-    // Update beneficiary numbers
-    const beneficiaries = document.querySelectorAll(`#${type}BeneficiariesContainer .beneficiary-item`);
-    beneficiaries.forEach((beneficiary, index) => {
-        beneficiary.querySelector('h4').textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} Beneficiary ${index + 1}`;
-    });
-}
-
-function addTrustedContact() {
-    const container = document.getElementById('trustedContactsContainer');
-    const contactCount = container.children.length;
-    
-    const contactDiv = document.createElement('div');
-    contactDiv.className = 'trusted-contact-item';
-    contactDiv.innerHTML = `
-        <h4>Trusted Contact ${contactCount + 1}</h4>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Name:</label>
-                <input type="text" name="contactName" required>
-            </div>
-            <div class="form-group">
-                <label>Contact Information:</label>
-                <input type="text" name="contactInfo" required>
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Relationship:</label>
-                <input type="text" name="contactRelationship">
-            </div>
-            <div class="form-group">
-                <label>Role/Expertise:</label>
-                <input type="text" name="contactRole">
-            </div>
-        </div>
-        <button type="button" onclick="removeTrustedContact(this)" class="btn btn-danger btn-small">Remove Contact</button>
-    `;
-    
-    container.appendChild(contactDiv);
-}
-
-function removeTrustedContact(button) {
-    const contactItem = button.closest('.trusted-contact-item');
-    contactItem.remove();
-    
-    // Update contact numbers
-    const contacts = document.querySelectorAll('.trusted-contact-item');
-    contacts.forEach((contact, index) => {
-        contact.querySelector('h4').textContent = `Trusted Contact ${index + 1}`;
-    });
-}
-
-// Form Data Collection
-function collectFormData() {
-    const formData = new FormData(document.getElementById('willForm'));
-    
-    // Personal Information
-    const personalInfo = {
-        full_name: formData.get('fullName'),
-        date_of_birth: formData.get('dateOfBirth'),
-        phone: formData.get('phone'),
-        executor_name: formData.get('executorName'),
-        executor_contact: formData.get('executorContact'),
-        address: {
-            street: formData.get('street'),
-            city: formData.get('city'),
-            state: formData.get('state'),
-            zip_code: formData.get('zipCode'),
-            country: formData.get('country')
-        }
-    };
-    
-    // Bitcoin Assets
-    const assets = {
-        wallets: collectWallets(),
-        exchanges: collectExchanges(),
-        storage_method: formData.get('storageMethod'),
-        storage_location: formData.get('storageLocation'),
-        storage_details: formData.get('storageDetails')
-    };
-    
-    // Beneficiaries
-    const beneficiaries = {
-        primary: collectBeneficiaries('primary'),
-        contingent: collectBeneficiaries('contingent')
-    };
-    
-    // Instructions
-    const instructions = {
-        access_instructions: formData.get('accessInstructions'),
-        security_notes: formData.get('securityNotes'),
-        additional_instructions: formData.get('additionalInstructions'),
-        emergency_contact: formData.get('emergencyContact'),
-        trusted_contacts: collectTrustedContacts()
-    };
-    
-    return {
-        personal_info: personalInfo,
-        assets: assets,
-        beneficiaries: beneficiaries,
-        instructions: instructions
-    };
-}
-
-function collectWallets() {
-    const wallets = [];
-    const walletItems = document.querySelectorAll('.wallet-item');
-    
-    walletItems.forEach(item => {
-        const wallet = {
-            name: item.querySelector('[name="walletName"]').value,
-            type: item.querySelector('[name="walletType"]').value,
-            description: item.querySelector('[name="walletDescription"]').value,
-            access_method: item.querySelector('[name="accessMethod"]').value,
-            seed_phrase_location: item.querySelector('[name="seedPhraseLocation"]').value,
-            private_key_location: item.querySelector('[name="privateKeyLocation"]').value,
-            additional_notes: item.querySelector('[name="walletNotes"]').value
-        };
-        wallets.push(wallet);
-    });
-    
-    return wallets;
-}
-
-function collectExchanges() {
-    const exchanges = [];
-    const exchangeItems = document.querySelectorAll('.exchange-item');
-    
-    exchangeItems.forEach(item => {
-        const exchange = {
-            name: item.querySelector('[name="exchangeName"]').value,
-            username: item.querySelector('[name="exchangeUsername"]').value,
-            email: item.querySelector('[name="exchangeEmail"]').value,
-            two_factor_backup: item.querySelector('[name="twoFactorBackup"]').value,
-            additional_notes: item.querySelector('[name="exchangeNotes"]').value
-        };
-        exchanges.push(exchange);
-    });
-    
-    return exchanges;
-}
-
-function collectBeneficiaries(type) {
-    const beneficiaries = [];
-    const beneficiaryItems = document.querySelectorAll(`#${type}BeneficiariesContainer .beneficiary-item`);
-    
-    beneficiaryItems.forEach(item => {
-        const beneficiary = {
-            name: item.querySelector('[name="beneficiaryName"]').value,
-            relationship: item.querySelector('[name="beneficiaryRelationship"]').value,
-            percentage: item.querySelector('[name="beneficiaryPercentage"]').value,
-            phone: item.querySelector('[name="beneficiaryPhone"]').value,
-            email: item.querySelector('[name="beneficiaryEmail"]').value,
-            bitcoin_address: item.querySelector('[name="beneficiaryBitcoinAddress"]').value,
-            address: {
-                street: item.querySelector('[name="beneficiaryStreet"]').value,
-                city: item.querySelector('[name="beneficiaryCity"]').value,
-                state: item.querySelector('[name="beneficiaryState"]').value,
-                zip_code: item.querySelector('[name="beneficiaryZip"]').value,
-                country: item.querySelector('[name="beneficiaryCountry"]').value
-            }
-        };
-        beneficiaries.push(beneficiary);
-    });
-    
-    return beneficiaries;
-}
-
-function collectTrustedContacts() {
-    const contacts = [];
-    const contactItems = document.querySelectorAll('.trusted-contact-item');
-    
-    contactItems.forEach(item => {
-        const contact = {
-            name: item.querySelector('[name="contactName"]').value,
-            contact: item.querySelector('[name="contactInfo"]').value,
-            relationship: item.querySelector('[name="contactRelationship"]').value,
-            role: item.querySelector('[name="contactRole"]').value
-        };
-        contacts.push(contact);
-    });
-    
-    return contacts;
-}
-
-// Will Management Functions
-async function handleWillSubmit(event) {
-    event.preventDefault();
-    
+    // FIXED: Use custom validation instead of browser validation
     if (!validateCurrentStep()) {
         return;
     }
     
+    showLoading();
+    
     try {
-        showLoading();
-        
-        const willData = collectFormData();
+        const willData = extractWillData();
         
         let response;
         if (editingWillId) {
             // Update existing will
-            response = await fetch(API_BASE_URL + `/will/${editingWillId}`, {
+            response = await fetch(`${API_BASE_URL}/will/${editingWillId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -926,7 +745,7 @@ async function handleWillSubmit(event) {
             });
         } else {
             // Create new will
-            response = await fetch(API_BASE_URL + '/will/create', {
+            response = await fetch(`${API_BASE_URL}/will/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -936,29 +755,239 @@ async function handleWillSubmit(event) {
             });
         }
         
-        const data = await response.json();
-        
         if (response.ok) {
-            alert(editingWillId ? 'Will updated successfully!' : 'Bitcoin will created successfully!');
-            hideWillCreator();
+            const result = await response.json();
+            alert(editingWillId ? 'Will updated successfully!' : 'Will created successfully!');
+            
+            // Restore required attributes
+            restoreRequiredAttributes();
+            
             showDashboard();
         } else {
-            throw new Error(data.message || 'Failed to save will');
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to save will');
         }
     } catch (error) {
         console.error('Will submit error:', error);
-        alert('Failed to save will. Please try again.');
+        alert('Error saving will: ' + error.message);
+        
+        // Restore required attributes even on error
+        restoreRequiredAttributes();
     } finally {
         hideLoading();
     }
+}
+
+function extractWillData() {
+    const formData = new FormData(document.getElementById('willForm'));
+    
+    // Extract personal information
+    const personalInfo = {
+        full_name: formData.get('fullName'),
+        date_of_birth: formData.get('dateOfBirth'),
+        phone: formData.get('phone'),
+        address: {
+            street: formData.get('street'),
+            city: formData.get('city'),
+            state: formData.get('state'),
+            zip_code: formData.get('zipCode'),
+            country: formData.get('country')
+        },
+        executor_name: formData.get('executorName'),
+        executor_contact: formData.get('executorContact')
+    };
+    
+    // Extract Bitcoin assets
+    const assets = {
+        storage_method: formData.get('storageMethod'),
+        storage_location: formData.get('storageLocation'),
+        storage_details: formData.get('storageDetails'),
+        wallets: [],
+        exchanges: []
+    };
+    
+    // Collect wallet data
+    const walletContainers = document.querySelectorAll('.wallet-container');
+    walletContainers.forEach(container => {
+        const wallet = {
+            name: container.querySelector('[name="walletName"]')?.value || '',
+            type: container.querySelector('[name="walletType"]')?.value || '',
+            description: container.querySelector('[name="walletDescription"]')?.value || '',
+            access_method: container.querySelector('[name="accessMethod"]')?.value || '',
+            seed_phrase_location: container.querySelector('[name="seedPhraseLocation"]')?.value || '',
+            private_key_location: container.querySelector('[name="privateKeyLocation"]')?.value || '',
+            additional_notes: container.querySelector('[name="walletNotes"]')?.value || ''
+        };
+        
+        if (wallet.name || wallet.type || wallet.description) {
+            assets.wallets.push(wallet);
+        }
+    });
+    
+    // Collect exchange data
+    const exchangeContainers = document.querySelectorAll('.exchange-container');
+    exchangeContainers.forEach(container => {
+        const exchange = {
+            name: container.querySelector('[name="exchangeName"]')?.value || '',
+            username: container.querySelector('[name="exchangeUsername"]')?.value || '',
+            email: container.querySelector('[name="exchangeEmail"]')?.value || '',
+            two_factor_backup: container.querySelector('[name="twoFactorBackup"]')?.value || '',
+            additional_notes: container.querySelector('[name="exchangeNotes"]')?.value || ''
+        };
+        
+        if (exchange.name || exchange.username || exchange.email) {
+            assets.exchanges.push(exchange);
+        }
+    });
+    
+    // Extract beneficiaries
+    const beneficiaries = {
+        primary: [],
+        contingent: []
+    };
+    
+    // Collect primary beneficiaries
+    const primaryContainers = document.querySelectorAll('.primary-beneficiary-container');
+    primaryContainers.forEach(container => {
+        const beneficiary = {
+            name: container.querySelector('[name="beneficiaryName"]')?.value || '',
+            relationship: container.querySelector('[name="relationship"]')?.value || '',
+            percentage: container.querySelector('[name="percentage"]')?.value || '',
+            phone: container.querySelector('[name="beneficiaryPhone"]')?.value || '',
+            email: container.querySelector('[name="beneficiaryEmail"]')?.value || '',
+            bitcoin_address: container.querySelector('[name="bitcoinAddress"]')?.value || '',
+            address: {
+                street: container.querySelector('[name="beneficiaryStreet"]')?.value || '',
+                city: container.querySelector('[name="beneficiaryCity"]')?.value || '',
+                state: container.querySelector('[name="beneficiaryState"]')?.value || '',
+                zip_code: container.querySelector('[name="beneficiaryZip"]')?.value || '',
+                country: container.querySelector('[name="beneficiaryCountry"]')?.value || ''
+            }
+        };
+        
+        if (beneficiary.name || beneficiary.relationship) {
+            beneficiaries.primary.push(beneficiary);
+        }
+    });
+    
+    // Collect contingent beneficiaries
+    const contingentContainers = document.querySelectorAll('.contingent-beneficiary-container');
+    contingentContainers.forEach(container => {
+        const beneficiary = {
+            name: container.querySelector('[name="contingentName"]')?.value || '',
+            relationship: container.querySelector('[name="contingentRelationship"]')?.value || '',
+            percentage: container.querySelector('[name="contingentPercentage"]')?.value || '',
+            phone: container.querySelector('[name="contingentPhone"]')?.value || '',
+            email: container.querySelector('[name="contingentEmail"]')?.value || '',
+            bitcoin_address: container.querySelector('[name="contingentBitcoinAddress"]')?.value || '',
+            address: {
+                street: container.querySelector('[name="contingentStreet"]')?.value || '',
+                city: container.querySelector('[name="contingentCity"]')?.value || '',
+                state: container.querySelector('[name="contingentState"]')?.value || '',
+                zip_code: container.querySelector('[name="contingentZip"]')?.value || '',
+                country: container.querySelector('[name="contingentCountry"]')?.value || ''
+            }
+        };
+        
+        if (beneficiary.name || beneficiary.relationship) {
+            beneficiaries.contingent.push(beneficiary);
+        }
+    });
+    
+    // Extract instructions
+    const instructions = {
+        access_instructions: formData.get('accessInstructions'),
+        security_notes: formData.get('securityNotes'),
+        additional_instructions: formData.get('additionalInstructions'),
+        emergency_contact: formData.get('emergencyContact'),
+        trusted_contacts: []
+    };
+    
+    // Collect trusted contacts
+    const contactContainers = document.querySelectorAll('.trusted-contact-container');
+    contactContainers.forEach(container => {
+        const contact = {
+            name: container.querySelector('[name="contactName"]')?.value || '',
+            contact: container.querySelector('[name="contactInfo"]')?.value || '',
+            relationship: container.querySelector('[name="contactRelationship"]')?.value || '',
+            role: container.querySelector('[name="contactRole"]')?.value || ''
+        };
+        
+        if (contact.name || contact.contact) {
+            instructions.trusted_contacts.push(contact);
+        }
+    });
+    
+    return {
+        personal_info: personalInfo,
+        assets: assets,
+        beneficiaries: beneficiaries,
+        instructions: instructions
+    };
+}
+
+// Dashboard Functions
+async function loadWills() {
+    if (!authToken) return;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/will/list`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            const wills = await response.json();
+            updateWillsList(wills);
+        } else {
+            console.error('Failed to load wills');
+        }
+    } catch (error) {
+        console.error('Load wills error:', error);
+    }
+}
+
+function updateWillsList(wills) {
+    const willsList = document.getElementById('willsList');
+    if (!willsList) return;
+    
+    if (wills.length === 0) {
+        willsList.innerHTML = `
+            <div class="empty-state">
+                <h3>No wills created yet</h3>
+                <p>Create your first Bitcoin will to get started</p>
+                <button onclick="showWillCreator()" class="btn btn-primary">Create Will</button>
+            </div>
+        `;
+        return;
+    }
+    
+    willsList.innerHTML = wills.map(will => `
+        <div class="will-item">
+            <div class="will-header">
+                <h3>${will.title || 'Bitcoin Will'}</h3>
+                <span class="will-status ${will.status}">${will.status}</span>
+            </div>
+            <div class="will-details">
+                <p><strong>Testator:</strong> ${will.testator_name || 'Not specified'}</p>
+                <p><strong>Created:</strong> ${new Date(will.created_at).toLocaleDateString()}</p>
+                <p><strong>Updated:</strong> ${new Date(will.updated_at).toLocaleDateString()}</p>
+            </div>
+            <div class="will-actions">
+                <button onclick="editWill(${will.id})" class="btn btn-secondary">Edit</button>
+                <button onclick="downloadWill(${will.id})" class="btn btn-primary">Download PDF</button>
+                <button onclick="deleteWill(${will.id})" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    `).join('');
 }
 
 async function editWill(willId) {
     try {
         showLoading();
         
-        const response = await fetch(API_BASE_URL + `/will/${willId}`, {
-            method: 'GET',
+        const response = await fetch(`${API_BASE_URL}/will/${willId}`, {
             headers: {
                 'Authorization': `Bearer ${authToken}`
             }
@@ -967,150 +996,158 @@ async function editWill(willId) {
         if (response.ok) {
             const willData = await response.json();
             editingWillId = willId;
+            
+            // Show will creator
             showWillCreator();
+            
+            // Populate form with existing data
             populateWillForm(willData);
         } else {
             alert('Failed to load will data');
         }
     } catch (error) {
-        console.error('Error loading will:', error);
-        alert('Failed to load will data');
+        console.error('Edit will error:', error);
+        alert('Error loading will data');
     } finally {
         hideLoading();
     }
 }
 
 function populateWillForm(willData) {
-    // Populate personal information
-    if (willData.personal_info) {
-        setFormValue('fullName', willData.personal_info.full_name);
-        setFormValue('dateOfBirth', willData.personal_info.date_of_birth);
-        setFormValue('phone', willData.personal_info.phone);
-        setFormValue('executorName', willData.personal_info.executor_name);
-        setFormValue('executorContact', willData.personal_info.executor_contact);
-        
-        if (willData.personal_info.address) {
-            setFormValue('street', willData.personal_info.address.street);
-            setFormValue('city', willData.personal_info.address.city);
-            setFormValue('state', willData.personal_info.address.state);
-            setFormValue('zipCode', willData.personal_info.address.zip_code);
-            setFormValue('country', willData.personal_info.address.country);
-        }
-    }
+    // Populate personal info
+    const personalInfo = willData.personal_info || {};
+    setFormValue('fullName', personalInfo.full_name);
+    setFormValue('dateOfBirth', personalInfo.date_of_birth);
+    setFormValue('phone', personalInfo.phone);
+    
+    const address = personalInfo.address || {};
+    setFormValue('street', address.street);
+    setFormValue('city', address.city);
+    setFormValue('state', address.state);
+    setFormValue('zipCode', address.zip_code);
+    setFormValue('country', address.country);
+    
+    setFormValue('executorName', personalInfo.executor_name);
+    setFormValue('executorContact', personalInfo.executor_contact);
     
     // Populate assets
-    if (willData.assets) {
-        // Clear existing dynamic sections
+    const assets = willData.assets || {};
+    setFormValue('storageMethod', assets.storage_method);
+    setFormValue('storageLocation', assets.storage_location);
+    setFormValue('storageDetails', assets.storage_details);
+    
+    // Populate wallets
+    if (assets.wallets && assets.wallets.length > 0) {
+        // Clear existing wallets
         document.getElementById('walletsContainer').innerHTML = '';
+        
+        assets.wallets.forEach((wallet, index) => {
+            addWallet();
+            const container = document.querySelectorAll('.wallet-container')[index];
+            if (container) {
+                setFormValueInContainer(container, 'walletName', wallet.name);
+                setFormValueInContainer(container, 'walletType', wallet.type);
+                setFormValueInContainer(container, 'walletDescription', wallet.description);
+                setFormValueInContainer(container, 'accessMethod', wallet.access_method);
+                setFormValueInContainer(container, 'seedPhraseLocation', wallet.seed_phrase_location);
+                setFormValueInContainer(container, 'privateKeyLocation', wallet.private_key_location);
+                setFormValueInContainer(container, 'walletNotes', wallet.additional_notes);
+            }
+        });
+    }
+    
+    // Populate exchanges
+    if (assets.exchanges && assets.exchanges.length > 0) {
+        // Clear existing exchanges
         document.getElementById('exchangesContainer').innerHTML = '';
         
-        // Populate wallets
-        if (willData.assets.wallets && willData.assets.wallets.length > 0) {
-            willData.assets.wallets.forEach((wallet, index) => {
-                addWallet();
-                const walletItem = document.querySelectorAll('.wallet-item')[index];
-                setFormValueInContainer(walletItem, 'walletName', wallet.name);
-                setFormValueInContainer(walletItem, 'walletType', wallet.type);
-                setFormValueInContainer(walletItem, 'walletDescription', wallet.description);
-                setFormValueInContainer(walletItem, 'accessMethod', wallet.access_method);
-                setFormValueInContainer(walletItem, 'seedPhraseLocation', wallet.seed_phrase_location);
-                setFormValueInContainer(walletItem, 'privateKeyLocation', wallet.private_key_location);
-                setFormValueInContainer(walletItem, 'walletNotes', wallet.additional_notes);
-            });
-        } else {
-            addWallet();
-        }
-        
-        // Populate exchanges
-        if (willData.assets.exchanges && willData.assets.exchanges.length > 0) {
-            willData.assets.exchanges.forEach((exchange, index) => {
-                addExchange();
-                const exchangeItem = document.querySelectorAll('.exchange-item')[index];
-                setFormValueInContainer(exchangeItem, 'exchangeName', exchange.name);
-                setFormValueInContainer(exchangeItem, 'exchangeUsername', exchange.username);
-                setFormValueInContainer(exchangeItem, 'exchangeEmail', exchange.email);
-                setFormValueInContainer(exchangeItem, 'twoFactorBackup', exchange.two_factor_backup);
-                setFormValueInContainer(exchangeItem, 'exchangeNotes', exchange.additional_notes);
-            });
-        } else {
+        assets.exchanges.forEach((exchange, index) => {
             addExchange();
-        }
-        
-        // Populate storage information
-        setFormValue('storageMethod', willData.assets.storage_method);
-        setFormValue('storageLocation', willData.assets.storage_location);
-        setFormValue('storageDetails', willData.assets.storage_details);
+            const container = document.querySelectorAll('.exchange-container')[index];
+            if (container) {
+                setFormValueInContainer(container, 'exchangeName', exchange.name);
+                setFormValueInContainer(container, 'exchangeUsername', exchange.username);
+                setFormValueInContainer(container, 'exchangeEmail', exchange.email);
+                setFormValueInContainer(container, 'twoFactorBackup', exchange.two_factor_backup);
+                setFormValueInContainer(container, 'exchangeNotes', exchange.additional_notes);
+            }
+        });
     }
     
     // Populate beneficiaries
-    if (willData.beneficiaries) {
-        // Clear existing beneficiaries
+    const beneficiaries = willData.beneficiaries || {};
+    
+    // Primary beneficiaries
+    if (beneficiaries.primary && beneficiaries.primary.length > 0) {
         document.getElementById('primaryBeneficiariesContainer').innerHTML = '';
+        
+        beneficiaries.primary.forEach((beneficiary, index) => {
+            addPrimaryBeneficiary();
+            const container = document.querySelectorAll('.primary-beneficiary-container')[index];
+            if (container) {
+                setFormValueInContainer(container, 'beneficiaryName', beneficiary.name);
+                setFormValueInContainer(container, 'relationship', beneficiary.relationship);
+                setFormValueInContainer(container, 'percentage', beneficiary.percentage);
+                setFormValueInContainer(container, 'beneficiaryPhone', beneficiary.phone);
+                setFormValueInContainer(container, 'beneficiaryEmail', beneficiary.email);
+                setFormValueInContainer(container, 'bitcoinAddress', beneficiary.bitcoin_address);
+                
+                const address = beneficiary.address || {};
+                setFormValueInContainer(container, 'beneficiaryStreet', address.street);
+                setFormValueInContainer(container, 'beneficiaryCity', address.city);
+                setFormValueInContainer(container, 'beneficiaryState', address.state);
+                setFormValueInContainer(container, 'beneficiaryZip', address.zip_code);
+                setFormValueInContainer(container, 'beneficiaryCountry', address.country);
+            }
+        });
+    }
+    
+    // Contingent beneficiaries
+    if (beneficiaries.contingent && beneficiaries.contingent.length > 0) {
         document.getElementById('contingentBeneficiariesContainer').innerHTML = '';
         
-        // Populate primary beneficiaries
-        if (willData.beneficiaries.primary && willData.beneficiaries.primary.length > 0) {
-            willData.beneficiaries.primary.forEach((beneficiary, index) => {
-                addBeneficiary('primary');
-                const beneficiaryItem = document.querySelectorAll('#primaryBeneficiariesContainer .beneficiary-item')[index];
-                populateBeneficiaryData(beneficiaryItem, beneficiary);
-            });
-        } else {
-            addBeneficiary('primary');
-        }
-        
-        // Populate contingent beneficiaries
-        if (willData.beneficiaries.contingent && willData.beneficiaries.contingent.length > 0) {
-            willData.beneficiaries.contingent.forEach((beneficiary, index) => {
-                addBeneficiary('contingent');
-                const beneficiaryItem = document.querySelectorAll('#contingentBeneficiariesContainer .beneficiary-item')[index];
-                populateBeneficiaryData(beneficiaryItem, beneficiary);
-            });
-        } else {
-            addBeneficiary('contingent');
-        }
+        beneficiaries.contingent.forEach((beneficiary, index) => {
+            addContingentBeneficiary();
+            const container = document.querySelectorAll('.contingent-beneficiary-container')[index];
+            if (container) {
+                setFormValueInContainer(container, 'contingentName', beneficiary.name);
+                setFormValueInContainer(container, 'contingentRelationship', beneficiary.relationship);
+                setFormValueInContainer(container, 'contingentPercentage', beneficiary.percentage);
+                setFormValueInContainer(container, 'contingentPhone', beneficiary.phone);
+                setFormValueInContainer(container, 'contingentEmail', beneficiary.email);
+                setFormValueInContainer(container, 'contingentBitcoinAddress', beneficiary.bitcoin_address);
+                
+                const address = beneficiary.address || {};
+                setFormValueInContainer(container, 'contingentStreet', address.street);
+                setFormValueInContainer(container, 'contingentCity', address.city);
+                setFormValueInContainer(container, 'contingentState', address.state);
+                setFormValueInContainer(container, 'contingentZip', address.zip_code);
+                setFormValueInContainer(container, 'contingentCountry', address.country);
+            }
+        });
     }
     
     // Populate instructions
-    if (willData.instructions) {
-        setFormValue('accessInstructions', willData.instructions.access_instructions);
-        setFormValue('securityNotes', willData.instructions.security_notes);
-        setFormValue('additionalInstructions', willData.instructions.additional_instructions);
-        setFormValue('emergencyContact', willData.instructions.emergency_contact);
-        
-        // Clear existing trusted contacts
+    const instructions = willData.instructions || {};
+    setFormValue('accessInstructions', instructions.access_instructions);
+    setFormValue('securityNotes', instructions.security_notes);
+    setFormValue('additionalInstructions', instructions.additional_instructions);
+    setFormValue('emergencyContact', instructions.emergency_contact);
+    
+    // Populate trusted contacts
+    if (instructions.trusted_contacts && instructions.trusted_contacts.length > 0) {
         document.getElementById('trustedContactsContainer').innerHTML = '';
         
-        // Populate trusted contacts
-        if (willData.instructions.trusted_contacts && willData.instructions.trusted_contacts.length > 0) {
-            willData.instructions.trusted_contacts.forEach((contact, index) => {
-                addTrustedContact();
-                const contactItem = document.querySelectorAll('.trusted-contact-item')[index];
-                setFormValueInContainer(contactItem, 'contactName', contact.name);
-                setFormValueInContainer(contactItem, 'contactInfo', contact.contact);
-                setFormValueInContainer(contactItem, 'contactRelationship', contact.relationship);
-                setFormValueInContainer(contactItem, 'contactRole', contact.role);
-            });
-        } else {
+        instructions.trusted_contacts.forEach((contact, index) => {
             addTrustedContact();
-        }
-    }
-}
-
-function populateBeneficiaryData(container, beneficiary) {
-    setFormValueInContainer(container, 'beneficiaryName', beneficiary.name);
-    setFormValueInContainer(container, 'beneficiaryRelationship', beneficiary.relationship);
-    setFormValueInContainer(container, 'beneficiaryPercentage', beneficiary.percentage);
-    setFormValueInContainer(container, 'beneficiaryPhone', beneficiary.phone);
-    setFormValueInContainer(container, 'beneficiaryEmail', beneficiary.email);
-    setFormValueInContainer(container, 'beneficiaryBitcoinAddress', beneficiary.bitcoin_address);
-    
-    if (beneficiary.address) {
-        setFormValueInContainer(container, 'beneficiaryStreet', beneficiary.address.street);
-        setFormValueInContainer(container, 'beneficiaryCity', beneficiary.address.city);
-        setFormValueInContainer(container, 'beneficiaryState', beneficiary.address.state);
-        setFormValueInContainer(container, 'beneficiaryZip', beneficiary.address.zip_code);
-        setFormValueInContainer(container, 'beneficiaryCountry', beneficiary.address.country);
+            const container = document.querySelectorAll('.trusted-contact-container')[index];
+            if (container) {
+                setFormValueInContainer(container, 'contactName', contact.name);
+                setFormValueInContainer(container, 'contactInfo', contact.contact);
+                setFormValueInContainer(container, 'contactRelationship', contact.relationship);
+                setFormValueInContainer(container, 'contactRole', contact.role);
+            }
+        });
     }
 }
 
@@ -1128,41 +1165,11 @@ function setFormValueInContainer(container, name, value) {
     }
 }
 
-async function deleteWill(willId) {
-    if (!confirm('Are you sure you want to delete this will? This action cannot be undone.')) {
-        return;
-    }
-    
-    try {
-        showLoading();
-        
-        const response = await fetch(API_BASE_URL + `/will/${willId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${authToken}`
-            }
-        });
-        
-        if (response.ok) {
-            alert('Will deleted successfully');
-            loadDashboardData();
-        } else {
-            alert('Failed to delete will');
-        }
-    } catch (error) {
-        console.error('Error deleting will:', error);
-        alert('Failed to delete will');
-    } finally {
-        hideLoading();
-    }
-}
-
 async function downloadWill(willId) {
     try {
         showLoading();
         
-        const response = await fetch(API_BASE_URL + `/will/${willId}/download`, {
-            method: 'GET',
+        const response = await fetch(`${API_BASE_URL}/will/${willId}/download`, {
             headers: {
                 'Authorization': `Bearer ${authToken}`
             }
@@ -1172,9 +1179,8 @@ async function downloadWill(willId) {
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.style.display = 'none';
             a.href = url;
-            a.download = `bitcoin_will_${willId}_${new Date().toISOString().split('T')[0]}.pdf`;
+            a.download = `bitcoin_will_${willId}.pdf`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
@@ -1183,78 +1189,418 @@ async function downloadWill(willId) {
             alert('Failed to download will');
         }
     } catch (error) {
-        console.error('Error downloading will:', error);
-        alert('Failed to download will');
+        console.error('Download error:', error);
+        alert('Error downloading will');
     } finally {
         hideLoading();
     }
 }
 
+async function deleteWill(willId) {
+    if (!confirm('Are you sure you want to delete this will? This action cannot be undone.')) {
+        return;
+    }
+    
+    try {
+        showLoading();
+        
+        const response = await fetch(`${API_BASE_URL}/will/${willId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            alert('Will deleted successfully');
+            loadWills();
+        } else {
+            alert('Failed to delete will');
+        }
+    } catch (error) {
+        console.error('Delete error:', error);
+        alert('Error deleting will');
+    } finally {
+        hideLoading();
+    }
+}
+
+// Dynamic Form Functions
+function addWallet() {
+    const container = document.getElementById('walletsContainer');
+    const walletCount = container.children.length + 1;
+    
+    const walletHTML = `
+        <div class="wallet-container">
+            <h4>Wallet ${walletCount}</h4>
+            <div class="form-group">
+                <label>Wallet Name/Label:</label>
+                <input type="text" name="walletName" placeholder="e.g., Main Bitcoin Wallet">
+            </div>
+            <div class="form-group">
+                <label>Wallet Type:</label>
+                <select name="walletType">
+                    <option value="">Select wallet type</option>
+                    <option value="hardware">Hardware Wallet</option>
+                    <option value="software">Software Wallet</option>
+                    <option value="paper">Paper Wallet</option>
+                    <option value="mobile">Mobile Wallet</option>
+                    <option value="web">Web Wallet</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Description:</label>
+                <textarea name="walletDescription" rows="2" placeholder="Brief description of this wallet"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Access Method:</label>
+                <textarea name="accessMethod" rows="2" placeholder="How to access this wallet"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Seed Phrase Location:</label>
+                <textarea name="seedPhraseLocation" rows="2" placeholder="Where the seed phrase is stored"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Private Key Location:</label>
+                <textarea name="privateKeyLocation" rows="2" placeholder="Where private keys are stored"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Additional Notes:</label>
+                <textarea name="walletNotes" rows="2" placeholder="Any additional information"></textarea>
+            </div>
+            <button type="button" onclick="removeWallet(this)" class="btn btn-danger">Remove Wallet</button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', walletHTML);
+}
+
+function removeWallet(button) {
+    button.closest('.wallet-container').remove();
+}
+
+function addExchange() {
+    const container = document.getElementById('exchangesContainer');
+    const exchangeCount = container.children.length + 1;
+    
+    const exchangeHTML = `
+        <div class="exchange-container">
+            <h4>Exchange ${exchangeCount}</h4>
+            <div class="form-group">
+                <label>Exchange Name:</label>
+                <input type="text" name="exchangeName" placeholder="e.g., Coinbase, Binance">
+            </div>
+            <div class="form-group">
+                <label>Username/Account ID:</label>
+                <input type="text" name="exchangeUsername" placeholder="Your username or account ID">
+            </div>
+            <div class="form-group">
+                <label>Email Address:</label>
+                <input type="email" name="exchangeEmail" placeholder="Email associated with account">
+            </div>
+            <div class="form-group">
+                <label>2FA Backup Codes:</label>
+                <textarea name="twoFactorBackup" rows="3" placeholder="Location of 2FA backup codes"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Additional Notes:</label>
+                <textarea name="exchangeNotes" rows="2" placeholder="Any additional information"></textarea>
+            </div>
+            <button type="button" onclick="removeExchange(this)" class="btn btn-danger">Remove Exchange</button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', exchangeHTML);
+}
+
+function removeExchange(button) {
+    button.closest('.exchange-container').remove();
+}
+
+function addPrimaryBeneficiary() {
+    const container = document.getElementById('primaryBeneficiariesContainer');
+    const beneficiaryCount = container.children.length + 1;
+    
+    const beneficiaryHTML = `
+        <div class="primary-beneficiary-container">
+            <h4>Primary Beneficiary ${beneficiaryCount}</h4>
+            <div class="form-group">
+                <label>Full Name:</label>
+                <input type="text" name="beneficiaryName" placeholder="Beneficiary's full name" required>
+            </div>
+            <div class="form-group">
+                <label>Relationship:</label>
+                <input type="text" name="relationship" placeholder="e.g., Spouse, Child, Parent" required>
+            </div>
+            <div class="form-group">
+                <label>Percentage of Assets:</label>
+                <input type="number" name="percentage" min="0" max="100" placeholder="0" required>
+            </div>
+            <div class="form-group">
+                <label>Phone Number:</label>
+                <input type="tel" name="beneficiaryPhone" placeholder="Phone number">
+            </div>
+            <div class="form-group">
+                <label>Email Address:</label>
+                <input type="email" name="beneficiaryEmail" placeholder="Email address">
+            </div>
+            <div class="form-group">
+                <label>Bitcoin Address (optional):</label>
+                <input type="text" name="bitcoinAddress" placeholder="Bitcoin address for direct transfers">
+            </div>
+            <div class="address-section">
+                <h5>Address</h5>
+                <div class="form-group">
+                    <label>Street Address:</label>
+                    <input type="text" name="beneficiaryStreet" placeholder="Street address">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>City:</label>
+                        <input type="text" name="beneficiaryCity" placeholder="City">
+                    </div>
+                    <div class="form-group">
+                        <label>State/Province:</label>
+                        <input type="text" name="beneficiaryState" placeholder="State/Province">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ZIP/Postal Code:</label>
+                        <input type="text" name="beneficiaryZip" placeholder="ZIP/Postal Code">
+                    </div>
+                    <div class="form-group">
+                        <label>Country:</label>
+                        <input type="text" name="beneficiaryCountry" placeholder="Country">
+                    </div>
+                </div>
+            </div>
+            <button type="button" onclick="removePrimaryBeneficiary(this)" class="btn btn-danger">Remove Beneficiary</button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', beneficiaryHTML);
+}
+
+function removePrimaryBeneficiary(button) {
+    button.closest('.primary-beneficiary-container').remove();
+}
+
+function addContingentBeneficiary() {
+    const container = document.getElementById('contingentBeneficiariesContainer');
+    const beneficiaryCount = container.children.length + 1;
+    
+    const beneficiaryHTML = `
+        <div class="contingent-beneficiary-container">
+            <h4>Contingent Beneficiary ${beneficiaryCount}</h4>
+            <div class="form-group">
+                <label>Full Name:</label>
+                <input type="text" name="contingentName" placeholder="Beneficiary's full name">
+            </div>
+            <div class="form-group">
+                <label>Relationship:</label>
+                <input type="text" name="contingentRelationship" placeholder="e.g., Sibling, Friend, Charity">
+            </div>
+            <div class="form-group">
+                <label>Percentage of Assets:</label>
+                <input type="number" name="contingentPercentage" min="0" max="100" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Phone Number:</label>
+                <input type="tel" name="contingentPhone" placeholder="Phone number">
+            </div>
+            <div class="form-group">
+                <label>Email Address:</label>
+                <input type="email" name="contingentEmail" placeholder="Email address">
+            </div>
+            <div class="form-group">
+                <label>Bitcoin Address (optional):</label>
+                <input type="text" name="contingentBitcoinAddress" placeholder="Bitcoin address for direct transfers">
+            </div>
+            <div class="address-section">
+                <h5>Address</h5>
+                <div class="form-group">
+                    <label>Street Address:</label>
+                    <input type="text" name="contingentStreet" placeholder="Street address">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>City:</label>
+                        <input type="text" name="contingentCity" placeholder="City">
+                    </div>
+                    <div class="form-group">
+                        <label>State/Province:</label>
+                        <input type="text" name="contingentState" placeholder="State/Province">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ZIP/Postal Code:</label>
+                        <input type="text" name="contingentZip" placeholder="ZIP/Postal Code">
+                    </div>
+                    <div class="form-group">
+                        <label>Country:</label>
+                        <input type="text" name="contingentCountry" placeholder="Country">
+                    </div>
+                </div>
+            </div>
+            <button type="button" onclick="removeContingentBeneficiary(this)" class="btn btn-danger">Remove Beneficiary</button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', beneficiaryHTML);
+}
+
+function removeContingentBeneficiary(button) {
+    button.closest('.contingent-beneficiary-container').remove();
+}
+
+function addTrustedContact() {
+    const container = document.getElementById('trustedContactsContainer');
+    const contactCount = container.children.length + 1;
+    
+    const contactHTML = `
+        <div class="trusted-contact-container">
+            <h4>Trusted Contact ${contactCount}</h4>
+            <div class="form-group">
+                <label>Name:</label>
+                <input type="text" name="contactName" placeholder="Contact's full name">
+            </div>
+            <div class="form-group">
+                <label>Contact Information:</label>
+                <input type="text" name="contactInfo" placeholder="Phone, email, or other contact method">
+            </div>
+            <div class="form-group">
+                <label>Relationship:</label>
+                <input type="text" name="contactRelationship" placeholder="e.g., Friend, Lawyer, Accountant">
+            </div>
+            <div class="form-group">
+                <label>Role/Expertise:</label>
+                <input type="text" name="contactRole" placeholder="How they can help with Bitcoin assets">
+            </div>
+            <button type="button" onclick="removeTrustedContact(this)" class="btn btn-danger">Remove Contact</button>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', contactHTML);
+}
+
+function removeTrustedContact(button) {
+    button.closest('.trusted-contact-container').remove();
+}
+
+// Legacy beneficiary functions for backward compatibility
+function addBeneficiary() {
+    addPrimaryBeneficiary();
+}
+
+function removeBeneficiary(button) {
+    removePrimaryBeneficiary(button);
+}
+
 // Utility Functions
 function showLoading() {
-    const loader = document.getElementById('loadingSpinner');
-    if (loader) {
-        loader.style.display = 'block';
+    if (loadingOverlay) {
+        loadingOverlay.style.display = 'flex';
     }
 }
 
 function hideLoading() {
-    const loader = document.getElementById('loadingSpinner');
-    if (loader) {
-        loader.style.display = 'none';
+    if (loadingOverlay) {
+        loadingOverlay.style.display = 'none';
     }
 }
 
-function showError(message) {
-    alert(message);
+function showError(elementId, message) {
+    const errorElement = document.getElementById(elementId);
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
 }
 
-function hideError() {
-    // Implementation for hiding error messages
+function hideError(elementId) {
+    const errorElement = document.getElementById(elementId);
+    if (errorElement) {
+        errorElement.style.display = 'none';
+    }
 }
 
 function toggleMobileMenu() {
-    const nav = document.querySelector('.nav-links');
-    if (nav) {
-        nav.classList.toggle('active');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    
+    if (mobileMenu && mobileMenuBtn) {
+        mobileMenu.classList.toggle('active');
+        mobileMenuBtn.classList.toggle('active');
     }
 }
 
-function initializeMobileMenu() {
-    const hamburger = document.querySelector('.hamburger');
-    if (hamburger) {
-        hamburger.addEventListener('click', toggleMobileMenu);
-    }
-}
-
+// URL Parameter Handling
 function handleURLParameters() {
     const urlParams = new URLSearchParams(window.location.search);
-    const success = urlParams.get('success');
-    const cancelled = urlParams.get('cancelled');
+    const sessionId = urlParams.get('session_id');
     
-    if (success === 'true') {
-        alert('Payment successful! Your subscription is now active.');
-        // Clean up URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-        // Reload subscription status
-        if (authToken) {
-            loadSubscriptionStatus();
-        }
-    } else if (cancelled === 'true') {
-        alert('Payment was cancelled.');
+    if (sessionId) {
+        // Handle payment success
+        handlePaymentSuccess(sessionId);
+        
         // Clean up URL
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 }
 
-// Navigation helper function
+// Review content update (for step 4)
+function updateReviewContent() {
+    const reviewContent = document.getElementById('reviewContent');
+    if (!reviewContent) return;
+    
+    const willData = extractWillData();
+    
+    let html = '<h3>Review Your Bitcoin Will</h3>';
+    
+    // Personal Information
+    html += '<h4>Personal Information</h4>';
+    html += `<p><strong>Name:</strong> ${willData.personal_info.full_name || 'Not specified'}</p>`;
+    html += `<p><strong>Date of Birth:</strong> ${willData.personal_info.date_of_birth || 'Not specified'}</p>`;
+    html += `<p><strong>Executor:</strong> ${willData.personal_info.executor_name || 'Not specified'}</p>`;
+    
+    // Assets Summary
+    html += '<h4>Bitcoin Assets</h4>';
+    html += `<p><strong>Wallets:</strong> ${willData.assets.wallets.length} wallet(s)</p>`;
+    html += `<p><strong>Exchanges:</strong> ${willData.assets.exchanges.length} exchange(s)</p>`;
+    
+    // Beneficiaries Summary
+    html += '<h4>Beneficiaries</h4>';
+    html += `<p><strong>Primary:</strong> ${willData.beneficiaries.primary.length} beneficiary(ies)</p>`;
+    html += `<p><strong>Contingent:</strong> ${willData.beneficiaries.contingent.length} beneficiary(ies)</p>`;
+    
+    reviewContent.innerHTML = html;
+}
+
+// Navigation helper
 function to(section) {
     if (section === 'dashboard') {
         showDashboard();
-    } else if (section === 'subscription') {
-        showSubscriptionSection();
     } else if (section === 'will-creator') {
-        checkSubscriptionAndCreateWill();
+        showWillCreator();
+    } else if (section === 'home') {
+        goHome();
     }
+}
+
+// Check subscription and create will
+function checkSubscriptionAndCreateWill() {
+    if (!currentUser) {
+        showAuthModal('login');
+        return;
+    }
+    
+    if (!userSubscription || !userSubscription.active) {
+        showSubscriptionModal();
+        return;
+    }
+    
+    showWillCreator();
 }
 
