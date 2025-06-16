@@ -1135,28 +1135,44 @@ async function editWill(willId) {
 function populateWillForm(will) {
     console.log('Populating will form with data:', will);
     
-    // Personal Information
+    // Personal Information - Handle JSON string parsing
     if (will.personal_info) {
-        const personal = will.personal_info;
-        setFormValue('title', will.title);
-        setFormValue('fullName', personal.full_name);
-        setFormValue('dateOfBirth', personal.date_of_birth);
+        let personal;
         
-        // Handle address - could be string or object
-        if (personal.address) {
-            if (typeof personal.address === 'string') {
-                setFormValue('address', personal.address);
-            } else if (typeof personal.address === 'object') {
-                // If address is an object, convert to string or handle appropriately
-                const addressStr = `${personal.address.street || ''}, ${personal.address.city || ''}, ${personal.address.state || ''} ${personal.address.zip_code || ''}`.trim();
-                setFormValue('address', addressStr);
+        // Check if personal_info is a string that needs parsing
+        if (typeof will.personal_info === 'string') {
+            try {
+                personal = JSON.parse(will.personal_info);
+                console.log('Parsed personal_info:', personal);
+            } catch (e) {
+                console.error('Failed to parse personal_info JSON:', e);
+                personal = {};
             }
+        } else {
+            personal = will.personal_info;
         }
         
-        setFormValue('phone', personal.phone);
-        setFormValue('ssn', personal.ssn);
-        setFormValue('executorName', personal.executor_name);
-        setFormValue('executorContact', personal.executor_contact);
+        if (personal && Object.keys(personal).length > 0) {
+            setFormValue('title', will.title);
+            setFormValue('fullName', personal.full_name);
+            setFormValue('dateOfBirth', personal.date_of_birth);
+            
+            // Handle address - could be string or object
+            if (personal.address) {
+                if (typeof personal.address === 'string') {
+                    setFormValue('address', personal.address);
+                } else if (typeof personal.address === 'object') {
+                    // If address is an object, convert to string or handle appropriately
+                    const addressStr = `${personal.address.street || ''}, ${personal.address.city || ''}, ${personal.address.state || ''} ${personal.address.zip_code || ''}`.trim();
+                    setFormValue('address', addressStr);
+                }
+            }
+            
+            setFormValue('phone', personal.phone);
+            setFormValue('ssn', personal.ssn);
+            setFormValue('executorName', personal.executor_name);
+            setFormValue('executorContact', personal.executor_contact);
+        }
     }
     
     // Bitcoin Assets - Check both 'assets' and 'bitcoin_assets' fields
