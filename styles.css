@@ -1576,3 +1576,61 @@ p {
         padding: 1.5rem;
     }
 }
+/* MOBILE STEP NAVIGATION FIX */
+@media (max-width: 768px) {
+    .progress-bar {
+        margin-bottom: 2rem;
+        overflow-x: auto;
+        padding: 0 10px;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .progress-step {
+        min-width: 80px;
+        padding: 0 0.5rem;
+        flex-shrink: 0;
+    }
+    
+    .step-number {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+    
+    .step-label {
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 80px;
+    }
+}
+
+@media (max-width: 480px) {
+    .progress-bar {
+        justify-content: flex-start;
+        gap: 10px;
+        padding: 0 5px;
+    }
+    
+    .progress-step {
+        min-width: 70px;
+        padding: 0 0.25rem;
+    }
+    
+    .step-number {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+    
+    .step-label {
+        font-size: 11px;
+        max-width: 70px;
+    }
+    
+    .progress-bar::before {
+        display: none; /* Hide connecting line on very small screens */
+    }
+}
+

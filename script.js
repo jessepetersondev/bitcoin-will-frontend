@@ -1133,27 +1133,44 @@ async function editWill(willId) {
 
 // Populate form with existing will data
 function populateWillForm(will) {
+    console.log('Populating will form with data:', will);
+    
     // Personal Information
     if (will.personal_info) {
         const personal = will.personal_info;
         setFormValue('title', will.title);
         setFormValue('fullName', personal.full_name);
         setFormValue('dateOfBirth', personal.date_of_birth);
-        setFormValue('address', personal.address);
+        
+        // Handle address - could be string or object
+        if (personal.address) {
+            if (typeof personal.address === 'string') {
+                setFormValue('address', personal.address);
+            } else if (typeof personal.address === 'object') {
+                // If address is an object, convert to string or handle appropriately
+                const addressStr = `${personal.address.street || ''}, ${personal.address.city || ''}, ${personal.address.state || ''} ${personal.address.zip_code || ''}`.trim();
+                setFormValue('address', addressStr);
+            }
+        }
+        
+        setFormValue('phone', personal.phone);
         setFormValue('ssn', personal.ssn);
         setFormValue('executorName', personal.executor_name);
         setFormValue('executorContact', personal.executor_contact);
     }
     
-    // Bitcoin Assets
-    if (will.assets) {
-        const assets = will.assets;
+    // Bitcoin Assets - Check both 'assets' and 'bitcoin_assets' fields
+    const assets = will.assets || will.bitcoin_assets || {};
+    console.log('Assets data:', assets);
+    
+    if (assets && Object.keys(assets).length > 0) {
+        // Storage information
         setFormValue('storageMethod', assets.storage_method);
         setFormValue('storageLocation', assets.storage_location);
         setFormValue('storageDetails', assets.storage_details);
         
         // Populate wallets
-        if (assets.wallets && assets.wallets.length > 0) {
+        if (assets.wallets && Array.isArray(assets.wallets) && assets.wallets.length > 0) {
             const walletsContainer = document.getElementById('walletsContainer');
             walletsContainer.innerHTML = '';
             
@@ -1162,20 +1179,46 @@ function populateWillForm(will) {
                 const walletEntries = walletsContainer.querySelectorAll('.wallet-entry');
                 const currentEntry = walletEntries[walletEntries.length - 1];
                 
+                setFormValueInContainer(currentEntry, 'walletName', wallet.name);
                 setFormValueInContainer(currentEntry, 'walletType', wallet.type);
-                setFormValueInContainer(currentEntry, 'walletValue', wallet.value);
                 setFormValueInContainer(currentEntry, 'walletDescription', wallet.description);
-                setFormValueInContainer(currentEntry, 'walletAddress', wallet.address);
+                setFormValueInContainer(currentEntry, 'accessMethod', wallet.access_method);
+                setFormValueInContainer(currentEntry, 'seedPhraseLocation', wallet.seed_phrase_location);
+                setFormValueInContainer(currentEntry, 'privateKeyLocation', wallet.private_key_location);
+                setFormValueInContainer(currentEntry, 'additionalNotes', wallet.additional_notes);
             });
         }
+        
+        // Populate exchanges
+        if (assets.exchanges && Array.isArray(assets.exchanges) && assets.exchanges.length > 0) {
+            const exchangesContainer = document.getElementById('exchangesContainer');
+            if (exchangesContainer) {
+                exchangesContainer.innerHTML = '';
+                
+                assets.exchanges.forEach((exchange, index) => {
+                    addExchange();
+                    const exchangeEntries = exchangesContainer.querySelectorAll('.exchange-entry');
+                    const currentEntry = exchangeEntries[exchangeEntries.length - 1];
+                    
+                    setFormValueInContainer(currentEntry, 'exchangeName', exchange.name);
+                    setFormValueInContainer(currentEntry, 'exchangeUsername', exchange.username);
+                    setFormValueInContainer(currentEntry, 'twoFactorBackup', exchange.two_factor_backup);
+                    setFormValueInContainer(currentEntry, 'exchangeNotes', exchange.notes);
+                });
+            }
+        }
+        
+        // Other crypto assets
+        setFormValue('otherCrypto', assets.other_crypto);
     }
     
     // Beneficiaries
-    if (will.beneficiaries) {
-        const beneficiaries = will.beneficiaries;
-        
+    const beneficiaries = will.beneficiaries || {};
+    console.log('Beneficiaries data:', beneficiaries);
+    
+    if (beneficiaries && Object.keys(beneficiaries).length > 0) {
         // Primary beneficiaries
-        if (beneficiaries.primary && beneficiaries.primary.length > 0) {
+        if (beneficiaries.primary && Array.isArray(beneficiaries.primary) && beneficiaries.primary.length > 0) {
             const primaryContainer = document.getElementById('primaryBeneficiaries');
             primaryContainer.innerHTML = '';
             
@@ -1188,11 +1231,12 @@ function populateWillForm(will) {
                 setFormValueInContainer(currentEntry, 'beneficiaryRelationship', beneficiary.relationship);
                 setFormValueInContainer(currentEntry, 'beneficiaryPercentage', beneficiary.percentage);
                 setFormValueInContainer(currentEntry, 'beneficiaryContact', beneficiary.contact);
+                setFormValueInContainer(currentEntry, 'beneficiaryBitcoinAddress', beneficiary.bitcoin_address);
             });
         }
         
         // Contingent beneficiaries
-        if (beneficiaries.contingent && beneficiaries.contingent.length > 0) {
+        if (beneficiaries.contingent && Array.isArray(beneficiaries.contingent) && beneficiaries.contingent.length > 0) {
             const contingentContainer = document.getElementById('contingentBeneficiaries');
             contingentContainer.innerHTML = '';
             
@@ -1205,18 +1249,21 @@ function populateWillForm(will) {
                 setFormValueInContainer(currentEntry, 'beneficiaryRelationship', beneficiary.relationship);
                 setFormValueInContainer(currentEntry, 'beneficiaryPercentage', beneficiary.percentage);
                 setFormValueInContainer(currentEntry, 'beneficiaryContact', beneficiary.contact);
+                setFormValueInContainer(currentEntry, 'beneficiaryBitcoinAddress', beneficiary.bitcoin_address);
             });
         }
     }
     
-    // Instructions
-    if (will.instructions) {
-        const instructions = will.instructions;
+    // Instructions - Check both 'instructions' and 'executor_instructions' fields
+    const instructions = will.instructions || will.executor_instructions || {};
+    console.log('Instructions data:', instructions);
+    
+    if (instructions && Object.keys(instructions).length > 0) {
         setFormValue('accessInstructions', instructions.access_instructions);
         setFormValue('securityNotes', instructions.security_notes);
         
         // Trusted contacts
-        if (instructions.trusted_contacts && instructions.trusted_contacts.length > 0) {
+        if (instructions.trusted_contacts && Array.isArray(instructions.trusted_contacts) && instructions.trusted_contacts.length > 0) {
             const contactsContainer = document.getElementById('trustedContacts');
             contactsContainer.innerHTML = '';
             
@@ -1230,6 +1277,11 @@ function populateWillForm(will) {
             });
         }
     }
+    
+    // Update review content after populating all data
+    setTimeout(() => {
+        updateReviewContent();
+    }, 100);
 }
 
 // Helper function to set form values safely
