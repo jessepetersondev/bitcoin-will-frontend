@@ -161,7 +161,10 @@ async function handleAuthSubmit(e) {
             // Load subscription status
             await loadSubscriptionStatus();
             
-            if (!isLogin) {
+            if (isLogin) {
+                // REDIRECT TO DASHBOARD AFTER LOGIN
+                showDashboard();
+            } else {
                 // New user, show subscription options
                 setTimeout(() => {
                     document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });
@@ -556,6 +559,9 @@ async function showDashboard() {
         showAuthModal('login');
         return;
     }
+    
+    // CLOSE MOBILE MENU AFTER NAVIGATION
+    closeMobileMenu();
     
     // Hide main content
     document.querySelector('main').style.display = 'none';
@@ -1283,6 +1289,9 @@ function toggleMobileMenu() {
 
 // Navigation Functions
 function goHome() {
+    // CLOSE MOBILE MENU AFTER NAVIGATION
+    closeMobileMenu();
+    
     document.querySelector('main').style.display = 'block';
     dashboard.classList.add('hidden');
     willCreator.classList.add('hidden');
@@ -1333,4 +1342,13 @@ function toggleMobileMenu() {
     
     nav.classList.toggle('mobile-open');
     mobileMenuBtn.classList.toggle('active');
+}
+
+// CLOSE MOBILE MENU AFTER NAVIGATION
+function closeMobileMenu() {
+    const nav = document.getElementById('nav');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    
+    nav.classList.remove('mobile-open');
+    mobileMenuBtn.classList.remove('active');
 }

@@ -39,17 +39,17 @@
                         class="logo-horizontal">
                 </div>
                 <nav class="nav" id="nav">
-                    <a href="#home" class="nav-link" onclick="goHome()">Home</a>
-                    <a href="#features" class="nav-link">Features</a>
-                    <a href="#pricing" class="nav-link">Pricing</a>
+                    <a href="#home" class="nav-link" onclick="goHome(); closeMobileMenu();">Home</a>
+                    <a href="#features" class="nav-link" onclick="closeMobileMenu();">Features</a>
+                    <a href="#pricing" class="nav-link" onclick="closeMobileMenu();">Pricing</a>
                     <div class="auth-buttons" id="authButtons">
                         <button class="btn btn-outline" onclick="showAuthModal('login')">Sign In</button>
                         <button class="btn btn-primary" onclick="showAuthModal('register')">Get Started</button>
                     </div>
                     <div class="user-menu hidden" id="userMenu">
-                        <button class="btn btn-outline" onclick="showDashboard()">Dashboard</button>
+                        <button class="btn btn-outline" onclick="showDashboard(); closeMobileMenu();">Dashboard</button>
                         <span class="user-email" id="userEmail"></span>
-                        <button class="btn btn-outline" onclick="logout()">Sign Out</button>
+                        <button class="btn btn-outline" onclick="logout(); closeMobileMenu();">Sign Out</button>
                     </div>
                 </nav>
                 <button class="mobile-menu-btn" id="mobileMenuBtn">
