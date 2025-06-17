@@ -623,6 +623,7 @@ function updateWillsList(wills) {
             <div class="will-actions">
                 <button class="btn btn-primary" onclick="downloadWill(${will.id})">Download PDF</button>
                 <button class="btn btn-outline" onclick="editWill(${will.id})">Edit</button>
+                <button class="btn btn-danger" onclick="deleteWill(${will.id}, '${will.title}')">Delete</button>
             </div>
         </div>
     `).join('');
@@ -734,65 +735,160 @@ function updateReviewContent() {
     const formData = new FormData(document.getElementById('willForm'));
     const reviewContent = document.getElementById('reviewContent');
     
+    // Personal Information
     const personalInfo = {
         title: formData.get('title'),
         fullName: formData.get('fullName'),
         dateOfBirth: formData.get('dateOfBirth'),
         address: formData.get('address'),
+        phone: formData.get('phone'),
+        ssn: formData.get('ssn'),
         executorName: formData.get('executorName'),
         executorContact: formData.get('executorContact')
     };
     
+    // Bitcoin Assets - Wallets
     const wallets = [];
     const walletTypes = formData.getAll('walletType');
     const walletValues = formData.getAll('walletValue');
     const walletDescriptions = formData.getAll('walletDescription');
+    const walletAddresses = formData.getAll('walletAddress');
     
     for (let i = 0; i < walletTypes.length; i++) {
-        wallets.push({
-            type: walletTypes[i],
-            value: walletValues[i],
-            description: walletDescriptions[i]
-        });
+        if (walletTypes[i] || walletValues[i] || walletDescriptions[i]) {
+            wallets.push({
+                type: walletTypes[i] || 'Not specified',
+                value: walletValues[i] || 'Not specified',
+                description: walletDescriptions[i] || 'Not specified',
+                address: walletAddresses[i] || 'Not specified'
+            });
+        }
     }
     
-    const beneficiaries = [];
-    const beneficiaryNames = formData.getAll('beneficiaryName');
-    const beneficiaryPercentages = formData.getAll('beneficiaryPercentage');
+    // Storage Information
+    const storageInfo = {
+        method: formData.get('storageMethod'),
+        location: formData.get('storageLocation'),
+        details: formData.get('storageDetails')
+    };
     
-    for (let i = 0; i < beneficiaryNames.length; i++) {
-        beneficiaries.push({
-            name: beneficiaryNames[i],
-            percentage: beneficiaryPercentages[i]
-        });
+    // Beneficiaries - Primary
+    const primaryBeneficiaries = [];
+    const primaryNames = formData.getAll('beneficiaryName');
+    const primaryRelationships = formData.getAll('beneficiaryRelationship');
+    const primaryPercentages = formData.getAll('beneficiaryPercentage');
+    const primaryContacts = formData.getAll('beneficiaryContact');
+    const primaryBitcoinAddresses = formData.getAll('beneficiaryBitcoinAddress');
+    
+    for (let i = 0; i < primaryNames.length; i++) {
+        if (primaryNames[i]) {
+            primaryBeneficiaries.push({
+                name: primaryNames[i],
+                relationship: primaryRelationships[i] || 'Not specified',
+                percentage: primaryPercentages[i] || 'Not specified',
+                contact: primaryContacts[i] || 'Not specified',
+                bitcoinAddress: primaryBitcoinAddresses[i] || 'Not specified'
+            });
+        }
     }
     
+    // Instructions
+    const instructions = {
+        accessInstructions: formData.get('accessInstructions'),
+        securityNotes: formData.get('securityNotes')
+    };
+    
+    // Trusted Contacts
+    const trustedContacts = [];
+    const contactNames = formData.getAll('trustedContactName');
+    const contactInfos = formData.getAll('trustedContactInfo');
+    
+    for (let i = 0; i < contactNames.length; i++) {
+        if (contactNames[i]) {
+            trustedContacts.push({
+                name: contactNames[i],
+                contact: contactInfos[i] || 'Not specified'
+            });
+        }
+    }
+    
+    // Generate comprehensive review content
     reviewContent.innerHTML = `
         <div class="review-section">
-            <h3>Personal Information</h3>
-            <p><strong>Will Title:</strong> ${personalInfo.title}</p>
-            <p><strong>Full Name:</strong> ${personalInfo.fullName}</p>
-            <p><strong>Date of Birth:</strong> ${personalInfo.dateOfBirth}</p>
-            <p><strong>Executor:</strong> ${personalInfo.executorName}</p>
+            <h3>📋 Personal Information</h3>
+            <div class="review-grid">
+                <p><strong>Will Title:</strong> ${personalInfo.title || 'Not specified'}</p>
+                <p><strong>Full Name:</strong> ${personalInfo.fullName || 'Not specified'}</p>
+                <p><strong>Date of Birth:</strong> ${personalInfo.dateOfBirth || 'Not specified'}</p>
+                <p><strong>Address:</strong> ${personalInfo.address || 'Not specified'}</p>
+                <p><strong>Phone:</strong> ${personalInfo.phone || 'Not specified'}</p>
+                <p><strong>SSN:</strong> ${personalInfo.ssn ? '***-**-' + personalInfo.ssn.slice(-4) : 'Not provided'}</p>
+                <p><strong>Executor Name:</strong> ${personalInfo.executorName || 'Not specified'}</p>
+                <p><strong>Executor Contact:</strong> ${personalInfo.executorContact || 'Not specified'}</p>
+            </div>
         </div>
         
         <div class="review-section">
-            <h3>Bitcoin Assets</h3>
-            ${wallets.map((wallet, index) => `
-                <p><strong>Wallet ${index + 1}:</strong> ${wallet.type} - ${wallet.value}</p>
-            `).join('')}
+            <h3>₿ Bitcoin Assets</h3>
+            ${wallets.length > 0 ? `
+                <div class="wallets-review">
+                    ${wallets.map((wallet, index) => `
+                        <div class="wallet-review-item">
+                            <h4>Wallet ${index + 1}</h4>
+                            <p><strong>Type:</strong> ${wallet.type}</p>
+                            <p><strong>Value:</strong> ${wallet.value}</p>
+                            <p><strong>Description:</strong> ${wallet.description}</p>
+                            <p><strong>Address:</strong> ${wallet.address}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '<p>No wallets specified</p>'}
+            
+            <div class="storage-review">
+                <h4>Storage Information</h4>
+                <p><strong>Method:</strong> ${storageInfo.method || 'Not specified'}</p>
+                <p><strong>Location:</strong> ${storageInfo.location || 'Not specified'}</p>
+                <p><strong>Details:</strong> ${storageInfo.details || 'Not specified'}</p>
+            </div>
         </div>
         
         <div class="review-section">
-            <h3>Beneficiaries</h3>
-            ${beneficiaries.map(beneficiary => `
-                <p><strong>${beneficiary.name}:</strong> ${beneficiary.percentage}%</p>
-            `).join('')}
+            <h3>👥 Beneficiaries</h3>
+            ${primaryBeneficiaries.length > 0 ? `
+                <div class="beneficiaries-review">
+                    <h4>Primary Beneficiaries</h4>
+                    ${primaryBeneficiaries.map((beneficiary, index) => `
+                        <div class="beneficiary-review-item">
+                            <h5>Beneficiary ${index + 1}</h5>
+                            <p><strong>Name:</strong> ${beneficiary.name}</p>
+                            <p><strong>Relationship:</strong> ${beneficiary.relationship}</p>
+                            <p><strong>Percentage:</strong> ${beneficiary.percentage}%</p>
+                            <p><strong>Contact:</strong> ${beneficiary.contact}</p>
+                            <p><strong>Bitcoin Address:</strong> ${beneficiary.bitcoinAddress}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '<p>No beneficiaries specified</p>'}
         </div>
         
         <div class="review-section">
-            <h3>Instructions</h3>
-            <p><strong>Access Instructions:</strong> ${formData.get('accessInstructions')}</p>
+            <h3>📝 Instructions</h3>
+            <div class="instructions-review">
+                <p><strong>Access Instructions:</strong></p>
+                <div class="instruction-text">${instructions.accessInstructions || 'Not specified'}</div>
+                
+                <p><strong>Security Notes:</strong></p>
+                <div class="instruction-text">${instructions.securityNotes || 'Not specified'}</div>
+            </div>
+            
+            ${trustedContacts.length > 0 ? `
+                <div class="trusted-contacts-review">
+                    <h4>Trusted Contacts</h4>
+                    ${trustedContacts.map((contact, index) => `
+                        <p><strong>${contact.name}:</strong> ${contact.contact}</p>
+                    `).join('')}
+                </div>
+            ` : ''}
         </div>
     `;
 }
@@ -1197,7 +1293,9 @@ function populateWillForm(will) {
                 
                 setFormValueInContainer(currentEntry, 'walletName', wallet.name);
                 setFormValueInContainer(currentEntry, 'walletType', wallet.type);
+                setFormValueInContainer(currentEntry, 'walletValue', wallet.value); // FIX: Add Bitcoin Amount population
                 setFormValueInContainer(currentEntry, 'walletDescription', wallet.description);
+                setFormValueInContainer(currentEntry, 'walletAddress', wallet.address); // FIX: Add wallet address population
                 setFormValueInContainer(currentEntry, 'accessMethod', wallet.access_method);
                 setFormValueInContainer(currentEntry, 'seedPhraseLocation', wallet.seed_phrase_location);
                 setFormValueInContainer(currentEntry, 'privateKeyLocation', wallet.private_key_location);
@@ -1485,4 +1583,107 @@ document.getElementById('alertModal').addEventListener('click', function(e) {
         closeAlert();
     }
 });
+
+
+// DELETE WILL FUNCTIONALITY
+async function deleteWill(willId, willTitle) {
+    // Show confirmation modal instead of browser confirm
+    const confirmDelete = await showConfirmDialog(
+        `Are you sure you want to delete "${willTitle}"?`,
+        'This action cannot be undone. The will and all its data will be permanently removed.',
+        'Delete Will',
+        'Cancel'
+    );
+    
+    if (!confirmDelete) {
+        return;
+    }
+    
+    if (!authToken) {
+        showAlert('Please log in to delete wills.', 'error');
+        return;
+    }
+    
+    try {
+        showLoading();
+        
+        const response = await fetch(API_BASE_URL + `/will/${willId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        if (response.ok) {
+            showAlert('Will deleted successfully!', 'success');
+            // Refresh the dashboard to remove the deleted will
+            await loadDashboardData();
+        } else {
+            const errorData = await response.json();
+            showAlert(errorData.message || 'Failed to delete will', 'error');
+        }
+    } catch (error) {
+        console.error('Delete will error:', error);
+        showAlert('Failed to delete will. Please try again.', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// CONFIRMATION DIALOG SYSTEM
+function showConfirmDialog(title, message, confirmText = 'Confirm', cancelText = 'Cancel') {
+    return new Promise((resolve) => {
+        // Create confirmation modal HTML
+        const confirmModal = document.createElement('div');
+        confirmModal.className = 'modal-overlay';
+        confirmModal.id = 'confirmModal';
+        
+        confirmModal.innerHTML = `
+            <div class="modal-content alert-modal">
+                <div class="alert-header">
+                    <div class="alert-icon warning">
+                        <span>⚠️</span>
+                    </div>
+                    <h3>${title}</h3>
+                </div>
+                <div class="alert-body">
+                    <p>${message}</p>
+                </div>
+                <div class="alert-footer">
+                    <button class="btn btn-outline" onclick="resolveConfirm(false)">${cancelText}</button>
+                    <button class="btn btn-danger" onclick="resolveConfirm(true)">${confirmText}</button>
+                </div>
+            </div>
+        `;
+        
+        // Add to page
+        document.body.appendChild(confirmModal);
+        
+        // Show modal
+        confirmModal.classList.remove('hidden');
+        
+        // Store resolve function globally for button handlers
+        window.resolveConfirm = (result) => {
+            document.body.removeChild(confirmModal);
+            delete window.resolveConfirm;
+            resolve(result);
+        };
+        
+        // Close on escape key
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape') {
+                document.removeEventListener('keydown', escapeHandler);
+                window.resolveConfirm(false);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
+        
+        // Close when clicking outside
+        confirmModal.addEventListener('click', (e) => {
+            if (e.target === confirmModal) {
+                window.resolveConfirm(false);
+            }
+        });
+    });
+}
 

@@ -1777,3 +1777,95 @@ p {
     }
 }
 
+
+/* REVIEW SECTION STYLING */
+.review-section {
+    background: #333333;
+    border: 1px solid #444444;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.review-section h3 {
+    color: #F7931A;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    border-bottom: 2px solid #F7931A;
+    padding-bottom: 0.5rem;
+}
+
+.review-section h4 {
+    color: #FFB84D;
+    margin: 1rem 0 0.5rem;
+    font-size: 1.1rem;
+}
+
+.review-section h5 {
+    color: #ffffff;
+    margin: 0.75rem 0 0.25rem;
+    font-size: 1rem;
+}
+
+.review-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 0.75rem;
+}
+
+.wallet-review-item,
+.beneficiary-review-item {
+    background: #2a2a2a;
+    border: 1px solid #555555;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.instruction-text {
+    background: #2a2a2a;
+    border: 1px solid #555555;
+    border-radius: 6px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    white-space: pre-wrap;
+    font-family: inherit;
+}
+
+.trusted-contacts-review {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #444444;
+}
+
+/* DELETE BUTTON STYLING */
+.btn-danger {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    border: 2px solid #dc3545;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #c82333, #a71e2a);
+    border-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+/* RESPONSIVE REVIEW STYLING */
+@media (max-width: 768px) {
+    .review-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .review-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .wallet-review-item,
+    .beneficiary-review-item {
+        padding: 0.75rem;
+    }
+}
+
