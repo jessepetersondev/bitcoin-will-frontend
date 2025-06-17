@@ -1634,3 +1634,127 @@ p {
     }
 }
 
+
+/* ALERT MODAL STYLING */
+.alert-modal {
+    max-width: 500px;
+    width: 90%;
+    background: #2a2a2a;
+    border: 2px solid #F7931A;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(247, 147, 26, 0.3);
+    animation: alertSlideIn 0.3s ease-out;
+}
+
+@keyframes alertSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.alert-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid #444444;
+}
+
+.alert-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F7931A, #FFB84D);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.alert-icon.success {
+    background: linear-gradient(135deg, #4CAF50, #66BB6A);
+}
+
+.alert-icon.error {
+    background: linear-gradient(135deg, #f44336, #ef5350);
+}
+
+.alert-icon.warning {
+    background: linear-gradient(135deg, #FF9800, #FFB74D);
+}
+
+#alertTitle {
+    color: #ffffff;
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.alert-body {
+    padding: 1rem 1.5rem;
+}
+
+#alertMessage {
+    color: #cccccc;
+    margin: 0;
+    line-height: 1.5;
+    font-size: 1rem;
+}
+
+.alert-footer {
+    padding: 1rem 1.5rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.alert-footer .btn {
+    min-width: 80px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.alert-footer .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(247, 147, 26, 0.3);
+}
+
+/* Alert Modal Responsive */
+@media (max-width: 480px) {
+    .alert-modal {
+        margin: 1rem;
+        max-width: none;
+    }
+    
+    .alert-header {
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+    
+    .alert-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+    
+    #alertTitle {
+        font-size: 1.1rem;
+    }
+    
+    .alert-body {
+        padding: 0.75rem 1rem;
+    }
+    
+    .alert-footer {
+        padding: 0.75rem 1rem 1rem;
+    }
+}
+

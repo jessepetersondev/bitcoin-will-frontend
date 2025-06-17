@@ -349,7 +349,7 @@ async function openSubscriptionManagement() {
         }
         
         // Show error
-        alert(err.message || 'Unable to open subscription management portal. Please try again later.');
+        showAlert('Unable to open subscription management portal. Please try again later.', 'error');
     }
 }
 
@@ -941,7 +941,7 @@ async function handleWillSubmit(e) {
         const data = await response.json();
         
         if (response.ok) {
-            alert(editingWillId ? 'Will updated successfully!' : 'Bitcoin will created successfully!');
+            showAlert(editingWillId ? 'Will updated successfully!' : 'Bitcoin will created successfully!', 'success');
             hideWillCreator();
             showDashboard();
         } else {
@@ -949,7 +949,7 @@ async function handleWillSubmit(e) {
         }
     } catch (error) {
         console.error('Will submit error:', error);
-        alert('Failed to save will. Please try again.');
+        showAlert('Failed to save will. Please try again.', 'error');
     } finally {
         hideLoading();
     }
@@ -1077,14 +1077,14 @@ async function downloadWill(willId) {
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
             
-            alert('Will downloaded successfully!');
+            showAlert('Will downloaded successfully!', 'success');
         } else {
             const errorData = await response.json();
-            alert(errorData.message || 'Failed to download will');
+            showAlert(errorData.message || 'Failed to download will', 'error');
         }
     } catch (error) {
         console.error('Download will error:', error);
-        alert('Failed to download will');
+        showAlert('Failed to download will', 'error');
     } finally {
         hideLoading();
     }
@@ -1121,11 +1121,11 @@ async function editWill(willId) {
             
         } else {
             const errorData = await response.json();
-            alert(errorData.message || 'Failed to load will');
+            showAlert(errorData.message || 'Failed to load will', 'error');
         }
     } catch (error) {
         console.error('Edit will error:', error);
-        alert('Failed to load will for editing');
+        showAlert('Failed to load will for editing', 'error');
     } finally {
         hideLoading();
     }
@@ -1338,8 +1338,8 @@ function showError(elementId, message) {
             hideError(elementId);
         }, 5000);
     } else {
-        // Fallback to alert if error element not found
-        alert(message);
+        // Fallback to styled alert if error element not found
+        showAlert(message, 'error');
     }
 }
 
@@ -1385,7 +1385,7 @@ function handleURLParameters() {
         window.history.replaceState({}, document.title, window.location.pathname);
     } else if (urlParams.get('payment') === 'cancelled') {
         // Payment cancelled
-        alert('Payment was cancelled. You can try again anytime.');
+        showAlert('Payment was cancelled. You can try again anytime.', 'warning');
         
         // Clean up URL
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -1394,7 +1394,7 @@ function handleURLParameters() {
         if (authToken) {
             loadSubscriptionStatus();
             showDashboard();
-            alert('Subscription management completed successfully!');
+            showAlert('Subscription management completed successfully!', 'success');
         }
         
         // Clean up URL
@@ -1420,3 +1420,69 @@ function closeMobileMenu() {
     nav.classList.remove('mobile-open');
     mobileMenuBtn.classList.remove('active');
 }
+// ALERT MODAL SYSTEM - Replace JavaScript alerts with styled modals
+function showAlert(message, type = 'info', title = null) {
+    const alertModal = document.getElementById('alertModal');
+    const alertIcon = document.getElementById('alertIcon');
+    const alertIconSymbol = document.getElementById('alertIconSymbol');
+    const alertTitle = document.getElementById('alertTitle');
+    const alertMessage = document.getElementById('alertMessage');
+    
+    // Set alert type and styling
+    alertIcon.className = 'alert-icon';
+    
+    switch (type) {
+        case 'success':
+            alertIcon.classList.add('success');
+            alertIconSymbol.textContent = '✅';
+            alertTitle.textContent = title || 'Success';
+            break;
+        case 'error':
+            alertIcon.classList.add('error');
+            alertIconSymbol.textContent = '❌';
+            alertTitle.textContent = title || 'Error';
+            break;
+        case 'warning':
+            alertIcon.classList.add('warning');
+            alertIconSymbol.textContent = '⚠️';
+            alertTitle.textContent = title || 'Warning';
+            break;
+        default: // info
+            alertIconSymbol.textContent = 'ℹ️';
+            alertTitle.textContent = title || 'Information';
+    }
+    
+    // Set message
+    alertMessage.textContent = message;
+    
+    // Show modal
+    alertModal.classList.remove('hidden');
+    
+    // Focus on OK button for accessibility
+    setTimeout(() => {
+        document.getElementById('alertOkBtn').focus();
+    }, 100);
+}
+
+function closeAlert() {
+    const alertModal = document.getElementById('alertModal');
+    alertModal.classList.add('hidden');
+}
+
+// Close alert on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const alertModal = document.getElementById('alertModal');
+        if (!alertModal.classList.contains('hidden')) {
+            closeAlert();
+        }
+    }
+});
+
+// Close alert when clicking outside the modal
+document.getElementById('alertModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeAlert();
+    }
+});
+
