@@ -2548,24 +2548,28 @@ p {
 }
 
 
-/* HERO LOGO STYLING */
+/* HERO LOGO STYLING - FIXED Z-INDEX AND MOBILE DISPLAY */
 .hero-logo-container {
     margin-bottom: 2rem;
     text-align: center;
     animation: logoFadeIn 1.5s ease-out;
+    position: relative;
+    z-index: 4; /* ABOVE ALL OTHER HERO ELEMENTS */
 }
 
 .hero-logo {
     max-width: 400px;
     width: 100%;
     height: auto;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
     transition: all 0.3s ease;
+    display: block; /* ENSURE DISPLAY ON ALL DEVICES */
+    margin: 0 auto;
 }
 
 .hero-logo:hover {
     transform: scale(1.02);
-    filter: drop-shadow(0 6px 12px rgba(247, 147, 26, 0.3));
+    filter: drop-shadow(0 6px 12px rgba(247, 147, 26, 0.4));
 }
 
 /* Logo Animation */
@@ -2580,15 +2584,16 @@ p {
     }
 }
 
-/* Enhanced Hero Content Spacing */
+/* FIXED HERO CONTENT Z-INDEX */
 .hero-content {
     position: relative;
-    z-index: 3;
+    z-index: 4; /* INCREASED TO BE ABOVE OVERLAY */
     text-align: center;
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem;
     animation: heroContentSlideUp 1.8s ease-out;
+    color: white;
 }
 
 @keyframes heroContentSlideUp {
@@ -2608,7 +2613,7 @@ p {
     font-weight: 800;
     color: #ffffff;
     margin-bottom: 1.5rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     line-height: 1.2;
     animation: titleSlideIn 2s ease-out 0.3s both;
 }
@@ -2629,7 +2634,7 @@ p {
     font-size: 1.4rem;
     color: #cccccc;
     margin-bottom: 2.5rem;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
     line-height: 1.4;
     animation: subtitleSlideIn 2s ease-out 0.6s both;
 }
@@ -2672,6 +2677,7 @@ p {
     color: #F7931A;
     animation: scrollBounce 2s infinite;
     cursor: pointer;
+    z-index: 5;
 }
 
 @keyframes scrollBounce {
@@ -2686,29 +2692,52 @@ p {
     }
 }
 
-/* RESPONSIVE LOGO STYLING */
+/* ENHANCED HERO OVERLAY FOR BETTER CONTRAST */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.7) 0%,
+        rgba(247, 147, 26, 0.1) 50%,
+        rgba(0, 0, 0, 0.8) 100%
+    );
+    z-index: 2;
+}
+
+/* RESPONSIVE LOGO STYLING - MOBILE FIXES */
 @media (max-width: 768px) {
     .hero-logo {
-        max-width: 280px;
+        max-width: 280px !important; /* FORCE DISPLAY ON MOBILE */
         margin-bottom: 1rem;
+        display: block !important; /* ENSURE MOBILE DISPLAY */
+        filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
     }
     
     .hero-logo-container {
         margin-bottom: 1.5rem;
+        display: block !important; /* ENSURE CONTAINER DISPLAYS */
+        z-index: 5; /* HIGHER Z-INDEX FOR MOBILE */
     }
     
     .hero-title {
         font-size: 2.5rem;
         margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
     }
     
     .hero-subtitle {
         font-size: 1.1rem;
         margin-bottom: 2rem;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
     }
     
     .hero-content {
         padding: 1.5rem;
+        z-index: 5; /* HIGHER Z-INDEX FOR MOBILE */
     }
     
     .hero-content::after {
@@ -2719,35 +2748,28 @@ p {
 
 @media (max-width: 480px) {
     .hero-logo {
-        max-width: 240px;
+        max-width: 240px !important; /* FORCE SMALLER SIZE ON SMALL MOBILE */
+        display: block !important;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
+    }
+    
+    .hero-logo-container {
+        margin-bottom: 1rem;
+        display: block !important;
     }
     
     .hero-title {
         font-size: 2rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
     }
     
     .hero-subtitle {
         font-size: 1rem;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
     }
     
     .hero-content {
         padding: 1rem;
     }
-}
-
-/* Enhanced Hero Section Overlay */
-.hero-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-        135deg,
-        rgba(0, 0, 0, 0.6) 0%,
-        rgba(247, 147, 26, 0.1) 50%,
-        rgba(0, 0, 0, 0.7) 100%
-    );
-    z-index: 2;
 }
 
