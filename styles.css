@@ -2415,7 +2415,7 @@ p {
 .review-item {
     margin-bottom: 1rem;
     padding: 0.75rem;
-    background: #2a2a2a;
+    background: #ffffff;
     border-radius: 6px;
     border: 1px solid #444;
 }
@@ -2423,7 +2423,7 @@ p {
 .detail-row {
     margin-bottom: 0.75rem;
     padding: 0.5rem;
-    background: #1a1a1a;
+    background: #ffffff;
     border-radius: 4px;
     border: 1px solid #333;
 }
@@ -2480,7 +2480,7 @@ p {
 }
 
 .address-row {
-    background: #252525;
+    background: #ffffff;
 }
 
 /* Enhanced mobile responsiveness for review items */

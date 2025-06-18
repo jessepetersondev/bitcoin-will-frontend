@@ -869,7 +869,6 @@ function updateReviewContent() {
                                 <div class="detail-row"><strong>Relationship:</strong><br>${beneficiary.relationship}</div>
                                 <div class="detail-row"><strong>Percentage:</strong><br>${beneficiary.percentage}%</div>
                                 <div class="detail-row"><strong>Contact:</strong><br>${beneficiary.contact}</div>
-                                <div class="detail-row address-row"><strong>Bitcoin Address:</strong><br><span class="bitcoin-address">${beneficiary.bitcoinAddress}</span></div>
                             </div>
                         </div>
                     `).join('')}
