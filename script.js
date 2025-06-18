@@ -1187,6 +1187,41 @@ async function downloadWill(willId) {
     try {
         showLoading();
         
+        // First get the will data to extract the title
+        const willResponse = await fetch(API_BASE_URL + `/will/${willId}`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            }
+        });
+        
+        let willTitle = 'Bitcoin_Will';
+        if (willResponse.ok) {
+            const willData = await willResponse.json();
+            const will = willData.will;
+            
+            // Extract title from will data
+            if (will.title) {
+                willTitle = will.title;
+            } else if (will.personal_info) {
+                let personalInfo = will.personal_info;
+                if (typeof personalInfo === 'string') {
+                    try {
+                        personalInfo = JSON.parse(personalInfo);
+                    } catch (e) {
+                        console.error('Failed to parse personal_info:', e);
+                    }
+                }
+                if (personalInfo && personalInfo.title) {
+                    willTitle = personalInfo.title;
+                } else if (personalInfo && personalInfo.fullName) {
+                    willTitle = `${personalInfo.fullName}_Bitcoin_Will`;
+                }
+            }
+        }
+        
+        // Clean the title for filename (remove invalid characters)
+        const cleanTitle = willTitle.replace(/[^a-zA-Z0-9_-]/g, '_');
+        
         const response = await fetch(API_BASE_URL + `/will/${willId}/download`, {
             headers: {
                 'Authorization': `Bearer ${authToken}`
@@ -1194,16 +1229,8 @@ async function downloadWill(willId) {
         });
         
         if (response.ok) {
-            // Get the filename from the response headers or use a default
-            const contentDisposition = response.headers.get('Content-Disposition');
-            let filename = 'bitcoin_will.pdf';
-            
-            if (contentDisposition) {
-                const filenameMatch = contentDisposition.match(/filename="(.+)"/);
-                if (filenameMatch) {
-                    filename = filenameMatch[1];
-                }
-            }
+            // Create a descriptive filename with site branding
+            const filename = `${cleanTitle}_TheBitcoinWill.com.pdf`;
             
             // Create blob and download
             const blob = await response.blob();
@@ -1211,6 +1238,10 @@ async function downloadWill(willId) {
             const a = document.createElement('a');
             a.href = url;
             a.download = filename;
+            
+            // Set a descriptive title for the download link
+            a.title = `${willTitle} - Bitcoin Asset Addendum from TheBitcoinWill.com`;
+            
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
