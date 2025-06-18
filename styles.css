@@ -1778,64 +1778,349 @@ p {
 }
 
 
-/* REVIEW SECTION STYLING */
-.review-section {
-    background: #333333;
-    border: 1px solid #444444;
+/* PDF-STYLE REVIEW SECTION */
+.review-content {
+    background: #ffffff;
+    color: #000000;
+    padding: 2rem;
+    margin: 1rem auto;
+    max-width: 800px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    font-family: 'Times New Roman', serif;
+    line-height: 1.6;
+}
+
+.review-section {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 1.5rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #000000;
+}
+
+.review-section:last-child {
+    border-bottom: none;
 }
 
 .review-section h3 {
-    color: #F7931A;
+    color: #000000;
     margin-bottom: 1rem;
-    font-size: 1.25rem;
-    border-bottom: 2px solid #F7931A;
+    font-size: 1.4rem;
+    border-bottom: 1px solid #000000;
     padding-bottom: 0.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .review-section h4 {
-    color: #FFB84D;
-    margin: 1rem 0 0.5rem;
-    font-size: 1.1rem;
+    color: #000000;
+    margin: 1.5rem 0 1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
 }
 
 .review-section h5 {
-    color: #ffffff;
-    margin: 0.75rem 0 0.25rem;
-    font-size: 1rem;
+    color: #000000;
+    margin: 1rem 0 0.5rem;
+    font-size: 1.1rem;
+    font-weight: bold;
 }
 
 .review-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
 }
 
 .wallet-review-item,
 .beneficiary-review-item {
-    background: #2a2a2a;
-    border: 1px solid #555555;
-    border-radius: 6px;
-    padding: 1rem;
-    margin-bottom: 1rem;
+    background: #f8f9fa;
+    border: 2px solid #000000;
+    border-radius: 0;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    page-break-inside: avoid;
 }
 
 .instruction-text {
-    background: #2a2a2a;
-    border: 1px solid #555555;
-    border-radius: 6px;
+    background: #f8f9fa;
+    border: 1px solid #000000;
+    border-radius: 0;
     padding: 1rem;
-    margin: 0.5rem 0;
+    margin: 1rem 0;
     white-space: pre-wrap;
-    font-family: inherit;
+    font-family: 'Times New Roman', serif;
+    color: #000000;
+    line-height: 1.6;
 }
 
 .trusted-contacts-review {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #444444;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #000000;
+}
+
+/* PDF-STYLE MOBILE-FRIENDLY REVIEW STRUCTURE */
+.review-item {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 0;
+    border: 1px solid #000000;
+    color: #000000;
+}
+
+.detail-row {
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    background: #ffffff;
+    border-radius: 0;
+    border: 1px solid #cccccc;
+    color: #000000;
+}
+
+.detail-row:last-child {
+    margin-bottom: 0;
+}
+
+.detail-row strong {
+    color: #000000;
+    font-weight: bold;
+}
+
+.wallet-details,
+.beneficiary-details,
+.storage-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.instruction-section {
+    margin-bottom: 1.5rem;
+}
+
+.instruction-section:last-child {
+    margin-bottom: 0;
+}
+
+.instruction-section h4 {
+    color: #000000;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.contacts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.contact-item {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 0;
+    border: 1px solid #000000;
+    color: #000000;
+}
+
+.contact-item strong {
+    color: #000000;
+    font-weight: bold;
+}
+
+.contact-info {
+    color: #000000;
+    font-weight: normal;
+}
+
+.bitcoin-address {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #000000;
+    background: #e9ecef;
+    padding: 0.5rem;
+    border-radius: 0;
+    word-break: break-all;
+    display: block;
+    margin-top: 0.5rem;
+    border: 1px solid #000000;
+    font-weight: bold;
+}
+
+.address-row {
+    background: #f1f3f4;
+}
+
+/* PDF Document Header */
+.review-content::before {
+    content: "BITCOIN ASSET ADDENDUM TO LAST WILL AND TESTAMENT";
+    display: block;
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #000000;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #000000;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Enhanced mobile responsiveness for PDF-style review */
+@media (max-width: 768px) {
+    .review-content {
+        padding: 1.5rem;
+        margin: 0.5rem;
+        max-width: 100%;
+    }
+    
+    .review-content::before {
+        font-size: 1.2rem;
+        letter-spacing: 1px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .review-section {
+        padding: 1rem 0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .review-section h3 {
+        font-size: 1.2rem;
+    }
+    
+    .review-section h4 {
+        font-size: 1.1rem;
+        margin: 1rem 0 0.75rem;
+    }
+    
+    .review-section h5 {
+        font-size: 1rem;
+        margin: 0.75rem 0 0.5rem;
+    }
+    
+    .review-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .review-item {
+        margin-bottom: 0.75rem;
+        padding: 0.75rem;
+    }
+    
+    .detail-row {
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+    }
+    
+    .wallet-details,
+    .beneficiary-details,
+    .storage-details {
+        gap: 0.5rem;
+    }
+    
+    .contacts-list {
+        gap: 0.75rem;
+    }
+    
+    .contact-item {
+        padding: 0.75rem;
+    }
+    
+    .bitcoin-address {
+        font-size: 11px;
+        padding: 0.4rem;
+    }
+    
+    .wallet-review-item,
+    .beneficiary-review-item {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .instruction-text {
+        padding: 0.75rem;
+        margin: 0.75rem 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .review-content {
+        padding: 1rem;
+        margin: 0.25rem;
+    }
+    
+    .review-content::before {
+        font-size: 1rem;
+        letter-spacing: 0.5px;
+        margin-bottom: 1rem;
+    }
+    
+    .review-section {
+        padding: 0.75rem 0;
+        margin-bottom: 1rem;
+    }
+    
+    .review-section h3 {
+        font-size: 1.1rem;
+    }
+    
+    .review-section h4 {
+        font-size: 1rem;
+        margin: 0.75rem 0 0.5rem;
+    }
+    
+    .review-section h5 {
+        font-size: 0.95rem;
+        margin: 0.5rem 0 0.25rem;
+    }
+    
+    .review-item {
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+    }
+    
+    .detail-row {
+        margin-bottom: 0.4rem;
+        padding: 0.4rem;
+    }
+    
+    .wallet-details,
+    .beneficiary-details,
+    .storage-details {
+        gap: 0.4rem;
+    }
+    
+    .contacts-list {
+        gap: 0.5rem;
+    }
+    
+    .contact-item {
+        padding: 0.5rem;
+    }
+    
+    .bitcoin-address {
+        font-size: 10px;
+        padding: 0.3rem;
+        line-height: 1.3;
+    }
+    
+    .wallet-review-item,
+    .beneficiary-review-item {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .instruction-text {
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+    }
 }
 
 /* DELETE BUTTON STYLING */
