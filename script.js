@@ -643,9 +643,16 @@ function showWillCreator() {
     // Show will creator
     willCreator.classList.remove('hidden');
     
-    // Reset form and progress if creating new will
+    // Reset form and progress for both new and editing wills
     if (!editingWillId) {
+        // Creating new will - full reset
         document.getElementById('willForm').reset();
+        currentStep = 1;
+        updateProgressBar();
+        showStep(1);
+    } else {
+        // Editing existing will - ensure we start at step 1
+        // Form will be populated by populateWillForm after this
         currentStep = 1;
         updateProgressBar();
         showStep(1);
@@ -654,7 +661,28 @@ function showWillCreator() {
 
 function hideWillCreator() {
     willCreator.classList.add('hidden');
+    
+    // COMPLETE STATE RESET when hiding will creator
     editingWillId = null; // Clear editing state
+    currentStep = 1; // Reset step counter
+    
+    // Reset form
+    document.getElementById('willForm').reset();
+    
+    // Clear any dynamic content
+    const walletsContainer = document.getElementById('walletsContainer');
+    const primaryBeneficiaries = document.getElementById('primaryBeneficiaries');
+    const contingentBeneficiaries = document.getElementById('contingentBeneficiaries');
+    const trustedContactsContainer = document.getElementById('trustedContactsContainer');
+    
+    if (walletsContainer) walletsContainer.innerHTML = '';
+    if (primaryBeneficiaries) primaryBeneficiaries.innerHTML = '';
+    if (contingentBeneficiaries) contingentBeneficiaries.innerHTML = '';
+    if (trustedContactsContainer) trustedContactsContainer.innerHTML = '';
+    
+    // Reset progress bar
+    updateProgressBar();
+    
     showDashboard();
 }
 
@@ -869,6 +897,7 @@ function updateReviewContent() {
                                 <div class="detail-row"><strong>Relationship:</strong><br>${beneficiary.relationship}</div>
                                 <div class="detail-row"><strong>Percentage:</strong><br>${beneficiary.percentage}%</div>
                                 <div class="detail-row"><strong>Contact:</strong><br>${beneficiary.contact}</div>
+                                <div class="detail-row address-row"><strong>Bitcoin Address:</strong><br><span class="bitcoin-address">${beneficiary.bitcoinAddress}</span></div>
                             </div>
                         </div>
                     `).join('')}
@@ -1223,8 +1252,15 @@ async function editWill(willId) {
             // Set editing state
             editingWillId = willId;
             
+            // RESET STATE FOR NEW WILL EDITING
+            currentStep = 1;
+            
             // Show will creator
             showWillCreator();
+            
+            // Reset to step 1 and update progress
+            updateProgressBar();
+            showStep(1);
             
             // Populate form with existing data
             populateWillForm(will);
