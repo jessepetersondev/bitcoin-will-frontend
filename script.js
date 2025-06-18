@@ -1252,18 +1252,20 @@ async function editWill(willId) {
             // Set editing state
             editingWillId = willId;
             
-            // RESET STATE FOR NEW WILL EDITING
+            // FORCE RESET STATE FOR NEW WILL EDITING
             currentStep = 1;
             
             // Show will creator
             showWillCreator();
             
-            // Reset to step 1 and update progress
+            // FORCE STEP 1 DISPLAY BEFORE POPULATING DATA
             updateProgressBar();
             showStep(1);
             
-            // Populate form with existing data
-            populateWillForm(will);
+            // Populate form with existing data AFTER ensuring we're on step 1
+            setTimeout(() => {
+                populateWillForm(will);
+            }, 50);
             
         } else {
             const errorData = await response.json();
@@ -1442,9 +1444,15 @@ function populateWillForm(will) {
         }
     }
     
-    // Update review content after populating all data
+    // Update review content after populating all data - BUT DON'T SHOW REVIEW STEP
     setTimeout(() => {
         updateReviewContent();
+        // ENSURE WE STAY ON STEP 1 AFTER POPULATING DATA
+        if (editingWillId) {
+            currentStep = 1;
+            updateProgressBar();
+            showStep(1);
+        }
     }, 100);
 }
 
