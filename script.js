@@ -812,19 +812,19 @@ function updateReviewContent() {
         }
     }
     
-    // Generate comprehensive review content
+    // Generate comprehensive review content with mobile-friendly structure
     reviewContent.innerHTML = `
         <div class="review-section">
             <h3>📋 Personal Information</h3>
             <div class="review-grid">
-                <p><strong>Will Title:</strong> ${personalInfo.title || 'Not specified'}</p>
-                <p><strong>Full Name:</strong> ${personalInfo.fullName || 'Not specified'}</p>
-                <p><strong>Date of Birth:</strong> ${personalInfo.dateOfBirth || 'Not specified'}</p>
-                <p><strong>Address:</strong> ${personalInfo.address || 'Not specified'}</p>
-                <p><strong>Phone:</strong> ${personalInfo.phone || 'Not specified'}</p>
-                <p><strong>SSN:</strong> ${personalInfo.ssn ? '***-**-' + personalInfo.ssn.slice(-4) : 'Not provided'}</p>
-                <p><strong>Executor Name:</strong> ${personalInfo.executorName || 'Not specified'}</p>
-                <p><strong>Executor Contact:</strong> ${personalInfo.executorContact || 'Not specified'}</p>
+                <div class="review-item"><strong>Will Title:</strong><br>${personalInfo.title || 'Not specified'}</div>
+                <div class="review-item"><strong>Full Name:</strong><br>${personalInfo.fullName || 'Not specified'}</div>
+                <div class="review-item"><strong>Date of Birth:</strong><br>${personalInfo.dateOfBirth || 'Not specified'}</div>
+                <div class="review-item"><strong>Address:</strong><br>${personalInfo.address || 'Not specified'}</div>
+                <div class="review-item"><strong>Phone:</strong><br>${personalInfo.phone || 'Not specified'}</div>
+                <div class="review-item"><strong>SSN:</strong><br>${personalInfo.ssn ? '***-**-' + personalInfo.ssn.slice(-4) : 'Not provided'}</div>
+                <div class="review-item"><strong>Executor Name:</strong><br>${personalInfo.executorName || 'Not specified'}</div>
+                <div class="review-item"><strong>Executor Contact:</strong><br>${personalInfo.executorContact || 'Not specified'}</div>
             </div>
         </div>
         
@@ -835,10 +835,12 @@ function updateReviewContent() {
                     ${wallets.map((wallet, index) => `
                         <div class="wallet-review-item">
                             <h4>Wallet ${index + 1}</h4>
-                            <p><strong>Type:</strong> ${wallet.type}</p>
-                            <p><strong>Value:</strong> ${wallet.value}</p>
-                            <p><strong>Description:</strong> ${wallet.description}</p>
-                            <p><strong>Address:</strong> ${wallet.address}</p>
+                            <div class="wallet-details">
+                                <div class="detail-row"><strong>Type:</strong><br>${wallet.type}</div>
+                                <div class="detail-row"><strong>Value:</strong><br>${wallet.value}</div>
+                                <div class="detail-row"><strong>Description:</strong><br>${wallet.description}</div>
+                                <div class="detail-row address-row"><strong>Address:</strong><br><span class="bitcoin-address">${wallet.address}</span></div>
+                            </div>
                         </div>
                     `).join('')}
                 </div>
@@ -846,9 +848,11 @@ function updateReviewContent() {
             
             <div class="storage-review">
                 <h4>Storage Information</h4>
-                <p><strong>Method:</strong> ${storageInfo.method || 'Not specified'}</p>
-                <p><strong>Location:</strong> ${storageInfo.location || 'Not specified'}</p>
-                <p><strong>Details:</strong> ${storageInfo.details || 'Not specified'}</p>
+                <div class="storage-details">
+                    <div class="detail-row"><strong>Method:</strong><br>${storageInfo.method || 'Not specified'}</div>
+                    <div class="detail-row"><strong>Location:</strong><br>${storageInfo.location || 'Not specified'}</div>
+                    <div class="detail-row"><strong>Details:</strong><br>${storageInfo.details || 'Not specified'}</div>
+                </div>
             </div>
         </div>
         
@@ -860,11 +864,13 @@ function updateReviewContent() {
                     ${primaryBeneficiaries.map((beneficiary, index) => `
                         <div class="beneficiary-review-item">
                             <h5>Beneficiary ${index + 1}</h5>
-                            <p><strong>Name:</strong> ${beneficiary.name}</p>
-                            <p><strong>Relationship:</strong> ${beneficiary.relationship}</p>
-                            <p><strong>Percentage:</strong> ${beneficiary.percentage}%</p>
-                            <p><strong>Contact:</strong> ${beneficiary.contact}</p>
-                            <p><strong>Bitcoin Address:</strong> ${beneficiary.bitcoinAddress}</p>
+                            <div class="beneficiary-details">
+                                <div class="detail-row"><strong>Name:</strong><br>${beneficiary.name}</div>
+                                <div class="detail-row"><strong>Relationship:</strong><br>${beneficiary.relationship}</div>
+                                <div class="detail-row"><strong>Percentage:</strong><br>${beneficiary.percentage}%</div>
+                                <div class="detail-row"><strong>Contact:</strong><br>${beneficiary.contact}</div>
+                                <div class="detail-row address-row"><strong>Bitcoin Address:</strong><br><span class="bitcoin-address">${beneficiary.bitcoinAddress}</span></div>
+                            </div>
                         </div>
                     `).join('')}
                 </div>
@@ -874,19 +880,28 @@ function updateReviewContent() {
         <div class="review-section">
             <h3>📝 Instructions</h3>
             <div class="instructions-review">
-                <p><strong>Access Instructions:</strong></p>
-                <div class="instruction-text">${instructions.accessInstructions || 'Not specified'}</div>
+                <div class="instruction-section">
+                    <h4>Access Instructions:</h4>
+                    <div class="instruction-text">${instructions.accessInstructions || 'Not specified'}</div>
+                </div>
                 
-                <p><strong>Security Notes:</strong></p>
-                <div class="instruction-text">${instructions.securityNotes || 'Not specified'}</div>
+                <div class="instruction-section">
+                    <h4>Security Notes:</h4>
+                    <div class="instruction-text">${instructions.securityNotes || 'Not specified'}</div>
+                </div>
             </div>
             
             ${trustedContacts.length > 0 ? `
                 <div class="trusted-contacts-review">
                     <h4>Trusted Contacts</h4>
-                    ${trustedContacts.map((contact, index) => `
-                        <p><strong>${contact.name}:</strong> ${contact.contact}</p>
-                    `).join('')}
+                    <div class="contacts-list">
+                        ${trustedContacts.map((contact, index) => `
+                            <div class="contact-item">
+                                <strong>${contact.name}:</strong><br>
+                                <span class="contact-info">${contact.contact}</span>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             ` : ''}
         </div>
