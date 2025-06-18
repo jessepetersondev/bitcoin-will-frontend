@@ -114,13 +114,20 @@
         <!-- Features Section -->
         <section id="features" class="features">
             <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Why Choose Bitcoin Will?</h2>
-                    <p class="section-description">
-                        Our platform provides everything you need to create legally sound Bitcoin will documents 
-                        that help your beneficiaries understand and access your digital assets.
-                    </p>
-                </div>
+                                   <h2 class="section-title">Why Choose Bitcoin Will?</h2>
+                        <p class="section-description">
+                            Our platform provides everything you need to create legally compliant Bitcoin asset addendums 
+                            that supplement your existing will and protect your digital legacy.
+                        </p>
+                        
+                        <!-- Legal Compliance Notice -->
+                        <div class="disclaimer-box">
+                            <div class="disclaimer-title">⚖️ Legal Document Preparation Service</div>
+                            <div class="disclaimer-text">
+                                Bitcoin Will is a document preparation service. We are NOT a law firm and do NOT provide legal advice. 
+                                All documents are templates that require review by qualified legal counsel before execution.
+                            </div>
+                        </div>                </div>
                 
                 <div class="features-grid">
                     <!-- Security/Protection Features -->
@@ -162,7 +169,7 @@
                             <li>✓ Document your Bitcoin and cryptocurrency investments</li>
                             <li>✓ Ensure your family can understand your digital assets</li>
                             <li>✓ Avoid confusion about asset locations and access methods</li>
-                            <li>✓ Get professional legal templates tailored for crypto</li>
+                            <li>✓ Get professional document templates designed for Bitcoin assets</li>
                             <li>✓ Receive step-by-step guidance for beneficiaries</li>
                             <li>✓ Peace of mind for your digital legacy planning</li>
                         </ul>
@@ -174,7 +181,7 @@
                         </div>
                         <div class="card-content">
                             <ul class="package-list">
-                                <li>✓ Professional legal will template</li>
+                                <li>✓ Professional document template for Bitcoin assets</li>
                                 <li>✓ Bitcoin-specific clauses and instructions</li>
                                 <li>✓ Beneficiary management system</li>
                                 <li>✓ Asset documentation guidance</li>
@@ -568,8 +575,12 @@
             <div class="footer-bottom">
                 <p class="copyright">
                     © 2025 Bitcoin Will. All rights reserved. 
-                    This service provides templates and guidance only. 
-                    Please consult with a qualified attorney for legal advice.
+                    This service provides document templates and guidance only. 
+                    We do not provide legal advice. Please consult with a qualified attorney for legal advice.
+                    <br><br>
+                    <a href="#" onclick="showTermsModal()" style="color: #F7931A; text-decoration: underline;">Terms of Service</a> | 
+                    <a href="#" onclick="showPrivacyModal()" style="color: #F7931A; text-decoration: underline;">Privacy Policy</a> | 
+                    <a href="#" onclick="showLegalDisclaimerModal()" style="color: #F7931A; text-decoration: underline;">Legal Disclaimer</a>
                 </p>
             </div>
         </div>
@@ -698,6 +709,223 @@
             </div>
             <div class="alert-footer">
                 <button class="btn btn-primary" id="alertOkBtn" onclick="closeAlert()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Modals -->
+    <!-- Terms of Service Modal -->
+    <div class="modal-overlay hidden" id="termsModal">
+        <div class="modal-content legal-modal">
+            <div class="modal-header">
+                <h2>Terms of Service</h2>
+                <button class="modal-close" onclick="closeTermsModal()">&times;</button>
+            </div>
+            <div class="modal-body legal-content">
+                <div class="legal-section">
+                    <h3>1. ACCEPTANCE OF TERMS</h3>
+                    <p>By accessing and using Bitcoin Will ("Service"), you accept and agree to be bound by the terms and provision of this agreement.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>2. DESCRIPTION OF SERVICE</h3>
+                    <p>Bitcoin Will is a document preparation service that provides templates and tools for creating Bitcoin asset addendums to existing wills. We are NOT a law firm and do NOT provide legal advice, legal opinions, or legal services.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>3. NOT LEGAL ADVICE</h3>
+                    <p><strong>IMPORTANT:</strong> This service does not provide legal advice. The documents generated are templates only. You should consult with a qualified attorney licensed in your jurisdiction before executing any legal documents.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>4. USER RESPONSIBILITIES</h3>
+                    <p>You are responsible for:</p>
+                    <ul>
+                        <li>Ensuring the accuracy of all information provided</li>
+                        <li>Consulting with qualified legal counsel</li>
+                        <li>Complying with all applicable laws in your jurisdiction</li>
+                        <li>Properly executing documents according to local requirements</li>
+                    </ul>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>5. DISCLAIMERS</h3>
+                    <p>We disclaim all warranties and make no representations about the legal sufficiency, validity, or enforceability of any documents created using our service. Use at your own risk.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>6. LIMITATION OF LIABILITY</h3>
+                    <p>In no event shall Bitcoin Will be liable for any direct, indirect, incidental, special, or consequential damages arising from your use of this service.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>7. SUBSCRIPTION AND BILLING</h3>
+                    <p>Subscription fees are billed in advance. Cancellations take effect at the end of the current billing period. No refunds for partial periods.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>8. DATA SECURITY</h3>
+                    <p>We implement industry-standard security measures to protect your data. However, no system is 100% secure. You acknowledge the inherent risks of transmitting data over the internet.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>9. GOVERNING LAW</h3>
+                    <p>These terms are governed by the laws of [YOUR JURISDICTION]. Any disputes shall be resolved in the courts of [YOUR JURISDICTION].</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>10. CHANGES TO TERMS</h3>
+                    <p>We reserve the right to modify these terms at any time. Continued use of the service constitutes acceptance of modified terms.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div class="modal-overlay hidden" id="privacyModal">
+        <div class="modal-content legal-modal">
+            <div class="modal-header">
+                <h2>Privacy Policy</h2>
+                <button class="modal-close" onclick="closePrivacyModal()">&times;</button>
+            </div>
+            <div class="modal-body legal-content">
+                <div class="legal-section">
+                    <h3>1. INFORMATION WE COLLECT</h3>
+                    <p>We collect information you provide directly to us, including:</p>
+                    <ul>
+                        <li>Account information (email, password)</li>
+                        <li>Personal information for document creation</li>
+                        <li>Bitcoin asset information</li>
+                        <li>Beneficiary information</li>
+                        <li>Payment information (processed by Stripe)</li>
+                    </ul>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>2. HOW WE USE YOUR INFORMATION</h3>
+                    <p>We use your information to:</p>
+                    <ul>
+                        <li>Provide our document preparation services</li>
+                        <li>Process payments and manage subscriptions</li>
+                        <li>Communicate with you about our services</li>
+                        <li>Improve our services</li>
+                        <li>Comply with legal obligations</li>
+                    </ul>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>3. DATA SECURITY</h3>
+                    <p>We implement encryption and other security measures to protect your sensitive information, including Bitcoin asset details. However, no method of transmission over the internet is 100% secure.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>4. DATA SHARING</h3>
+                    <p>We do not sell, trade, or rent your personal information to third parties. We may share information with:</p>
+                    <ul>
+                        <li>Service providers (payment processing, hosting)</li>
+                        <li>Legal authorities when required by law</li>
+                        <li>Business successors in case of merger or acquisition</li>
+                    </ul>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>5. DATA RETENTION</h3>
+                    <p>We retain your information for as long as your account is active or as needed to provide services. You may request deletion of your account and data at any time.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>6. YOUR RIGHTS</h3>
+                    <p>You have the right to:</p>
+                    <ul>
+                        <li>Access your personal information</li>
+                        <li>Correct inaccurate information</li>
+                        <li>Request deletion of your information</li>
+                        <li>Export your data</li>
+                        <li>Opt out of marketing communications</li>
+                    </ul>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>7. COOKIES</h3>
+                    <p>We use cookies and similar technologies to improve your experience, analyze usage, and provide personalized content.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>8. CHANGES TO PRIVACY POLICY</h3>
+                    <p>We may update this privacy policy from time to time. We will notify you of any material changes by posting the new policy on this page.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>9. CONTACT US</h3>
+                    <p>If you have questions about this privacy policy, please contact us at [YOUR CONTACT EMAIL].</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Disclaimer Modal -->
+    <div class="modal-overlay hidden" id="legalDisclaimerModal">
+        <div class="modal-content legal-modal">
+            <div class="modal-header">
+                <h2>Legal Disclaimer</h2>
+                <button class="modal-close" onclick="closeLegalDisclaimerModal()">&times;</button>
+            </div>
+            <div class="modal-body legal-content">
+                <div class="legal-section">
+                    <h3>IMPORTANT LEGAL NOTICE</h3>
+                    <p><strong>READ THIS CAREFULLY BEFORE USING OUR SERVICE</strong></p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>1. NOT A LAW FIRM</h3>
+                    <p>Bitcoin Will is NOT a law firm. We do not provide legal advice, legal opinions, or legal services. We are a document preparation service that provides templates and tools only.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>2. NO ATTORNEY-CLIENT RELATIONSHIP</h3>
+                    <p>Use of this service does not create an attorney-client relationship. No confidential, fiduciary, or privileged relationship is created between you and Bitcoin Will.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>3. LEGAL ADVICE REQUIRED</h3>
+                    <p><strong>YOU MUST CONSULT WITH A QUALIFIED ATTORNEY</strong> licensed in your jurisdiction before executing any legal documents. Estate planning laws vary significantly by state and country.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>4. DOCUMENT VALIDITY</h3>
+                    <p>We make no representations or warranties about the legal sufficiency, validity, or enforceability of any documents created using our service. Requirements for valid wills and addendums vary by jurisdiction.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>5. BITCOIN LAW COMPLEXITY</h3>
+                    <p>Bitcoin and cryptocurrency laws are rapidly evolving and complex. Tax implications, inheritance laws, and regulatory requirements vary significantly. Professional legal and tax advice is essential.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>6. EXECUTION REQUIREMENTS</h3>
+                    <p>Proper execution of will addendums may require witnesses, notarization, or other formalities depending on your jurisdiction. Consult with legal counsel to ensure compliance.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>7. LIMITATION OF LIABILITY</h3>
+                    <p>Bitcoin Will disclaims all liability for any consequences arising from the use of documents created through our service. Use at your own risk.</p>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>8. PROFESSIONAL CONSULTATION RECOMMENDED</h3>
+                    <p>We strongly recommend consulting with:</p>
+                    <ul>
+                        <li>Estate planning attorneys</li>
+                        <li>Tax professionals</li>
+                        <li>Financial advisors</li>
+                        <li>Cryptocurrency specialists</li>
+                    </ul>
+                </div>
+                
+                <div class="legal-section">
+                    <h3>9. ACKNOWLEDGMENT</h3>
+                    <p>By using this service, you acknowledge that you understand these limitations and agree to seek appropriate professional legal advice.</p>
+                </div>
             </div>
         </div>
     </div>

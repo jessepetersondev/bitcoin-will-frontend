@@ -174,6 +174,7 @@ async function handleAuthSubmit(e) {
             showError('authError', data.message || 'Authentication failed');
         }
     } catch (error) {
+        console.error('Auth error:', error);
         showError('authError', 'Connection error. Please try again.');
     } finally {
         hideLoading();
@@ -227,6 +228,7 @@ async function checkAuthStatus() {
             await loadSubscriptionStatus();
         }
     } catch (error) {
+        console.error('Auth check error:', error);
         logout();
     }
 }
@@ -248,6 +250,7 @@ async function loadSubscriptionStatus() {
             updateSubscriptionDisplay(data);
         }
     } catch (error) {
+        console.error('Subscription status error:', error);
     }
 }
 
@@ -307,6 +310,7 @@ async function openSubscriptionManagement() {
                 }
             });
         } catch (fetchError) {
+            console.error('Network error:', fetchError);
             throw new Error('Network error. Please check your connection and try again.');
         }
         
@@ -322,6 +326,7 @@ async function openSubscriptionManagement() {
         try {
             portalData = await portal.json();
         } catch (jsonError) {
+            console.error('JSON parsing error:', jsonError);
             throw new Error('Invalid response from server. Please try again later.');
         }
         
@@ -334,6 +339,8 @@ async function openSubscriptionManagement() {
         window.location.href = portalData.portal_url;
         
     } catch (err) {
+        console.error('Error creating portal session', err);
+        
         // Reset button
         const manageBtn = document.getElementById('manageSubscriptionBtn');
         if (manageBtn) {
@@ -384,6 +391,7 @@ async function selectPaymentMethod(method) {
             await processBTCPayPayment();
         }
     } catch (error) {
+        console.error('Payment error:', error);
         showError('paymentError', 'Payment processing failed. Please try again.');
     } finally {
         hideLoading();
@@ -412,6 +420,7 @@ async function processStripePayment() {
             throw new Error(data.message || 'Failed to create checkout session');
         }
     } catch (error) {
+        console.error('Stripe payment error:', error);
         throw error;
     }
 }
@@ -438,6 +447,7 @@ async function processBTCPayPayment() {
             throw new Error(data.message || 'Failed to create BTCPay invoice');
         }
     } catch (error) {
+        console.error('BTCPay payment error:', error);
         throw error;
     }
 }
@@ -474,9 +484,11 @@ async function handlePaymentSuccess(sessionId) {
                 showDashboard();
             }, 2000);
         } else {
+            console.error('Payment verification failed:', data.message);
             showError('paymentError', 'Payment verification failed. Please contact support.');
         }
     } catch (error) {
+        console.error('Payment verification error:', error);
         showError('paymentError', 'Failed to verify payment. Please contact support.');
     } finally {
         hideLoading();
@@ -581,6 +593,7 @@ async function loadDashboardData() {
             updateWillsList(willsData.wills || []);
         }
     } catch (error) {
+        console.error('Dashboard load error:', error);
     } finally {
         hideLoading();
     }
@@ -1031,6 +1044,7 @@ async function handleWillSubmit(e) {
             throw new Error(data.message || 'Failed to save will');
         }
     } catch (error) {
+        console.error('Will submit error:', error);
         showAlert('Failed to save will. Please try again.', 'error');
     } finally {
         hideLoading();
@@ -1165,6 +1179,7 @@ async function downloadWill(willId) {
             showAlert(errorData.message || 'Failed to download will', 'error');
         }
     } catch (error) {
+        console.error('Download will error:', error);
         showAlert('Failed to download will', 'error');
     } finally {
         hideLoading();
@@ -1205,6 +1220,7 @@ async function editWill(willId) {
             showAlert(errorData.message || 'Failed to load will', 'error');
         }
     } catch (error) {
+        console.error('Edit will error:', error);
         showAlert('Failed to load will for editing', 'error');
     } finally {
         hideLoading();
@@ -1213,6 +1229,8 @@ async function editWill(willId) {
 
 // Populate form with existing will data
 function populateWillForm(will) {
+    console.log('Populating will form with data:', will);
+    
     // Personal Information - Handle JSON string parsing
     if (will.personal_info) {
         let personal;
@@ -1221,7 +1239,9 @@ function populateWillForm(will) {
         if (typeof will.personal_info === 'string') {
             try {
                 personal = JSON.parse(will.personal_info);
+                console.log('Parsed personal_info:', personal);
             } catch (e) {
+                console.error('Failed to parse personal_info JSON:', e);
                 personal = {};
             }
         } else {
@@ -1253,6 +1273,8 @@ function populateWillForm(will) {
     
     // Bitcoin Assets - Check both 'assets' and 'bitcoin_assets' fields
     const assets = will.assets || will.bitcoin_assets || {};
+    console.log('Assets data:', assets);
+    
     if (assets && Object.keys(assets).length > 0) {
         // Storage information
         setFormValue('storageMethod', assets.storage_method);
@@ -1306,6 +1328,8 @@ function populateWillForm(will) {
     
     // Beneficiaries
     const beneficiaries = will.beneficiaries || {};
+    console.log('Beneficiaries data:', beneficiaries);
+    
     if (beneficiaries && Object.keys(beneficiaries).length > 0) {
         // Primary beneficiaries
         if (beneficiaries.primary && Array.isArray(beneficiaries.primary) && beneficiaries.primary.length > 0) {
@@ -1346,6 +1370,7 @@ function populateWillForm(will) {
     
     // Instructions - Check both 'instructions' and 'executor_instructions' fields
     const instructions = will.instructions || will.executor_instructions || {};
+    console.log('Instructions data:', instructions);
     
     if (instructions && Object.keys(instructions).length > 0) {
         setFormValue('accessInstructions', instructions.access_instructions);
@@ -1598,6 +1623,7 @@ async function deleteWill(willId, willTitle) {
             showAlert(errorData.message || 'Failed to delete will', 'error');
         }
     } catch (error) {
+        console.error('Delete will error:', error);
         showAlert('Failed to delete will. Please try again.', 'error');
     } finally {
         hideLoading();
@@ -1659,5 +1685,109 @@ function showConfirmDialog(title, message, confirmText = 'Confirm', cancelText =
             }
         });
     });
+}
+
+
+// LEGAL MODAL FUNCTIONS
+function showTermsModal() {
+    document.getElementById('termsModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeTermsModal() {
+    document.getElementById('termsModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function showPrivacyModal() {
+    document.getElementById('privacyModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closePrivacyModal() {
+    document.getElementById('privacyModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function showLegalDisclaimerModal() {
+    document.getElementById('legalDisclaimerModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLegalDisclaimerModal() {
+    document.getElementById('legalDisclaimerModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Close legal modals when clicking outside
+document.addEventListener('click', function(event) {
+    const termsModal = document.getElementById('termsModal');
+    const privacyModal = document.getElementById('privacyModal');
+    const legalModal = document.getElementById('legalDisclaimerModal');
+    
+    if (event.target === termsModal) {
+        closeTermsModal();
+    }
+    if (event.target === privacyModal) {
+        closePrivacyModal();
+    }
+    if (event.target === legalModal) {
+        closeLegalDisclaimerModal();
+    }
+});
+
+// Close legal modals with ESC key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeTermsModal();
+        closePrivacyModal();
+        closeLegalDisclaimerModal();
+    }
+});
+
+// LEGAL COMPLIANCE WARNINGS
+function showWillCreationWarning() {
+    const warningMessage = `
+        <strong>IMPORTANT LEGAL NOTICE</strong><br><br>
+        Before creating your Bitcoin Asset Addendum, please understand:<br><br>
+        • This is a document template, not legal advice<br>
+        • You must consult with a qualified attorney<br>
+        • Estate planning laws vary by jurisdiction<br>
+        • Proper execution may require witnesses/notarization<br><br>
+        Do you wish to continue?
+    `;
+    
+    return confirm(warningMessage);
+}
+
+// Add legal warning before will creation
+const originalShowWillForm = showWillForm;
+showWillForm = function() {
+    if (showWillCreationWarning()) {
+        originalShowWillForm();
+    }
+};
+
+// ENHANCED LEGAL DISCLAIMERS FOR WILL STEPS
+function addLegalWarningToStep(stepNumber) {
+    const warnings = {
+        1: "Remember: This information will be used to create a legal document template. Consult with an attorney for legal advice.",
+        2: "Important: Accurate Bitcoin asset information is crucial for estate planning. Consider professional cryptocurrency guidance.",
+        3: "Note: Beneficiary designations have legal implications. Ensure compliance with your jurisdiction's inheritance laws.",
+        4: "Reminder: Access instructions are critical for your beneficiaries. Consider security implications and legal requirements.",
+        5: "Final Notice: Review all information carefully. This document should be reviewed by qualified legal counsel before execution."
+    };
+    
+    const warning = warnings[stepNumber];
+    if (warning) {
+        const warningElement = document.createElement('div');
+        warningElement.className = 'legal-warning';
+        warningElement.innerHTML = `<strong>⚠️ Legal Notice:</strong> ${warning}`;
+        
+        const stepContent = document.querySelector(`#step${stepNumber}`);
+        if (stepContent) {
+            stepContent.insertBefore(warningElement, stepContent.firstChild);
+        }
+    }
 }
 
