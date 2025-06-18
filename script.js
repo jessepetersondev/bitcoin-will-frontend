@@ -1850,10 +1850,10 @@ function showWillCreationWarning() {
 }
 
 // Add legal warning before will creation
-const originalShowWillForm = showWillForm;
-showWillForm = function() {
+const originalShowWillCreator = showWillCreator;
+showWillCreator = function() {
     if (showWillCreationWarning()) {
-        originalShowWillForm();
+        originalShowWillCreator();
     }
 };
 
