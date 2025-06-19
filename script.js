@@ -1121,44 +1121,6 @@ function updateReviewContent() {
                         ` : ''}
                     </div>
                 </div>
-
-                <div class="document-section signature-section">
-                    <h3>VI. SIGNATURE</h3>
-                    <div class="section-content">
-                        <div class="signature-block">
-                            <div class="signature-line">
-                                <label>Testator Signature:</label>
-                                <div class="signature-space">_________________________________</div>
-                                <div class="signature-info">
-                                    <span>${personalInfo.fullName || 'Testator Name'}</span>
-                                    <span>Date: _______________</span>
-                                </div>
-                            </div>
-                            
-                            <div class="witness-section">
-                                <h4>Witnesses:</h4>
-                                <div class="witness-lines">
-                                    <div class="witness-line">
-                                        <label>Witness 1:</label>
-                                        <div class="signature-space">_________________________________</div>
-                                        <div class="signature-info">
-                                            <span>Print Name: ___________________________</span>
-                                            <span>Date: _______________</span>
-                                        </div>
-                                    </div>
-                                    <div class="witness-line">
-                                        <label>Witness 2:</label>
-                                        <div class="signature-space">_________________________________</div>
-                                        <div class="signature-info">
-                                            <span>Print Name: ___________________________</span>
-                                            <span>Date: _______________</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     `;
