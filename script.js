@@ -751,14 +751,32 @@ function validateCurrentStep() {
     
     // Additional validation for specific steps
     if (currentStep === 3) {
-        // Validate beneficiary percentages
-        const percentages = Array.from(document.querySelectorAll('input[name="beneficiaryPercentage"]'))
+        // Validate beneficiary percentages separately for primary and contingent
+        const primaryContainer = document.getElementById('primaryBeneficiaries');
+        const contingentContainer = document.getElementById('contingentBeneficiaries');
+        
+        // Validate primary beneficiaries percentages (should total 100%)
+        const primaryPercentages = Array.from(primaryContainer.querySelectorAll('input[name="beneficiaryPercentage"]'))
             .map(input => parseInt(input.value) || 0);
         
-        const total = percentages.reduce((sum, pct) => sum + pct, 0);
-        if (total !== 100) {
-            showError('willError', 'Beneficiary percentages must total 100%');
-            return false;
+        if (primaryPercentages.length > 0) {
+            const primaryTotal = primaryPercentages.reduce((sum, pct) => sum + pct, 0);
+            if (primaryTotal !== 100) {
+                showError('willError', 'Primary beneficiary percentages must total 100%');
+                return false;
+            }
+        }
+        
+        // Validate contingent beneficiaries percentages (should total 100%)
+        const contingentPercentages = Array.from(contingentContainer.querySelectorAll('input[name="beneficiaryPercentage"]'))
+            .map(input => parseInt(input.value) || 0);
+        
+        if (contingentPercentages.length > 0) {
+            const contingentTotal = contingentPercentages.reduce((sum, pct) => sum + pct, 0);
+            if (contingentTotal !== 100) {
+                showError('willError', 'Contingent beneficiary percentages must total 100%');
+                return false;
+            }
         }
     }
     
