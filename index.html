@@ -357,35 +357,35 @@
                         <h2>Personal Information</h2>
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="title">Will Title</label>
+                                <label for="title">Will Title <span class="required-indicator">*</span></label>
                                 <input type="text" id="title" name="title" placeholder="My Bitcoin Will" required>
                             </div>
                             <div class="form-group">
-                                <label for="fullName">Full Legal Name</label>
+                                <label for="fullName">Full Legal Name <span class="required-indicator">*</span></label>
                                 <input type="text" id="fullName" name="fullName" required>
                             </div>
                         </div>
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="dateOfBirth">Date of Birth</label>
+                                <label for="dateOfBirth">Date of Birth <span class="required-indicator">*</span></label>
                                 <input type="date" id="dateOfBirth" name="dateOfBirth" required>
                             </div>
                             <div class="form-group">
-                                <label for="ssn">Social Security Number (Optional)</label>
+                                <label for="ssn">Social Security Number <span class="optional-indicator">(Optional)</span></label>
                                 <input type="text" id="ssn" name="ssn" placeholder="XXX-XX-XXXX">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="address">Full Address</label>
+                            <label for="address">Full Address <span class="required-indicator">*</span></label>
                             <textarea id="address" name="address" rows="3" required></textarea>
                         </div>
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="executorName">Executor Name</label>
+                                <label for="executorName">Executor Name <span class="required-indicator">*</span></label>
                                 <input type="text" id="executorName" name="executorName" required>
                             </div>
                             <div class="form-group">
-                                <label for="executorContact">Executor Contact</label>
+                                <label for="executorContact">Executor Contact <span class="required-indicator">*</span></label>
                                 <input type="text" id="executorContact" name="executorContact" placeholder="Phone or email" required>
                             </div>
                         </div>
@@ -404,20 +404,20 @@
                                 <h4>Wallet 1</h4>
                                 <div class="form-grid">
                                     <div class="form-group">
-                                        <label>Type</label>
+                                        <label>Type <span class="required-indicator">*</span></label>
                                         <input type="text" name="walletType" value="Bitcoin" required>
                                     </div>
                                     <div class="form-group">
-                                        <label>Approximate Value</label>
+                                        <label>Approximate Value <span class="optional-indicator">(Optional)</span></label>
                                         <input type="text" name="walletValue" placeholder="$10,000 or 0.5 BTC">
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Description</label>
+                                    <label>Description <span class="optional-indicator">(Optional)</span></label>
                                     <input type="text" name="walletDescription" placeholder="Hardware wallet, exchange account, etc.">
                                 </div>
                                 <div class="form-group">
-                                    <label>Wallet Address (Public)</label>
+                                    <label>Wallet Address (Public) <span class="optional-indicator">(Optional)</span></label>
                                     <input type="text" name="walletAddress" placeholder="Public wallet address">
                                 </div>
                             </div>
@@ -428,7 +428,7 @@
                         <div class="storage-section">
                             <h3>Storage Information</h3>
                             <div class="form-group">
-                                <label for="storageMethod">Storage Method</label>
+                                <label for="storageMethod">Storage Method <span class="required-indicator">*</span></label>
                                 <select id="storageMethod" name="storageMethod" required>
                                     <option value="">Select storage method</option>
                                     <option value="hardware_wallet">Hardware Wallet</option>
@@ -439,11 +439,11 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="storageLocation">Storage Location</label>
+                                <label for="storageLocation">Storage Location <span class="optional-indicator">(Optional)</span></label>
                                 <input type="text" id="storageLocation" name="storageLocation" placeholder="Safe deposit box, home safe, etc.">
                             </div>
                             <div class="form-group">
-                                <label for="storageDetails">Additional Storage Details</label>
+                                <label for="storageDetails">Additional Storage Details <span class="optional-indicator">(Optional)</span></label>
                                 <textarea id="storageDetails" name="storageDetails" rows="3" placeholder="Any additional information about accessing your storage..."></textarea>
                             </div>
                         </div>
@@ -466,21 +466,21 @@
                                     <h4>Primary Beneficiary 1</h4>
                                     <div class="form-grid">
                                         <div class="form-group">
-                                            <label>Name</label>
+                                            <label>Name <span class="required-indicator">*</span></label>
                                             <input type="text" name="beneficiaryName" required>
                                         </div>
                                         <div class="form-group">
-                                            <label>Relationship</label>
+                                            <label>Relationship <span class="optional-indicator">(Optional)</span></label>
                                             <input type="text" name="beneficiaryRelationship" placeholder="Spouse, child, etc.">
                                         </div>
                                     </div>
                                     <div class="form-grid">
                                         <div class="form-group">
-                                            <label>Percentage (%)</label>
+                                            <label>Percentage (%) <span class="required-indicator">*</span></label>
                                             <input type="number" name="beneficiaryPercentage" min="0" max="100" required>
                                         </div>
                                         <div class="form-group">
-                                            <label>Contact Information</label>
+                                            <label>Contact Information <span class="optional-indicator">(Optional)</span></label>
                                             <input type="text" name="beneficiaryContact" placeholder="Phone or email">
                                         </div>
                                     </div>
@@ -510,12 +510,12 @@
                         <p class="tab-description">Provide detailed instructions for your executor and beneficiaries.</p>
                         
                         <div class="form-group">
-                            <label for="accessInstructions">Access Instructions</label>
+                            <label for="accessInstructions">Access Instructions <span class="required-indicator">*</span></label>
                             <textarea id="accessInstructions" name="accessInstructions" rows="6" placeholder="Detailed instructions on how to access your Bitcoin assets..." required></textarea>
                         </div>
                         
                         <div class="form-group">
-                            <label for="securityNotes">Security Notes</label>
+                            <label for="securityNotes">Security Notes <span class="optional-indicator">(Optional)</span></label>
                             <textarea id="securityNotes" name="securityNotes" rows="4" placeholder="Important security considerations, warnings, or special instructions..."></textarea>
                         </div>
                         
@@ -525,11 +525,11 @@
                             <div id="trustedContacts">
                                 <div class="form-grid">
                                     <div class="form-group">
-                                        <label>Contact Name</label>
+                                        <label>Contact Name <span class="optional-indicator">(Optional)</span></label>
                                         <input type="text" name="trustedContactName" placeholder="Technical advisor name">
                                     </div>
                                     <div class="form-group">
-                                        <label>Contact Information</label>
+                                        <label>Contact Information <span class="optional-indicator">(Optional)</span></label>
                                         <input type="text" name="trustedContactInfo" placeholder="Phone or email">
                                     </div>
                                 </div>

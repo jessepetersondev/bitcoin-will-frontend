@@ -741,12 +741,35 @@ function validateCurrentStep() {
     const currentTab = document.querySelector('.tab-content.active');
     const requiredFields = currentTab.querySelectorAll('input[required], select[required], textarea[required]');
     
+    // Clear previous validation errors
+    clearValidationErrors();
+    
+    let hasErrors = false;
+    let missingFields = [];
+    
     for (let field of requiredFields) {
         if (!field.value.trim()) {
-            field.focus();
-            showError('willError', 'Please fill in all required fields');
-            return false;
+            // Add error styling to the field
+            field.classList.add('field-error');
+            
+            // Get field label text
+            const label = field.closest('.form-group').querySelector('label');
+            const fieldName = label ? label.textContent.replace('*', '').trim() : 'Field';
+            missingFields.push(fieldName);
+            
+            hasErrors = true;
         }
+    }
+    
+    // Show validation summary if there are errors
+    if (hasErrors) {
+        showValidationSummary(missingFields);
+        // Focus on first error field
+        const firstErrorField = currentTab.querySelector('.field-error');
+        if (firstErrorField) {
+            firstErrorField.focus();
+        }
+        return false;
     }
     
     // Additional validation for specific steps
@@ -782,6 +805,63 @@ function validateCurrentStep() {
     
     return true;
 }
+
+function clearValidationErrors() {
+    // Remove error styling from all fields
+    document.querySelectorAll('.field-error').forEach(field => {
+        field.classList.remove('field-error');
+    });
+    
+    // Remove validation summary
+    const existingSummary = document.querySelector('.validation-summary');
+    if (existingSummary) {
+        existingSummary.remove();
+    }
+    
+    // Clear any existing error messages
+    hideError('willError');
+}
+
+function showValidationSummary(missingFields) {
+    const currentTab = document.querySelector('.tab-content.active');
+    const existingSummary = currentTab.querySelector('.validation-summary');
+    
+    if (existingSummary) {
+        existingSummary.remove();
+    }
+    
+    const summary = document.createElement('div');
+    summary.className = 'validation-summary';
+    summary.innerHTML = `
+        <h4>Please complete the following required fields:</h4>
+        <ul>
+            ${missingFields.map(field => `<li>${field}</li>`).join('')}
+        </ul>
+    `;
+    
+    // Insert at the top of the current tab
+    currentTab.insertBefore(summary, currentTab.firstElementChild.nextElementSibling);
+}
+
+// Add event listeners to clear validation errors when user starts typing
+document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('input', function(e) {
+        if (e.target.matches('input, select, textarea')) {
+            if (e.target.classList.contains('field-error') && e.target.value.trim()) {
+                e.target.classList.remove('field-error');
+                
+                // Check if all errors are cleared to remove summary
+                const remainingErrors = document.querySelectorAll('.field-error');
+                if (remainingErrors.length === 0) {
+                    const summary = document.querySelector('.validation-summary');
+                    if (summary) {
+                        summary.remove();
+                    }
+                }
+            }
+        }
+    });
+});
 
 function updateReviewContent() {
     const formData = new FormData(document.getElementById('willForm'));
@@ -969,20 +1049,20 @@ function addWallet() {
             <h4>Wallet ${walletCount}</h4>
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Cryptocurrency Type</label>
+                    <label>Type <span class="required-indicator">*</span></label>
                     <input type="text" name="walletType" value="Bitcoin" required>
                 </div>
                 <div class="form-group">
-                    <label>Approximate Value</label>
+                    <label>Approximate Value <span class="optional-indicator">(Optional)</span></label>
                     <input type="text" name="walletValue" placeholder="$10,000 or 0.5 BTC">
                 </div>
             </div>
             <div class="form-group">
-                <label>Description</label>
+                <label>Description <span class="optional-indicator">(Optional)</span></label>
                 <input type="text" name="walletDescription" placeholder="Hardware wallet, exchange account, etc.">
             </div>
             <div class="form-group">
-                <label>Wallet Address (Public)</label>
+                <label>Wallet Address (Public) <span class="optional-indicator">(Optional)</span></label>
                 <input type="text" name="walletAddress" placeholder="Public wallet address">
             </div>
             <button type="button" class="btn btn-outline" onclick="removeWallet(this)">Remove Wallet</button>
@@ -1006,25 +1086,25 @@ function addBeneficiary(type) {
             <h4>${title} Beneficiary ${beneficiaryCount}</h4>
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Name</label>
+                    <label>Name <span class="required-indicator">*</span></label>
                     <input type="text" name="beneficiaryName" required>
                 </div>
                 <div class="form-group">
-                    <label>Relationship</label>
+                    <label>Relationship <span class="optional-indicator">(Optional)</span></label>
                     <input type="text" name="beneficiaryRelationship" placeholder="Spouse, child, etc.">
                 </div>
             </div>
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Percentage (%)</label>
+                    <label>Percentage (%) <span class="required-indicator">*</span></label>
                     <input type="number" name="beneficiaryPercentage" min="0" max="100" required>
                 </div>
                 <div class="form-group">
-                    <label>Contact Information</label>
+                    <label>Contact Information <span class="optional-indicator">(Optional)</span></label>
                     <input type="text" name="beneficiaryContact" placeholder="Phone or email">
                 </div>
             </div>
-            <button type="button" class="btn btn-outline" onclick="removeBeneficiary(this)">Remove Beneficiary</button>
+            <button type="button" class="btn btn-danger btn-small" onclick="removeBeneficiary(this)">Remove</button>
         </div>
     `;
     
