@@ -1855,13 +1855,8 @@ function showWillCreationWarning() {
     return confirm(warningMessage);
 }
 
-// Add legal warning before will creation
-const originalShowWillCreator = showWillCreator;
-showWillCreator = function() {
-    if (showWillCreationWarning()) {
-        originalShowWillCreator();
-    }
-};
+// Remove the legal warning wrapper - users don't need this alert
+// showWillCreator function will work directly without warning
 
 // ENHANCED LEGAL DISCLAIMERS FOR WILL STEPS
 function addLegalWarningToStep(stepNumber) {
@@ -1885,4 +1880,3 @@ function addLegalWarningToStep(stepNumber) {
         }
     }
 }
-
