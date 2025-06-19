@@ -944,98 +944,222 @@ function updateReviewContent() {
         }
     }
     
-    // Generate comprehensive review content with mobile-friendly structure
+    // Generate comprehensive review content with professional document styling
     reviewContent.innerHTML = `
-        <div class="review-section">
-            <h3>📋 Personal Information</h3>
-            <div class="review-grid">
-                <div class="review-item"><strong>Will Title:</strong><br>${personalInfo.title || 'Not specified'}</div>
-                <div class="review-item"><strong>Full Name:</strong><br>${personalInfo.fullName || 'Not specified'}</div>
-                <div class="review-item"><strong>Date of Birth:</strong><br>${personalInfo.dateOfBirth || 'Not specified'}</div>
-                <div class="review-item"><strong>Address:</strong><br>${personalInfo.address || 'Not specified'}</div>
-                <div class="review-item"><strong>Phone:</strong><br>${personalInfo.phone || 'Not specified'}</div>
-                <div class="review-item"><strong>SSN:</strong><br>${personalInfo.ssn ? '***-**-' + personalInfo.ssn.slice(-4) : 'Not provided'}</div>
-                <div class="review-item"><strong>Executor Name:</strong><br>${personalInfo.executorName || 'Not specified'}</div>
-                <div class="review-item"><strong>Executor Contact:</strong><br>${personalInfo.executorContact || 'Not specified'}</div>
+        <div class="document-preview">
+            <div class="document-header">
+                <div class="document-title">
+                    <h1>BITCOIN WILL AND TESTAMENT</h1>
+                    <h2>${personalInfo.title || 'My Bitcoin Will'}</h2>
+                </div>
+                <div class="document-meta">
+                    <p><strong>Testator:</strong> ${personalInfo.fullName || 'Not specified'}</p>
+                    <p><strong>Date of Birth:</strong> ${personalInfo.dateOfBirth || 'Not specified'}</p>
+                    <p><strong>Date Created:</strong> ${new Date().toLocaleDateString()}</p>
+                </div>
             </div>
-        </div>
-        
-        <div class="review-section">
-            <h3>₿ Bitcoin Assets</h3>
-            ${wallets.length > 0 ? `
-                <div class="wallets-review">
-                    ${wallets.map((wallet, index) => `
-                        <div class="wallet-review-item">
-                            <h4>Wallet ${index + 1}</h4>
-                            <div class="wallet-details">
-                                <div class="detail-row"><strong>Type:</strong><br>${wallet.type}</div>
-                                <div class="detail-row"><strong>Value:</strong><br>${wallet.value}</div>
-                                <div class="detail-row"><strong>Description:</strong><br>${wallet.description}</div>
-                                <div class="detail-row address-row"><strong>Address:</strong><br><span class="bitcoin-address">${wallet.address}</span></div>
+
+            <div class="document-body">
+                <div class="document-section">
+                    <h3>I. PERSONAL INFORMATION</h3>
+                    <div class="section-content">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Full Legal Name:</label>
+                                <span>${personalInfo.fullName || 'Not specified'}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Date of Birth:</label>
+                                <span>${personalInfo.dateOfBirth || 'Not specified'}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Address:</label>
+                                <span>${personalInfo.address || 'Not specified'}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Phone:</label>
+                                <span>${personalInfo.phone || 'Not specified'}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Social Security Number:</label>
+                                <span>${personalInfo.ssn ? '***-**-' + personalInfo.ssn.slice(-4) : 'Not provided'}</span>
                             </div>
                         </div>
-                    `).join('')}
-                </div>
-            ` : '<p>No wallets specified</p>'}
-            
-            <div class="storage-review">
-                <h4>Storage Information</h4>
-                <div class="storage-details">
-                    <div class="detail-row"><strong>Method:</strong><br>${storageInfo.method || 'Not specified'}</div>
-                    <div class="detail-row"><strong>Location:</strong><br>${storageInfo.location || 'Not specified'}</div>
-                    <div class="detail-row"><strong>Details:</strong><br>${storageInfo.details || 'Not specified'}</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="review-section">
-            <h3>👥 Beneficiaries</h3>
-            ${primaryBeneficiaries.length > 0 ? `
-                <div class="beneficiaries-review">
-                    <h4>Primary Beneficiaries</h4>
-                    ${primaryBeneficiaries.map((beneficiary, index) => `
-                        <div class="beneficiary-review-item">
-                            <h5>Beneficiary ${index + 1}</h5>
-                            <div class="beneficiary-details">
-                                <div class="detail-row"><strong>Name:</strong><br>${beneficiary.name}</div>
-                                <div class="detail-row"><strong>Relationship:</strong><br>${beneficiary.relationship}</div>
-                                <div class="detail-row"><strong>Percentage:</strong><br>${beneficiary.percentage}%</div>
-                                <div class="detail-row"><strong>Contact:</strong><br>${beneficiary.contact}</div>
-                                <div class="detail-row address-row"><strong>Bitcoin Address:</strong><br><span class="bitcoin-address">${beneficiary.bitcoinAddress}</span></div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            ` : '<p>No beneficiaries specified</p>'}
-        </div>
-        
-        <div class="review-section">
-            <h3>📝 Instructions</h3>
-            <div class="instructions-review">
-                <div class="instruction-section">
-                    <h4>Access Instructions:</h4>
-                    <div class="instruction-text">${instructions.accessInstructions || 'Not specified'}</div>
-                </div>
-                
-                <div class="instruction-section">
-                    <h4>Security Notes:</h4>
-                    <div class="instruction-text">${instructions.securityNotes || 'Not specified'}</div>
-                </div>
-            </div>
-            
-            ${trustedContacts.length > 0 ? `
-                <div class="trusted-contacts-review">
-                    <h4>Trusted Contacts</h4>
-                    <div class="contacts-list">
-                        ${trustedContacts.map((contact, index) => `
-                            <div class="contact-item">
-                                <strong>${contact.name}:</strong><br>
-                                <span class="contact-info">${contact.contact}</span>
-                            </div>
-                        `).join('')}
                     </div>
                 </div>
-            ` : ''}
+
+                <div class="document-section">
+                    <h3>II. EXECUTOR INFORMATION</h3>
+                    <div class="section-content">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Executor Name:</label>
+                                <span>${personalInfo.executorName || 'Not specified'}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Executor Contact:</label>
+                                <span>${personalInfo.executorContact || 'Not specified'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="document-section">
+                    <h3>III. BITCOIN ASSETS</h3>
+                    <div class="section-content">
+                        ${wallets.length > 0 ? `
+                            <div class="assets-list">
+                                ${wallets.map((wallet, index) => `
+                                    <div class="asset-item">
+                                        <h4>Asset ${index + 1}</h4>
+                                        <div class="asset-details">
+                                            <div class="detail-item">
+                                                <label>Type:</label>
+                                                <span>${wallet.type}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <label>Approximate Value:</label>
+                                                <span>${wallet.value}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <label>Description:</label>
+                                                <span>${wallet.description}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <label>Wallet Address (Public):</label>
+                                                <span class="address-text">${wallet.address}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p class="no-data">No Bitcoin assets specified</p>'}
+                        
+                        <div class="storage-info">
+                            <h4>Storage Information</h4>
+                            <div class="storage-details">
+                                <div class="detail-item">
+                                    <label>Storage Method:</label>
+                                    <span>${storageInfo.method || 'Not specified'}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Storage Location:</label>
+                                    <span>${storageInfo.location || 'Not specified'}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <label>Additional Details:</label>
+                                    <span>${storageInfo.details || 'Not specified'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="document-section">
+                    <h3>IV. BENEFICIARIES</h3>
+                    <div class="section-content">
+                        ${primaryBeneficiaries.length > 0 ? `
+                            <div class="beneficiaries-list">
+                                <h4>Primary Beneficiaries</h4>
+                                ${primaryBeneficiaries.map((beneficiary, index) => `
+                                    <div class="beneficiary-item">
+                                        <h5>Beneficiary ${index + 1}</h5>
+                                        <div class="beneficiary-details">
+                                            <div class="detail-item">
+                                                <label>Name:</label>
+                                                <span>${beneficiary.name}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <label>Relationship:</label>
+                                                <span>${beneficiary.relationship}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <label>Percentage:</label>
+                                                <span>${beneficiary.percentage}%</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <label>Contact Information:</label>
+                                                <span>${beneficiary.contact}</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <label>Bitcoin Address:</label>
+                                                <span class="address-text">${beneficiary.bitcoinAddress}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p class="no-data">No beneficiaries specified</p>'}
+                    </div>
+                </div>
+
+                <div class="document-section">
+                    <h3>V. ACCESS INSTRUCTIONS</h3>
+                    <div class="section-content">
+                        <div class="instruction-block">
+                            <h4>Access Instructions:</h4>
+                            <div class="instruction-text">${instructions.accessInstructions || 'Not specified'}</div>
+                        </div>
+                        
+                        <div class="instruction-block">
+                            <h4>Security Notes:</h4>
+                            <div class="instruction-text">${instructions.securityNotes || 'Not specified'}</div>
+                        </div>
+                        
+                        ${trustedContacts.length > 0 ? `
+                            <div class="instruction-block">
+                                <h4>Trusted Contacts:</h4>
+                                <div class="contacts-grid">
+                                    ${trustedContacts.map((contact, index) => `
+                                        <div class="contact-entry">
+                                            <label>${contact.name}:</label>
+                                            <span>${contact.contact}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <div class="document-section signature-section">
+                    <h3>VI. SIGNATURE</h3>
+                    <div class="section-content">
+                        <div class="signature-block">
+                            <div class="signature-line">
+                                <label>Testator Signature:</label>
+                                <div class="signature-space">_________________________________</div>
+                                <div class="signature-info">
+                                    <span>${personalInfo.fullName || 'Testator Name'}</span>
+                                    <span>Date: _______________</span>
+                                </div>
+                            </div>
+                            
+                            <div class="witness-section">
+                                <h4>Witnesses:</h4>
+                                <div class="witness-lines">
+                                    <div class="witness-line">
+                                        <label>Witness 1:</label>
+                                        <div class="signature-space">_________________________________</div>
+                                        <div class="signature-info">
+                                            <span>Print Name: ___________________________</span>
+                                            <span>Date: _______________</span>
+                                        </div>
+                                    </div>
+                                    <div class="witness-line">
+                                        <label>Witness 2:</label>
+                                        <div class="signature-space">_________________________________</div>
+                                        <div class="signature-info">
+                                            <span>Print Name: ___________________________</span>
+                                            <span>Date: _______________</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     `;
 }
