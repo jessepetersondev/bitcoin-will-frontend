@@ -366,6 +366,7 @@ function selectPlan(plan) {
     }
     
     currentPlan = plan;
+    closeSubscriptionModal(); // Close the subscription modal first
     showPaymentModal();
 }
 
