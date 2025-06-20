@@ -714,12 +714,12 @@ function showStep(stepNumber) {
     });
     
     // Show selected tab
-    const tabs = ['personal', 'assets', 'beneficiaries', 'instructions', 'review'];
+    const tabs = ['personal', 'assets', 'beneficiaries', 'instructions', 'compliance', 'review'];
     const tabId = tabs[stepNumber - 1] + 'Tab';
     document.getElementById(tabId).classList.add('active');
     
     // Update review content if on review step
-    if (stepNumber === 5) {
+    if (stepNumber === 6) {
         updateReviewContent();
     }
 }
@@ -748,6 +748,7 @@ function validateCurrentStep() {
     let hasErrors = false;
     let missingFields = [];
     
+    // Check required fields
     for (let field of requiredFields) {
         if (!field.value.trim()) {
             // Add error styling to the field
@@ -759,6 +760,25 @@ function validateCurrentStep() {
             missingFields.push(fieldName);
             
             hasErrors = true;
+        }
+    }
+    
+    // Additional validation for legal compliance step (step 5)
+    if (currentStep === 5) {
+        // Check required checkboxes
+        const requiredCheckboxes = currentTab.querySelectorAll('input[type="checkbox"][required]');
+        for (let checkbox of requiredCheckboxes) {
+            if (!checkbox.checked) {
+                // Add error styling to the checkbox container
+                checkbox.closest('.form-group').classList.add('field-error');
+                
+                // Get checkbox label text
+                const label = checkbox.closest('.checkbox-label');
+                const fieldName = label ? label.textContent.replace('*', '').trim().substring(0, 50) + '...' : 'Required consent';
+                missingFields.push(fieldName);
+                
+                hasErrors = true;
+            }
         }
     }
     
@@ -1310,6 +1330,30 @@ function extractWillData(formData) {
             access_instructions: formData.get('accessInstructions'),
             security_notes: formData.get('securityNotes'),
             trusted_contacts: []
+        },
+        legal_compliance: {
+            rufadaa_consent: formData.get('rufadaaConsent') === 'on',
+            digital_fiduciary_consent: formData.get('digitalFiduciaryConsent') === 'on',
+            primary_will_reference: formData.get('primaryWillReference'),
+            addendum_attestation: formData.get('addendumAttestation') === 'on',
+            witness1_name: formData.get('witness1Name'),
+            witness1_address: formData.get('witness1Address'),
+            witness2_name: formData.get('witness2Name'),
+            witness2_address: formData.get('witness2Address'),
+            notarization_requested: formData.get('notarizationRequested') === 'on',
+            notary_instructions: formData.get('notaryInstructions'),
+            tax_compliance_acknowledged: formData.get('taxComplianceAcknowledged') === 'on',
+            tax_forms_acknowledged: formData.get('taxFormsAcknowledged') === 'on',
+            tax_advisor_info: formData.get('taxAdvisorInfo'),
+            exchange_terms_reviewed: formData.get('exchangeTermsReviewed') === 'on',
+            kyc_compliance_understood: formData.get('kycComplianceUnderstood') === 'on',
+            exchange_list: formData.get('exchangeList'),
+            attorney_review_required: formData.get('attorneyReviewRequired') === 'on',
+            legal_advice_disclaimer: formData.get('legalAdviceDisclaimer') === 'on',
+            attorney_info: formData.get('attorneyInfo'),
+            annual_review_commitment: formData.get('annualReviewCommitment') === 'on',
+            executor_notification_commitment: formData.get('executorNotificationCommitment') === 'on',
+            review_schedule: formData.get('reviewSchedule')
         }
     };
     

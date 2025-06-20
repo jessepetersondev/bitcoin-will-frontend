@@ -326,33 +326,32 @@
                 <button class="btn btn-outline" onclick="hideWillCreator()">
                     ← Back to Dashboard
                 </button>
-            </div>
-            
-            <div class="will-creator-content">
-                <div class="progress-bar">
-                    <div class="progress-step active" data-step="1">
-                        <span class="step-number">1</span>
-                        <span class="step-label">Personal Info</span>
-                    </div>
-                    <div class="progress-step" data-step="2">
-                        <span class="step-number">2</span>
-                        <span class="step-label">Bitcoin Assets</span>
-                    </div>
-                    <div class="progress-step" data-step="3">
-                        <span class="step-number">3</span>
-                        <span class="step-label">Beneficiaries</span>
-                    </div>
-                    <div class="progress-step" data-step="4">
-                        <span class="step-number">4</span>
-                        <span class="step-label">Instructions</span>
-                    </div>
-                    <div class="progress-step" data-step="5">
-                        <span class="step-number">5</span>
-                        <span class="step-label">Review</span>
-                    </div>
-                </div>
-                
-                <form id="willForm" class="will-form">
+                               <div class="step-indicator">
+                            <div class="step active" data-step="1">
+                                <span class="step-number">1</span>
+                                <span class="step-label">Personal</span>
+                            </div>
+                            <div class="step" data-step="2">
+                                <span class="step-number">2</span>
+                                <span class="step-label">Assets</span>
+                            </div>
+                            <div class="step" data-step="3">
+                                <span class="step-number">3</span>
+                                <span class="step-label">Beneficiaries</span>
+                            </div>
+                            <div class="step" data-step="4">
+                                <span class="step-number">4</span>
+                                <span class="step-label">Instructions</span>
+                            </div>
+                            <div class="step" data-step="5">
+                                <span class="step-number">5</span>
+                                <span class="step-label">Legal</span>
+                            </div>
+                            <div class="step" data-step="6">
+                                <span class="step-number">6</span>
+                                <span class="step-label">Review</span>
+                            </div>
+                        </div>Form" class="will-form">
                     <!-- Step 1: Personal Information -->
                     <div id="personalTab" class="tab-content active">
                         <h2>Personal Information</h2>
@@ -388,7 +387,6 @@
                             <div class="form-group">
                                 <label for="executorContact">Executor Contact <span class="required-indicator">*</span></label>
                                 <input type="text" id="executorContact" name="executorContact" placeholder="Phone or email" required>
-                            </div>
                         </div>
                         <div class="form-actions">
                             <button type="button" class="btn btn-primary" onclick="nextStep(2)">Next: Bitcoin Assets →</button>
@@ -398,7 +396,19 @@
                     <!-- Step 2: Bitcoin Assets -->
                     <div id="assetsTab" class="tab-content">
                         <h2>Bitcoin Assets</h2>
-                        <p class="tab-description">Document your Bitcoin holdings. This information helps your beneficiaries understand what assets exist.</p>
+                        <p class="tab-description">Document your Bitcoin holdings and storage information.</p>
+                        
+                        <!-- Security Warning -->
+                        <div class="security-warning">
+                            <h3>🔒 Security & Privacy Notice</h3>
+                            <p><strong>IMPORTANT:</strong> Do NOT include private keys, seed phrases, passwords, or other sensitive access credentials in this form. This document may become part of public probate records.</p>
+                            <ul>
+                                <li>✓ Only include public wallet addresses and general descriptions</li>
+                                <li>✓ Store private keys and seed phrases separately in secure locations</li>
+                                <li>✓ Reference storage locations without revealing exact details</li>
+                                <li>✓ Consider using a separate, private access document for sensitive information</li>
+                            </ul>
+                        </div>
                         
                         <div id="walletsContainer">
                             <div class="wallet-entry">
@@ -428,6 +438,13 @@
                         
                         <div class="storage-section">
                             <h3>Storage Information</h3>
+                            
+                            <!-- Privacy Notice for Storage -->
+                            <div class="privacy-notice">
+                                <h4>🔐 Storage Privacy Guidelines</h4>
+                                <p>Reference storage locations generally (e.g., "bank safe deposit box", "home safe") without providing specific details like box numbers, combinations, or exact addresses that could compromise security.</p>
+                            </div>
+                            
                             <div class="form-group">
                                 <label for="storageMethod">Storage Method <span class="required-indicator">*</span></label>
                                 <select id="storageMethod" name="storageMethod" required>
@@ -441,11 +458,11 @@
                             </div>
                             <div class="form-group">
                                 <label for="storageLocation">Storage Location <span class="optional-indicator">(Optional)</span></label>
-                                <input type="text" id="storageLocation" name="storageLocation" placeholder="Safe deposit box, home safe, etc.">
+                                <input type="text" id="storageLocation" name="storageLocation" placeholder="e.g., 'Bank safe deposit box', 'Home safe' (avoid specific details)">
                             </div>
                             <div class="form-group">
                                 <label for="storageDetails">Additional Storage Details <span class="optional-indicator">(Optional)</span></label>
-                                <textarea id="storageDetails" name="storageDetails" rows="3" placeholder="Any additional information about accessing your storage..."></textarea>
+                                <textarea id="storageDetails" name="storageDetails" rows="3" placeholder="General guidance for accessing storage (avoid sensitive details like combinations or exact locations)"></textarea>
                             </div>
                         </div>
                         
@@ -540,21 +557,240 @@
                         
                         <div class="form-actions">
                             <button type="button" class="btn btn-outline" onclick="prevStep(3)">← Previous</button>
-                            <button type="button" class="btn btn-primary" onclick="nextStep(5)">Next: Review →</button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep(5)">Next: Legal Compliance →</button>
                         </div>
                     </div>
 
-                    <!-- Step 5: Review -->
+                    <!-- Step 5: Legal Compliance -->
+                    <div id="complianceTab" class="tab-content">
+                        <h2>Legal Compliance & Execution</h2>
+                        <p class="tab-description">Complete the legal requirements for your Bitcoin will addendum.</p>
+                        
+                        <!-- RUFADAA Compliance Section -->
+                        <div class="compliance-section">
+                            <h3>Digital Asset Authorization (RUFADAA Compliance)</h3>
+                            <p class="section-description">Grant explicit authority for your executor to manage digital assets under the Revised Uniform Fiduciary Access to Digital Assets Act.</p>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="rufadaaConsent" name="rufadaaConsent" required>
+                                    <span class="checkmark"></span>
+                                    I hereby grant my executor explicit authority to access, manage, and distribute my digital assets including Bitcoin and cryptocurrency holdings under RUFADAA. <span class="required-indicator">*</span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="digitalFiduciaryConsent" name="digitalFiduciaryConsent" required>
+                                    <span class="checkmark"></span>
+                                    I consent to my executor accessing hardware wallets, software wallets, password managers, encrypted devices, and online exchange accounts as necessary for estate administration. <span class="required-indicator">*</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Attestation Section -->
+                        <div class="compliance-section">
+                            <h3>Legal Attestation</h3>
+                            <p class="section-description">Confirm this document's legal status and relationship to your primary will.</p>
+                            
+                            <div class="form-group">
+                                <label for="primaryWillReference">Reference to Primary Will <span class="required-indicator">*</span></label>
+                                <input type="text" id="primaryWillReference" name="primaryWillReference" placeholder="e.g., 'Last Will and Testament dated January 15, 2025'" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="addendumAttestation" name="addendumAttestation" required>
+                                    <span class="checkmark"></span>
+                                    I attest that this Bitcoin Will Addendum is intended as an extension and supplement to my primary estate planning documents and should be read in conjunction with my primary will or trust. <span class="required-indicator">*</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Witness Requirements Section -->
+                        <div class="compliance-section">
+                            <h3>Witness Requirements</h3>
+                            <p class="section-description">Provide witness information for legal execution (required in most states).</p>
+                            
+                            <div class="witness-container">
+                                <h4>Witness 1</h4>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="witness1Name">Full Name <span class="required-indicator">*</span></label>
+                                        <input type="text" id="witness1Name" name="witness1Name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="witness1Address">Address <span class="required-indicator">*</span></label>
+                                        <input type="text" id="witness1Address" name="witness1Address" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="witness-container">
+                                <h4>Witness 2</h4>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="witness2Name">Full Name <span class="required-indicator">*</span></label>
+                                        <input type="text" id="witness2Name" name="witness2Name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="witness2Address">Address <span class="required-indicator">*</span></label>
+                                        <input type="text" id="witness2Address" name="witness2Address" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Notarization Section -->
+                        <div class="compliance-section">
+                            <h3>Notarization (Recommended)</h3>
+                            <p class="section-description">Notarization provides additional authentication and is recommended for digital asset wills.</p>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="notarizationRequested" name="notarizationRequested">
+                                    <span class="checkmark"></span>
+                                    I plan to have this document notarized for additional legal authentication
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="notaryInstructions">Notary Instructions <span class="optional-indicator">(Optional)</span></label>
+                                <textarea id="notaryInstructions" name="notaryInstructions" rows="3" placeholder="Special instructions for notarization or execution ceremony..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Tax Compliance Section -->
+                        <div class="compliance-section">
+                            <h3>Tax Compliance Planning</h3>
+                            <p class="section-description">Important tax considerations for Bitcoin estate planning.</p>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="taxComplianceAcknowledged" name="taxComplianceAcknowledged" required>
+                                    <span class="checkmark"></span>
+                                    I understand that my executor will need to obtain Bitcoin valuations at the date of death from verifiable sources (e.g., CoinGecko, exchange records) for tax reporting purposes. <span class="required-indicator">*</span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="taxFormsAcknowledged" name="taxFormsAcknowledged" required>
+                                    <span class="checkmark"></span>
+                                    I understand that Bitcoin transfers may require filing Form 8949, Schedule D, and Form 1040 for capital gains reporting, and potentially Form 8938 (FATCA) or FBAR for offshore accounts. <span class="required-indicator">*</span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="taxAdvisorInfo">Tax Professional Contact <span class="optional-indicator">(Optional)</span></label>
+                                <input type="text" id="taxAdvisorInfo" name="taxAdvisorInfo" placeholder="Name and contact information of tax advisor familiar with cryptocurrency">
+                            </div>
+                        </div>
+                        
+                        <!-- Platform Verification Section -->
+                        <div class="compliance-section">
+                            <h3>Exchange & Platform Verification</h3>
+                            <p class="section-description">Verify survivorship procedures for custodial accounts and exchanges.</p>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="exchangeTermsReviewed" name="exchangeTermsReviewed" required>
+                                    <span class="checkmark"></span>
+                                    I have reviewed (or will review) the Terms of Service for any exchanges or custodial platforms to ensure legal access and account control transfer is permitted upon death. <span class="required-indicator">*</span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="kycComplianceUnderstood" name="kycComplianceUnderstood" required>
+                                    <span class="checkmark"></span>
+                                    I understand that my executor may need to provide death certificates, identification, and court papers to comply with KYC/AML procedures when accessing exchange accounts. <span class="required-indicator">*</span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="exchangeList">Exchange/Platform List <span class="optional-indicator">(Optional)</span></label>
+                                <textarea id="exchangeList" name="exchangeList" rows="3" placeholder="List of exchanges or custodial platforms used (for executor reference - avoid account details)"></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Attorney Review Section -->
+                        <div class="compliance-section">
+                            <h3>Professional Legal Review</h3>
+                            <p class="section-description">Estate planning attorney consultation is strongly recommended for legal compliance.</p>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="attorneyReviewRequired" name="attorneyReviewRequired" required>
+                                    <span class="checkmark"></span>
+                                    I understand that this Bitcoin will addendum should be reviewed by a qualified estate planning attorney licensed in my jurisdiction before execution to ensure compliance with local laws. <span class="required-indicator">*</span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="legalAdviceDisclaimer" name="legalAdviceDisclaimer" required>
+                                    <span class="checkmark"></span>
+                                    I acknowledge that this service does not provide legal advice and that I am responsible for ensuring this document meets all legal requirements in my jurisdiction. <span class="required-indicator">*</span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="attorneyInfo">Estate Planning Attorney Contact <span class="optional-indicator">(Optional)</span></label>
+                                <input type="text" id="attorneyInfo" name="attorneyInfo" placeholder="Name and contact information of estate planning attorney">
+                            </div>
+                        </div>
+                        
+                        <!-- Maintenance & Updates Section -->
+                        <div class="compliance-section">
+                            <h3>Document Maintenance</h3>
+                            <p class="section-description">Regular review and updates are essential for effective estate planning.</p>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="annualReviewCommitment" name="annualReviewCommitment" required>
+                                    <span class="checkmark"></span>
+                                    I commit to reviewing and updating this Bitcoin will addendum annually or whenever my Bitcoin holdings, beneficiaries, or storage methods change significantly. <span class="required-indicator">*</span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="executorNotificationCommitment" name="executorNotificationCommitment" required>
+                                    <span class="checkmark"></span>
+                                    I will ensure my executor is aware of this Bitcoin will addendum and its location, and will provide them with necessary guidance for accessing my Bitcoin assets. <span class="required-indicator">*</span>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="reviewSchedule">Review Schedule <span class="optional-indicator">(Optional)</span></label>
+                                <select id="reviewSchedule" name="reviewSchedule">
+                                    <option value="">Select review frequency</option>
+                                    <option value="annually">Annually</option>
+                                    <option value="biannually">Every 6 months</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="major_changes">Only when major changes occur</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="prevStep(4)">← Previous</button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep(6)">Next: Review →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 6: Review -->
                     <div id="reviewTab" class="tab-content">
                         <h2>Review & Generate</h2>
-                        <p class="tab-description">Review your information and generate your Bitcoin will document.</p>
+                        <p class="tab-description">Review your information and generate your legally compliant Bitcoin will document.</p>
                         
                         <div id="reviewContent" class="review-content">
                             <!-- Review content will be populated by JavaScript -->
                         </div>
                         
                         <div class="form-actions">
-                            <button type="button" class="btn btn-outline" onclick="prevStep(4)">← Previous</button>
+                            <button type="button" class="btn btn-outline" onclick="prevStep(5)">← Previous</button>
                             <button type="submit" class="btn btn-primary btn-large">Generate Bitcoin Will</button>
                         </div>
                     </div>

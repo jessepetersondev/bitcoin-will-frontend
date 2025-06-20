@@ -3248,3 +3248,154 @@ p {
     }
 }
 
+
+/* Legal Compliance Styling */
+.compliance-section {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.compliance-section h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.section-description {
+    color: #5a6c7d;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.witness-container {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.witness-container h4 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 8px;
+}
+
+/* Checkbox styling for compliance */
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 12px;
+    margin-top: 2px;
+    transform: scale(1.2);
+    accent-color: #F7931A;
+}
+
+.checkbox-label .checkmark {
+    flex: 1;
+    color: #2c3e50;
+}
+
+/* Required indicator for checkboxes */
+.checkbox-label .required-indicator {
+    color: #e74c3c;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+/* Compliance section spacing */
+.compliance-section:last-child {
+    margin-bottom: 0;
+}
+
+/* Enhanced form styling for legal sections */
+.compliance-section .form-group {
+    margin-bottom: 20px;
+}
+
+.compliance-section .form-grid {
+    gap: 15px;
+}
+
+/* Legal compliance validation styling */
+.compliance-section .field-error {
+    border: 2px solid #e74c3c !important;
+    background-color: rgba(231, 76, 60, 0.1) !important;
+    box-shadow: 0 0 5px rgba(231, 76, 60, 0.3) !important;
+}
+
+
+/* Security Warning Styling */
+.security-warning {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    border: 2px solid #F7931A;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(247, 147, 26, 0.1);
+}
+
+.security-warning h3 {
+    color: #d68910;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.security-warning p {
+    color: #856404;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.security-warning ul {
+    color: #856404;
+    margin: 0;
+    padding-left: 20px;
+}
+
+.security-warning li {
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+/* Privacy Notice Styling */
+.privacy-notice {
+    background: #e8f4fd;
+    border: 1px solid #bee5eb;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.privacy-notice h4 {
+    color: #0c5460;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.privacy-notice p {
+    color: #0c5460;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
