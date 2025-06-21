@@ -694,8 +694,7 @@ function hideWillCreator() {
 }
 
 function updateProgressBar() {
-    const steps = document.querySelectorAll('.progress-step');
-    steps.forEach((step, index) => {
+    document.querySelectorAll('.progress-step').forEach((step, index) => {
         const stepNumber = index + 1;
         step.classList.remove('active', 'completed');
         
@@ -714,12 +713,12 @@ function showStep(stepNumber) {
     });
     
     // Show selected tab
-    const tabs = ['personal', 'assets', 'beneficiaries', 'instructions', 'compliance', 'review'];
+    const tabs = ['personal', 'assets', 'beneficiaries', 'instructions', 'review'];
     const tabId = tabs[stepNumber - 1] + 'Tab';
     document.getElementById(tabId).classList.add('active');
     
     // Update review content if on review step
-    if (stepNumber === 6) {
+    if (stepNumber === 5) {
         updateReviewContent();
     }
 }

@@ -3400,169 +3400,110 @@ p {
 }
 
 
-/* Step Indicator Styling */
-.step-indicator {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 2rem 0;
-    padding: 0 1rem;
-    position: relative;
-}
-
-.step-indicator::before {
-    content: '';
-    position: absolute;
-    top: 20px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background-color: #444444;
-    z-index: 1;
-}
-
-.step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    position: relative;
-    z-index: 2;
-    background: #1a1a1a;
-    padding: 0 1rem;
-}
-
-.step .step-number {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #444444;
-    color: #cccccc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.step.active .step-number {
-    background-color: #F7931A;
-    color: white;
-}
-
-.step.completed .step-number {
-    background-color: #FFB84D;
-    color: #1a1a1a;
-}
-
-.step .step-label {
-    font-size: 14px;
-    color: #cccccc;
-    font-weight: 500;
-    text-align: center;
-}
-
-.step.active .step-label {
-    color: #F7931A;
-    font-weight: 600;
-}
-
 /* Legal Compliance Text Visibility Fix */
-#legalTab {
-    color: #cccccc;
+#legalTab,
+#reviewTab {
+    color: #cccccc !important;
 }
 
 #legalTab h2,
 #legalTab h3,
-#legalTab h4 {
-    color: #ffffff;
+#legalTab h4,
+#reviewTab h2,
+#reviewTab h3,
+#reviewTab h4 {
+    color: #ffffff !important;
 }
 
-#legalTab .form-section h3 {
-    color: #ffffff;
+#legalTab .form-section h3,
+#reviewTab .form-section h3 {
+    color: #ffffff !important;
 }
 
-#legalTab .form-section p {
-    color: #cccccc;
+#legalTab .form-section p,
+#reviewTab .form-section p {
+    color: #cccccc !important;
 }
 
-#legalTab .checkbox-group label {
-    color: #cccccc;
+#legalTab .checkbox-group label,
+#reviewTab .checkbox-group label {
+    color: #cccccc !important;
 }
 
-#legalTab .form-group label {
-    color: #cccccc;
+#legalTab .form-group label,
+#reviewTab .form-group label {
+    color: #cccccc !important;
 }
 
-#legalTab .info-box {
-    background-color: #2a2a2a;
-    border: 1px solid #444444;
-    color: #cccccc;
+#legalTab .info-box,
+#reviewTab .info-box {
+    background-color: #2a2a2a !important;
+    border: 1px solid #444444 !important;
+    color: #cccccc !important;
 }
 
-#legalTab .info-box h4 {
-    color: #ffffff;
+#legalTab .info-box h4,
+#reviewTab .info-box h4 {
+    color: #ffffff !important;
 }
 
-#legalTab .security-warning {
-    background-color: #2a2a2a;
-    border-left: 4px solid #F7931A;
-    color: #cccccc;
+#legalTab .security-warning,
+#reviewTab .security-warning {
+    background-color: #2a2a2a !important;
+    border-left: 4px solid #F7931A !important;
+    color: #cccccc !important;
 }
 
-#legalTab .security-warning h4 {
-    color: #F7931A;
+#legalTab .security-warning h4,
+#reviewTab .security-warning h4 {
+    color: #F7931A !important;
 }
 
-/* Mobile Step Indicator Fixes */
-@media (max-width: 768px) {
-    .step-indicator {
-        margin-bottom: 2rem;
-        overflow-x: auto;
-        padding: 0 10px;
-        -webkit-overflow-scrolling: touch;
-        justify-content: flex-start;
-        gap: 1rem;
-    }
-    
-    .step {
-        min-width: 80px;
-        padding: 0 0.5rem;
-        flex-shrink: 0;
-    }
-    
-    .step .step-number {
-        width: 35px;
-        height: 35px;
-        font-size: 14px;
-    }
-    
-    .step .step-label {
-        font-size: 12px;
-        white-space: nowrap;
-    }
+#legalTab .form-section,
+#reviewTab .form-section {
+    background-color: #2a2a2a !important;
+    border: 1px solid #444444 !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+    border-radius: 8px !important;
 }
 
-@media (max-width: 480px) {
-    .step-indicator {
-        justify-content: flex-start;
-        gap: 10px;
-        padding: 0 5px;
-    }
-    
-    .step {
-        min-width: 70px;
-        padding: 0 0.25rem;
-    }
-    
-    .step .step-number {
-        width: 30px;
-        height: 30px;
-        font-size: 12px;
-    }
-    
-    .step .step-label {
-        font-size: 11px;
-    }
+#legalTab .form-section *,
+#reviewTab .form-section * {
+    color: #cccccc !important;
+}
+
+#legalTab .form-section h3,
+#legalTab .form-section h4,
+#reviewTab .form-section h3,
+#reviewTab .form-section h4 {
+    color: #ffffff !important;
+}
+
+/* Review section specific fixes */
+#reviewTab .review-section {
+    background-color: #2a2a2a !important;
+    border: 1px solid #444444 !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+    border-radius: 8px !important;
+}
+
+#reviewTab .review-section h3 {
+    color: #ffffff !important;
+}
+
+#reviewTab .review-section p,
+#reviewTab .review-section div,
+#reviewTab .review-section span {
+    color: #cccccc !important;
+}
+
+#reviewTab .review-item {
+    color: #cccccc !important;
+}
+
+#reviewTab .review-item strong {
+    color: #ffffff !important;
 }
 

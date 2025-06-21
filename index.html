@@ -326,32 +326,28 @@
                 <button class="btn btn-outline" onclick="hideWillCreator()">
                     ← Back to Dashboard
                 </button>
-                               <div class="step-indicator">
-                            <div class="step active" data-step="1">
-                                <span class="step-number">1</span>
-                                <span class="step-label">Personal</span>
-                            </div>
-                            <div class="step" data-step="2">
-                                <span class="step-number">2</span>
-                                <span class="step-label">Assets</span>
-                            </div>
-                            <div class="step" data-step="3">
-                                <span class="step-number">3</span>
-                                <span class="step-label">Beneficiaries</span>
-                            </div>
-                            <div class="step" data-step="4">
-                                <span class="step-number">4</span>
-                                <span class="step-label">Instructions</span>
-                            </div>
-                            <div class="step" data-step="5">
-                                <span class="step-number">5</span>
-                                <span class="step-label">Legal</span>
-                            </div>
-                            <div class="step" data-step="6">
-                                <span class="step-number">6</span>
-                                <span class="step-label">Review</span>
-                            </div>
-                        </div>
+                <div class="progress-bar">
+                    <div class="progress-step active" data-step="1">
+                        <span class="step-number">1</span>
+                        <span class="step-label">Personal</span>
+                    </div>
+                    <div class="progress-step" data-step="2">
+                        <span class="step-number">2</span>
+                        <span class="step-label">Assets</span>
+                    </div>
+                    <div class="progress-step" data-step="3">
+                        <span class="step-number">3</span>
+                        <span class="step-label">Beneficiaries</span>
+                    </div>
+                    <div class="progress-step" data-step="4">
+                        <span class="step-number">4</span>
+                        <span class="step-label">Instructions</span>
+                    </div>
+                    <div class="progress-step" data-step="5">
+                        <span class="step-number">5</span>
+                        <span class="step-label">Review</span>
+                    </div>
+                </div>
                         
                         <form id="willForm" class="will-form">
                     <!-- Step 1: Personal Information -->
@@ -560,14 +556,14 @@
                         
                         <div class="form-actions">
                             <button type="button" class="btn btn-outline" onclick="prevStep(3)">← Previous</button>
-                            <button type="button" class="btn btn-primary" onclick="nextStep(5)">Next: Legal Compliance →</button>
+                            <button type="button" class="btn btn-primary" onclick="nextStep(5)">Next: Review →</button>
                         </div>
                     </div>
 
-                    <!-- Step 5: Legal Compliance -->
-                    <div id="complianceTab" class="tab-content">
-                        <h2>Legal Compliance & Execution</h2>
-                        <p class="tab-description">Complete the legal requirements for your Bitcoin will addendum.</p>
+                    <!-- Step 5: Review -->
+                    <div id="reviewTab" class="tab-content">
+                        <h2>Review Your Bitcoin Will</h2>
+                        <p class="tab-description">Review all information before generating your will document.</p>
                         
                         <!-- RUFADAA Compliance Section -->
                         <div class="compliance-section">
@@ -779,22 +775,7 @@
                         
                         <div class="form-actions">
                             <button type="button" class="btn btn-outline" onclick="prevStep(4)">← Previous</button>
-                            <button type="button" class="btn btn-primary" onclick="nextStep(6)">Next: Review →</button>
-                        </div>
-                    </div>
-
-                    <!-- Step 6: Review -->
-                    <div id="reviewTab" class="tab-content">
-                        <h2>Review & Generate</h2>
-                        <p class="tab-description">Review your information and generate your legally compliant Bitcoin will document.</p>
-                        
-                        <div id="reviewContent" class="review-content">
-                            <!-- Review content will be populated by JavaScript -->
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-outline" onclick="prevStep(5)">← Previous</button>
-                            <button type="submit" class="btn btn-primary btn-large">Generate Bitcoin Will</button>
+                            <button type="button" class="btn btn-primary" onclick="generateWill()">Generate Bitcoin Will</button>
                         </div>
                     </div>
                 </form>
