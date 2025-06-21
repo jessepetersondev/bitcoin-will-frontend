@@ -887,6 +887,12 @@ function updateReviewContent() {
     const formData = new FormData(document.getElementById('willForm'));
     const reviewContent = document.getElementById('reviewContent');
     
+    // Check if reviewContent element exists
+    if (!reviewContent) {
+        console.warn('reviewContent element not found');
+        return;
+    }
+    
     // Personal Information
     const personalInfo = {
         title: formData.get('title'),
