@@ -2114,3 +2114,38 @@ function addLegalWarningToStep(stepNumber) {
         }
     }
 }
+// Generate Will Function
+function generateWill() {
+    // Validate all form fields before submission
+    if (!validateCurrentStep()) {
+        showAlert('Please complete all required fields before generating your will.', 'error');
+        return;
+    }
+    
+    // Check if user is logged in
+    if (!currentUser) {
+        showAuthModal('login');
+        return;
+    }
+    
+    // Check subscription status
+    if (!userSubscription || !userSubscription.active) {
+        showSubscriptionModal();
+        return;
+    }
+    
+    // Get the form element and trigger submit event
+    const willForm = document.getElementById('willForm');
+    if (willForm) {
+        // Create and dispatch a submit event
+        const submitEvent = new Event('submit', {
+            bubbles: true,
+            cancelable: true
+        });
+        willForm.dispatchEvent(submitEvent);
+    } else {
+        console.error('Will form not found');
+        showAlert('Form not found. Please refresh the page and try again.', 'error');
+    }
+}
+
