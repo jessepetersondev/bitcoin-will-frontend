@@ -3298,25 +3298,32 @@ p {
     padding-bottom: 8px;
 }
 
-/* Checkbox styling for compliance */
+/* Checkbox styling for compliance - Table approach for proper inline alignment */
 .checkbox-label {
-    display: flex;
-    align-items: flex-start;
+    display: table;
+    width: 100%;
     cursor: pointer;
     margin-bottom: 15px;
     line-height: 1.5;
+    table-layout: fixed;
 }
 
 .checkbox-label input[type="checkbox"] {
-    margin-right: 12px;
+    display: table-cell;
+    width: 20px;
+    margin: 0;
     margin-top: 2px;
     transform: scale(1.2);
     accent-color: #F7931A;
+    vertical-align: top;
+    padding-right: 12px;
 }
 
 .checkbox-label .checkmark {
-    flex: 1;
+    display: table-cell;
     color: #2c3e50;
+    vertical-align: top;
+    word-wrap: break-word;
 }
 
 /* Required indicator for checkboxes */
