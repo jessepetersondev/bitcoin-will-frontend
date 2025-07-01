@@ -859,6 +859,9 @@ p {
     padding: 2rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
     border: 1px solid #444444;
+    max-width: 864px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .progress-bar {
@@ -933,10 +936,16 @@ p {
 
 .tab-content {
     display: none;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .tab-content.active {
     display: block;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .tab-content h2 {
