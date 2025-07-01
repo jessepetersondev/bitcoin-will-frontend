@@ -3532,3 +3532,50 @@ p {
     color: #ffffff !important;
 }
 
+
+/* Specific width fixes for narrow tabs to match assetsTab and reviewTab */
+#personalTab,
+#beneficiariesTab,
+#instructionsTab {
+    max-width: 800px !important;
+    width: 800px !important;
+    margin: 0 auto !important;
+    min-width: 800px !important;
+}
+
+#personalTab.tab-content,
+#beneficiariesTab.tab-content,
+#instructionsTab.tab-content {
+    max-width: 800px !important;
+    width: 800px !important;
+    margin: 0 auto !important;
+    min-width: 800px !important;
+}
+
+#personalTab.tab-content.active,
+#beneficiariesTab.tab-content.active,
+#instructionsTab.tab-content.active {
+    max-width: 800px !important;
+    width: 800px !important;
+    margin: 0 auto !important;
+    min-width: 800px !important;
+}
+
+/* Force width on any child containers that might be constraining */
+#personalTab > *,
+#beneficiariesTab > *,
+#instructionsTab > * {
+    max-width: 100% !important;
+}
+
+/* Ensure form containers don't constrain width */
+#personalTab .form-container,
+#beneficiariesTab .form-container,
+#instructionsTab .form-container,
+#personalTab .will-form,
+#beneficiariesTab .will-form,
+#instructionsTab .will-form {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
