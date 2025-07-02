@@ -3533,107 +3533,49 @@ p {
 }
 
 
-/* Specific width fixes for narrow tabs to match assetsTab and reviewTab - Enhanced specificity */
-.will-creator-content #personalTab,
-.will-creator-content #beneficiariesTab,
-.will-creator-content #instructionsTab {
+/* Specific width fixes for narrow tabs to match assetsTab and reviewTab */
+#personalTab,
+#beneficiariesTab,
+#instructionsTab {
     max-width: 800px !important;
-    width: 100% !important;
+    width: 800px !important;
     margin: 0 auto !important;
-    min-width: auto !important;
+    min-width: 800px !important;
 }
 
-.will-creator-content #personalTab.tab-content,
-.will-creator-content #beneficiariesTab.tab-content,
-.will-creator-content #instructionsTab.tab-content {
+#personalTab.tab-content,
+#beneficiariesTab.tab-content,
+#instructionsTab.tab-content {
     max-width: 800px !important;
-    width: 100% !important;
+    width: 800px !important;
     margin: 0 auto !important;
-    min-width: auto !important;
+    min-width: 800px !important;
 }
 
-.will-creator-content #personalTab.tab-content.active,
-.will-creator-content #beneficiariesTab.tab-content.active,
-.will-creator-content #instructionsTab.tab-content.active {
+#personalTab.tab-content.active,
+#beneficiariesTab.tab-content.active,
+#instructionsTab.tab-content.active {
     max-width: 800px !important;
-    width: 100% !important;
+    width: 800px !important;
     margin: 0 auto !important;
-    min-width: auto !important;
-}
-
-/* Additional specificity for desktop screens */
-@media (min-width: 851px) {
-    .will-creator-content #personalTab,
-    .will-creator-content #beneficiariesTab,
-    .will-creator-content #instructionsTab,
-    .will-creator-content #personalTab.tab-content,
-    .will-creator-content #beneficiariesTab.tab-content,
-    .will-creator-content #instructionsTab.tab-content,
-    .will-creator-content #personalTab.tab-content.active,
-    .will-creator-content #beneficiariesTab.tab-content.active,
-    .will-creator-content #instructionsTab.tab-content.active {
-        width: 800px !important;
-        max-width: 800px !important;
-        min-width: 800px !important;
-    }
+    min-width: 800px !important;
 }
 
 /* Force width on any child containers that might be constraining */
-.will-creator-content #personalTab > *,
-.will-creator-content #beneficiariesTab > *,
-.will-creator-content #instructionsTab > * {
+#personalTab > *,
+#beneficiariesTab > *,
+#instructionsTab > * {
     max-width: 100% !important;
 }
 
 /* Ensure form containers don't constrain width */
-.will-creator-content #personalTab .form-container,
-.will-creator-content #beneficiariesTab .form-container,
-.will-creator-content #instructionsTab .form-container,
-.will-creator-content #personalTab .will-form,
-.will-creator-content #beneficiariesTab .will-form,
-.will-creator-content #instructionsTab .will-form {
+#personalTab .form-container,
+#beneficiariesTab .form-container,
+#instructionsTab .form-container,
+#personalTab .will-form,
+#beneficiariesTab .will-form,
+#instructionsTab .will-form {
     max-width: 100% !important;
     width: 100% !important;
-}
-
-/* Responsive adjustments for smaller screens */
-@media (max-width: 850px) {
-    .will-creator-content #personalTab,
-    .will-creator-content #beneficiariesTab,
-    .will-creator-content #instructionsTab,
-    .will-creator-content #personalTab.tab-content,
-    .will-creator-content #beneficiariesTab.tab-content,
-    .will-creator-content #instructionsTab.tab-content,
-    .will-creator-content #personalTab.tab-content.active,
-    .will-creator-content #beneficiariesTab.tab-content.active,
-    .will-creator-content #instructionsTab.tab-content.active {
-        max-width: calc(100vw - 40px) !important;
-        width: calc(100vw - 40px) !important;
-        margin: 0 auto !important;
-        padding-left: 20px !important;
-        padding-right: 20px !important;
-        box-sizing: border-box !important;
-        min-width: auto !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .will-creator-content #personalTab,
-    .will-creator-content #beneficiariesTab,
-    .will-creator-content #instructionsTab,
-    .will-creator-content #personalTab.tab-content,
-    .will-creator-content #beneficiariesTab.tab-content,
-    .will-creator-content #instructionsTab.tab-content,
-    .will-creator-content #personalTab.tab-content.active,
-    .will-creator-content #beneficiariesTab.tab-content.active,
-    .will-creator-content #instructionsTab.tab-content.active {
-        max-width: calc(100vw - 20px) !important;
-        width: calc(100vw - 20px) !important;
-        margin: 0 auto !important;
-        padding-left: 10px !important;
-        padding-right: 10px !important;
-        box-sizing: border-box !important;
-        min-width: auto !important;
-    }
 }
 
